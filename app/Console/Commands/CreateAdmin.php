@@ -41,7 +41,7 @@ class CreateAdmin extends Command
         $pass = $this->secret("Enter Your password");
 
         if ($username == "promesse" and $pass== 1234) {
-            $this->info("successfully logged in");
+            $this->info("successfully logged in.");
         }
         else{
             $this->error("ypu are not allowed");
