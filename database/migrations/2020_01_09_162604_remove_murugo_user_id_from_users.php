@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectsTable extends Migration
+class RemoveMurugoUserIdFromUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateProjectsTable extends Migration
      */
     public function up()
     {
-        Schema::create('projects', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string("name");
-            $table->boolean("active")->default(1);
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn("murugo_user_id");
         });
     }
 
@@ -28,6 +25,8 @@ class CreateProjectsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('projects');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string("murugo_user_id")->after('email');
+        });
     }
 }

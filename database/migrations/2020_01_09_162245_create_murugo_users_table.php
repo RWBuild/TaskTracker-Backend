@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectsTable extends Migration
+class CreateMurugoUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateProjectsTable extends Migration
      */
     public function up()
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('murugo_users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string("name");
-            $table->boolean("active")->default(1);
+            $table->string("murugo_user_id");
+            $table->integer("user_id")->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ class CreateProjectsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('murugo_users');
     }
 }
