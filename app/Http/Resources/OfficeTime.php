@@ -14,6 +14,10 @@ class OfficeTime extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'check_in' => $this->checkin_time,
+            'check_out' => $this->checkout_time,
+        ];
     }
 }
