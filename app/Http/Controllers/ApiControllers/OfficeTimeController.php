@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\ApiControllers;
 
 use App\OfficeTime;
 use Illuminate\Http\Request;

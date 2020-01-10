@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\ApiControllers;
 
-use App\Location;
+use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-
-class LocationController extends Controller
+class RecordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -43,10 +42,10 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Location  $location
+     * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
-    public function show(Location $location)
+    public function show(Record $record)
     {
         //
     }
@@ -54,10 +53,10 @@ class LocationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Location  $location
+     * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
-    public function edit(Location $location)
+    public function edit(Record $record)
     {
         //
     }
@@ -66,10 +65,10 @@ class LocationController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Location  $location
+     * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Location $location)
+    public function update(Request $request, Record $record)
     {
         //
     }
@@ -77,10 +76,10 @@ class LocationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Location  $location
+     * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Location $location)
+    public function destroy(Record $record)
     {
         //
     }

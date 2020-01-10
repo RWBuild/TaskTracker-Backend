@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\ApiControllers;
 
-use App\Role;
+use App\Location;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class RoleController extends Controller
+
+class LocationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -42,10 +43,10 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Role  $role
+     * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */
-    public function show(Role $role)
+    public function show(Location $location)
     {
         //
     }
@@ -53,10 +54,10 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Role  $role
+     * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */
-    public function edit(Role $role)
+    public function edit(Location $location)
     {
         //
     }
@@ -65,10 +66,10 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Role  $role
+     * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, Location $location)
     {
         //
     }
@@ -76,10 +77,10 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Role  $role
+     * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Role $role)
+    public function destroy(Location $location)
     {
         //
     }
