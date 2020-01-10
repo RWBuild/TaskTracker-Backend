@@ -15,7 +15,7 @@ class CreateEntriesTable extends Migration
     {
         Schema::create('entries', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer("task_id");
+            $table->integer("record_id");
             $table->string("entry_type");
             $table->time("entry_time");
             $table->time("entry_duration");

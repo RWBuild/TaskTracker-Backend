@@ -18,6 +18,7 @@ class CreateOfficeTimesTable extends Migration
             $table->time("checkin_time");
             $table->time("checkout_time");
             $table->time("duration");
+            $table->time("user_id");
             $table->timestamps();
         });
     }

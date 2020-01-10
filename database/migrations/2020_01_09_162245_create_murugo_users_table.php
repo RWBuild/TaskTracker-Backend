@@ -15,7 +15,7 @@ class CreateMurugoUsersTable extends Migration
     {
         Schema::create('murugo_users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string("murugo_user_id");
+            $table->string("murugo_user_id")->unique();
             $table->integer("user_id")->nullable();
             $table->timestamps();
         });
