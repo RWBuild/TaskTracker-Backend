@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Record;
 use Illuminate\Http\Request;
-use App\Http\Resources\Resources\RecordCollection;
-use App\Http\Resources\Resources\Record as RecordResource;
+use App\Http\Resources\RecordCollection;
+use App\Http\Resources\Record as RecordResource;
 
 
 class RecordController extends Controller
@@ -61,7 +61,7 @@ class RecordController extends Controller
      */
     public function show(Record $record)
     {
-        return new RecordResource($resource);
+        return new RecordResource($record);
     }
 
     /**

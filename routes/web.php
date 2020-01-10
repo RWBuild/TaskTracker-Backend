@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::resource("records","ApiControllers\RecordController");
+Route::resource("projects","ApiControllers\ProjectController");
+Route::resource("entries","ApiControllers\EntryController");
