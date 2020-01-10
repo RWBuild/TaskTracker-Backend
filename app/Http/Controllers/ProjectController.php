@@ -27,7 +27,13 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        $this->validate($request,[
+            'user_id'=> 'integer|required',
+            'name'=>'string|required'
+        ]);
+
+        $project = Project::create($request->all());
+        return new ProjectResource($project);
     }
 
     /**
