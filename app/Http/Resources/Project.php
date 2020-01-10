@@ -19,7 +19,7 @@ class Project extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'active' => $this->active,
-            'records' => new RecordResource($this->records),
+            // 'records' => new RecordResource($this->records),
         ];
     }
 }

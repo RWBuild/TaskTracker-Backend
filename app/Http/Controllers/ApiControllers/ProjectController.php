@@ -6,7 +6,7 @@ use App\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectCollection;
-use App\Http\Resources\Project as ProjectdResource;
+use App\Http\Resources\Project as ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -79,7 +79,6 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $this->validate($request,[
-            'user_id'=> 'integer|required',
             'name'=>'string|required'
         ]);
 
