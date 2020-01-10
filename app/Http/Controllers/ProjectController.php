@@ -89,8 +89,7 @@ class ProjectController extends Controller
         return response ([
             'status' => true,
             'message' => 'Project Updated Successfully',
-            'project' => new ProjetResource($project),
-
+            'project' => new ProjetResource($project)
         ]);
     }
 
@@ -102,6 +101,6 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        $project->delete($project);
     }
 }
