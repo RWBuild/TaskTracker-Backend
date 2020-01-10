@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Entry;
 use Illuminate\Http\Request;
+use App\Http\Resources\ApiResources\EntryCollection;
+use App\Http\Resources\ApiResources\Entry as EntryResource;
 
 class EntryController extends Controller
 {
@@ -14,7 +16,8 @@ class EntryController extends Controller
      */
     public function index()
     {
-        //
+        $entries = Entry::all();
+        return new EntryCollection($entries);
     }
 
     /**
@@ -24,7 +27,7 @@ class EntryController extends Controller
      */
     public function create()
     {
-        //
+    
     }
 
     /**
@@ -35,7 +38,16 @@ class EntryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate([
+            'record_id',
+            'entry_type',
+            'entry_time',
+            'entry_duration'
+        ]);
+        
+        $entry = Entry::create($request->all());
+        return EntryResource($entry);
+
     }
 
     /**
@@ -46,7 +58,7 @@ class EntryController extends Controller
      */
     public function show(Entry $entry)
     {
-        //
+        return new EntryResource($entry);
     }
 
     /**
@@ -69,7 +81,20 @@ class EntryController extends Controller
      */
     public function update(Request $request, Entry $entry)
     {
-        //
+        $this->validate([
+            'record_id',
+            'entry_type',
+            'entry_time',
+            'entry_duration'
+        ]);
+        
+        $entry = update($request->all());
+        $entry = Entry::find($request_>id);
+        return response([ 
+            'status' => true,
+            'message' => 'entry updated successfully',
+            'entry' => new EntryResource($entry)
+        ]);
     }
 
     /**
@@ -80,6 +105,6 @@ class EntryController extends Controller
      */
     public function destroy(Entry $entry)
     {
-        //
+        $entry->delete($entry);
     }
 }
