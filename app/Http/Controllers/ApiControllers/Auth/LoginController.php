@@ -7,6 +7,7 @@ use App\MurugoUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\User as UserResource;
 
 class LoginController extends Controller
 {
@@ -53,7 +54,7 @@ class LoginController extends Controller
        return response()->json([
            'success' => true,
            'message' => 'Successfully identified',
-           'user' => $user,
+           'user' => new UserResource($user),
            'access_token' => $generated_token->accessToken,
            'token_expires_at' => $generated_token->token->expires_at
        ]);
@@ -69,5 +70,10 @@ class LoginController extends Controller
             'success' => true,
             'message' => 'User successfully loged out'
         ]);
+    }
+
+    public function auth_user(Request $request) 
+    {
+        return new UserResource($request->user());
     }
 }
