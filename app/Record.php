@@ -16,7 +16,7 @@ class Record extends Model
          'is_paused', 
          'is_completed'
     ];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -27,9 +27,9 @@ class Record extends Model
         return $this->hasMany(Entry::class);
     }
 
-    public function projects()
+    public function project()
     {
-        return $this->hasMany(Project::class);
+        return $this->belongsTo(Project::class);
     }
     
 }
