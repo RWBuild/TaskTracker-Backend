@@ -5,6 +5,9 @@ namespace App\Http\Controllers\ApiControllers;
 use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RecordCollection;
+use App\Http\Resources\Record as RecordResource;
+
 
 class RecordController extends Controller
 {
