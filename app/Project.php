@@ -9,9 +9,9 @@ class Project extends Model
     protected $fillable = [
         'user_id', 'name'
     ];
-    public function record()
+    public function records()
     {
-        return $this->belongsTo(Record::class);
+        return $this->hasMany(Record::class);
     }
     
 }

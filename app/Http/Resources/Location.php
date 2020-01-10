@@ -3,9 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Record as RecordResource;
 
-class Project extends JsonResource
+class Location extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +15,9 @@ class Project extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'active' => $this->active,
-            'records' => new RecordResource($this->records),
+          'id' => $this->id,
+          'longitude' => $this->longitude,
+          'latitude' => $this->latitude,  
         ];
     }
 }
