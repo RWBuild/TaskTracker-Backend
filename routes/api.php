@@ -26,4 +26,4 @@ Route::group(['middleware' => ['auth:api']], function()
 
 Route::resource("records","ApiControllers\RecordController");
 Route::resource("projects","ApiControllers\ProjectController");
-Route::resource("entries","ApiControllers\EntryController");
+
