@@ -18,3 +18,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get("/login","ApiControllers\Auth\LoginController@login");
+Route::resource("records","ApiControllers\RecordController");
+Route::resource("projects","ApiControllers\ProjectController");
+Route::resource("entries","ApiControllers\EntryController");
+Route::get("users","ApiControllers\Auth\UserController");
+
