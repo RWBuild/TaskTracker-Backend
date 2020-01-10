@@ -15,7 +15,8 @@ class RecordController extends Controller
      */
     public function index()
     {
-        //
+        $records = Record::all();
+        return new RecordCollection($records);
     }
 
     /**
@@ -36,7 +37,18 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate([
+         'project_id', 
+         'user_id', 
+         'name', 
+         'description', 
+         'is_curent', 
+         'is_paused', 
+         'is_completed'
+        ]);
+        
+        $record = Record::create($request->all());
+        return new RecordResource($record);
     }
 
     /**
@@ -47,7 +59,7 @@ class RecordController extends Controller
      */
     public function show(Record $record)
     {
-        //
+        return new RecordResource($resource);
     }
 
     /**
@@ -70,7 +82,23 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        //
+        $this->validate([
+            'project_id', 
+            'user_id', 
+            'name', 
+            'description', 
+            'is_curent', 
+            'is_paused', 
+            'is_completed'
+            ]);
+        $record->update($request->all());
+        $record = Record::find($request->id);
+        
+        return response([
+                'status' => true,
+                'message' => 'record added successfully',
+                'record' => new RecordResource($record)
+            ]);
     }
 
     /**
@@ -81,6 +109,6 @@ class RecordController extends Controller
      */
     public function destroy(Record $record)
     {
-        //
+        $record->delete($record);
     }
 }
