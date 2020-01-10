@@ -6,6 +6,7 @@ use App\User;
 use App\MurugoUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -41,6 +42,10 @@ class LoginController extends Controller
                 'email' => $request->email,
                 'avatar' => $request->avatar
            ]);
+
+           $murugo_user->user_id = $user->id;
+           $murugo_user->save();
+
        }
 
        $generated_token = $user->createToken('authToken');
@@ -53,5 +58,16 @@ class LoginController extends Controller
            'token_expires_at' => $generated_token->token->expires_at
        ]);
        
+    }
+
+
+    public function logout() 
+    {
+        Auth::user()->AauthAcessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User successfully loged out'
+        ]);
     }
 }
