@@ -40,7 +40,6 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'user_id'=> 'integer|required',
             'name'=>'string|required'
         ]);
 
