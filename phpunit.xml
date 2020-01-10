@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <phpunit backupGlobals="false"
+=======
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         backupGlobals="false"
+>>>>>>> 74fe34cd676d2fd4dfa44bf5eab2bb74ffdb7029
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
          colors="true"
@@ -26,6 +32,11 @@
         <server name="APP_ENV" value="testing"/>
         <server name="BCRYPT_ROUNDS" value="4"/>
         <server name="CACHE_DRIVER" value="array"/>
+<<<<<<< HEAD
+=======
+        <server name="DB_CONNECTION" value="sqlite"/>
+        <server name="DB_DATABASE" value=":memory:"/>
+>>>>>>> 74fe34cd676d2fd4dfa44bf5eab2bb74ffdb7029
         <server name="MAIL_DRIVER" value="array"/>
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
