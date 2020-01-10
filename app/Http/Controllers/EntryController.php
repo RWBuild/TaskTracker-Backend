@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Entry;
 use Illuminate\Http\Request;
-use App\Http\Resources\ApiResources\EntryCollection;
-use App\Http\Resources\ApiResources\Entry as EntryResource;
+use App\Http\Resources\Resources\EntryCollection;
+use App\Http\Resources\Resources\Entry as EntryResource;
 
 class EntryController extends Controller
 {
