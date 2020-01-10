@@ -17,7 +17,7 @@ class CreateLocationsTable extends Migration
             $table->bigIncrements('id');
             $table->double("longitude");
             $table->double("latitude");
-            $table->integer("radius");
+            $table->float("radius");
             $table->timestamps();
         });
     }

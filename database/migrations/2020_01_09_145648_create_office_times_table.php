@@ -17,7 +17,7 @@ class CreateOfficeTimesTable extends Migration
             $table->bigIncrements('id');
             $table->time("checkin_time");
             $table->time("checkout_time");
-            $table->time("duration")->nullable;
+            $table->time("duration")->nullable();
             $table->time("user_id");
             $table->timestamps();
         });
