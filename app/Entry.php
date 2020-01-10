@@ -6,10 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Entry extends Model
 {
-    public function record()
-    {
-        return $this->belongsTo(Record::class);
-    }
     protected $fillable = [
         'id',
         'record_id',
@@ -17,5 +13,10 @@ class Entry extends Model
         'entry_time',
         'entry_duration'
     ];
+    public function record()
+    {
+        return $this->belongsTo(Record::class);
+    }
+    
 
 }
