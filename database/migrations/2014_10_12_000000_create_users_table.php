@@ -17,12 +17,8 @@ class CreateUsersTable extends Migration
             $table->bigIncrements('id');
             $table->string('names');
             $table->string('email')->unique();
-            $table->integer('murugo_user_id')->unique();
             $table->string('avatar');
             $table->boolean('has_checked')->default(0)->comment("to check if the user has checked in");
-            // $table->timestamp('email_verified_at')->nullable();
-            // $table->string('password');
-            //$table->rememberToken();
             $table->timestamps();
         });
     }
