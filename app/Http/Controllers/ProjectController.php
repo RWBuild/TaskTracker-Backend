@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Project;
 use Illuminate\Http\Request;
+use App\Http\Resources\ApiResources\ProjectCollection;
+use App\Http\Resources\ApiResources\Project as ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -14,7 +16,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $projects = Project::all();
+        return new projectCollection($projects);
     }
 
     /**
@@ -35,7 +38,7 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
     }
 
     /**
