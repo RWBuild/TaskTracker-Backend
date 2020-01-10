@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-class UsersTableSeeder extends Seeder
+class UserTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -34,7 +34,6 @@ class UsersTableSeeder extends Seeder
 
            $i++;
         }
-
         
     }
 }
