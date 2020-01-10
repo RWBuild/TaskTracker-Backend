@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Project;
 use Illuminate\Http\Request;
-use App\Http\Resources\Resources\ProjectCollection;
-use App\Http\Resources\Resources\Project as ProjectResource;
+use App\Http\Resources\ProjectCollection;
+use App\Http\Resources\Project as ProjectResource;
 
 class ProjectController extends Controller
 {
