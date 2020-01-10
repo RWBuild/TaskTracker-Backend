@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Project;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProjectCollection;
-use App\Http\Resources\Project as ProjectdResource;
+use App\Http\Resources\Project as ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -17,7 +17,7 @@ class ProjectController extends Controller
     public function index()
     {
         $projects = Project::all();
-        return new projectCollection($projects);
+        return new ProjectCollection($projects);
     }
 
     /**
@@ -39,7 +39,6 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'user_id'=> 'integer|required',
             'name'=>'string|required'
         ]);
 
@@ -79,7 +78,6 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $this->validate($request,[
-            'user_id'=> 'integer|required',
             'name'=>'string|required'
         ]);
 
