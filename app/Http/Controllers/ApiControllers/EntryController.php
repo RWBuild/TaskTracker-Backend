@@ -14,7 +14,8 @@ class EntryController extends Controller
      */
     public function index()
     {
-        //
+        $entries = Entry::all();
+        return new EntryCollection($entries);
     }
 
     /**
@@ -24,7 +25,7 @@ class EntryController extends Controller
      */
     public function create()
     {
-        //
+    
     }
 
     /**
@@ -35,27 +36,36 @@ class EntryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate([
+            'record_id',
+            'entry_type',
+            'entry_time',
+            'entry_duration'
+        ]);
+        
+        $entry = Entry::create($request->all());
+        return EntryResource($entry);
+
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Entry  $entry
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Entry $entry)
     {
-        //
+        return new EntryResource($entry);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Entry  $entry
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Entry $entry)
     {
         //
     }
@@ -64,22 +74,35 @@ class EntryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Entry  $entry
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Entry $entry)
     {
-        //
+        $this->validate([
+            'record_id',
+            'entry_type',
+            'entry_time',
+            'entry_duration'
+        ]);
+        
+        $entry = update($request->all());
+        $entry = Entry::find($request_>id);
+        return response([ 
+            'status' => true,
+            'message' => 'entry updated successfully',
+            'entry' => new EntryResource($entry)
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Entry  $entry
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Entry $entry)
     {
-        //
+        $entry->delete($entry);
     }
 }
