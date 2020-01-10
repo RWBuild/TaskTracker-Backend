@@ -13,5 +13,10 @@ class Entry extends Model
         'entry_time',
         'entry_duration'
     ];
+    public function record()
+    {
+        return $this->belongsTo(Record::class);
+    }
+    
 
 }
