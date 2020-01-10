@@ -44,7 +44,7 @@ class EntryController extends Controller
         ]);
         
         $entry = Entry::create($request->all());
-        return EntryResource($entry);
+        return new EntryResource($entry);
 
     }
 
