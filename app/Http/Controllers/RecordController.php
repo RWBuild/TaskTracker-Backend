@@ -39,7 +39,7 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
          'project_id', 
          'user_id', 
          'name', 
@@ -50,7 +50,11 @@ class RecordController extends Controller
         ]);
         
         $record = Record::create($request->all());
-        return new RecordResource($record);
+        return response ([
+            'status' => true,
+            'record' => $record,
+            'message' => 'new record is added successfully'
+        ]);
     }
 
     /**
@@ -84,7 +88,7 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate([
+        $this->validate($request,[
             'project_id', 
             'user_id', 
             'name', 

@@ -44,7 +44,11 @@ class ProjectController extends Controller
         ]);
 
         $project = Project::create($request->all());
-        return new ProjectResource($project);
+        return response ([
+            'status' => true,
+            'project' => new ProjectResource($project),
+            'message' => 'new project created successfully'
+        ]);
     }
 
     /**
@@ -88,7 +92,7 @@ class ProjectController extends Controller
         return response ([
             'status' => true,
             'message' => 'Project Updated Successfully',
-            'project' => new ProjetResource($project)
+            'project' => new ProjectResource($project)
         ]);
     }
 
@@ -101,5 +105,10 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete($project);
+        return response([
+            'status' => true,
+            'message' => 'project deleted successfully'
+
+        ]);
     }
 }

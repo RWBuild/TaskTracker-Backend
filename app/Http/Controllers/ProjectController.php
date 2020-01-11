@@ -43,7 +43,11 @@ class ProjectController extends Controller
         ]);
 
         $project = Project::create($request->all());
-        return new ProjectResource($project);
+        return response ([
+            'status' => true,
+            'project' => new ProjectResource($project),
+            'message' => 'new project created successfully'
+        ]);
     }
 
     /**
@@ -78,7 +82,8 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $this->validate($request,[
-            'name'=>'string|required'
+            'name' => 'string|required',
+            'active'
         ]);
 
         $project->update($request->all());
@@ -87,7 +92,7 @@ class ProjectController extends Controller
         return response ([
             'status' => true,
             'message' => 'Project Updated Successfully',
-            'project' => new ProjetResource($project)
+            'project' => new ProjectResource($project)
         ]);
     }
 

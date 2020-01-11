@@ -39,7 +39,7 @@ class EntryController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
             'record_id',
             'entry_type',
             'entry_time',
@@ -82,7 +82,7 @@ class EntryController extends Controller
      */
     public function update(Request $request, Entry $entry)
     {
-        $this->validate([
+        $this->validate($request,[
             'record_id',
             'entry_type',
             'entry_time',
