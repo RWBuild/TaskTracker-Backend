@@ -40,7 +40,7 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
          'project_id', 
          'user_id', 
          'name', 
@@ -85,7 +85,7 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate([
+        $this->validate($request,[
             'project_id', 
             'user_id', 
             'name', 
