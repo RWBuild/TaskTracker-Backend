@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Record;
 use Illuminate\Http\Request;
-use App\Http\Resources\Resources\RecordCollection;
-use App\Http\Resources\Resources\Record as RecordResource;
+use App\Http\Resources\RecordCollection;
+use App\Http\Resources\Record as RecordResource;
 
 
 class RecordController extends Controller
@@ -39,7 +39,7 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
          'project_id', 
          'user_id', 
          'name', 
@@ -50,7 +50,11 @@ class RecordController extends Controller
         ]);
         
         $record = Record::create($request->all());
-        return new RecordResource($record);
+        return response ([
+            'status' => true,
+            'record' => $record,
+            'message' => 'new record is added successfully'
+        ]);
     }
 
     /**
@@ -61,7 +65,7 @@ class RecordController extends Controller
      */
     public function show(Record $record)
     {
-        return new RecordResource($resource);
+        return new RecordResource($record);
     }
 
     /**
@@ -84,7 +88,7 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate([
+        $this->validate($request,[
             'project_id', 
             'user_id', 
             'name', 

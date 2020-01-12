@@ -5,6 +5,9 @@ namespace App\Http\Controllers\ApiControllers;
 use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RecordCollection;
+use App\Http\Resources\Record as RecordResource;
+
 
 class RecordController extends Controller
 {
@@ -37,7 +40,7 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
          'project_id', 
          'user_id', 
          'name', 
@@ -82,7 +85,7 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate([
+        $this->validate($request,[
             'project_id', 
             'user_id', 
             'name', 

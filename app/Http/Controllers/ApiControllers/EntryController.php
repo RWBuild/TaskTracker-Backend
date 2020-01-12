@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+use App\Entry;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EntryCollection;
+use App\Http\Resources\Entry as EntryResource;
 
 class EntryController extends Controller
 {
@@ -36,7 +39,7 @@ class EntryController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request,[
             'record_id',
             'entry_type',
             'entry_time',
@@ -79,7 +82,7 @@ class EntryController extends Controller
      */
     public function update(Request $request, Entry $entry)
     {
-        $this->validate([
+        $this->validate($request,[
             'record_id',
             'entry_type',
             'entry_time',

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Location;
 use Illuminate\Http\Request;
+use App\Http\Resources\LocationCollection;
+use App\Http\Resources\Location as LocationResource;
+
 
 class LocationController extends Controller
 {
@@ -14,7 +17,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -24,7 +27,7 @@ class LocationController extends Controller
      */
     public function create()
     {
-        //
+        return view('location.createLocation');
     }
 
     /**
@@ -35,7 +38,14 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate([
+        'longitude' ,
+        'latitude' ,
+        'radius' 
+        ]);
+
+        $location = Location::create($request->all());
+        return $location;
     }
 
     /**
@@ -46,7 +56,7 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
-        //
+        return new LocationResource($location);
     }
 
     /**
