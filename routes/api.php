@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth:api']], function()
     //Records
     Route::resource("records","ApiControllers\RecordController");
     Route::get("/record-by-status/{status}","ApiControllers\RecordController@recordByStatus");
+    Route::get("/user-record-by-status/{status}","ApiControllers\RecordController@userRecordByStatus");
 
     //Projects
     Route::resource("projects","ApiControllers\ProjectController");
