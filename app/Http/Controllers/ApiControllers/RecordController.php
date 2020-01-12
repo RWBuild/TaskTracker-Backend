@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\RecordCollection;
 use App\Http\Resources\Record as RecordResource;
 
+
 class RecordController extends Controller
 {
     /**
@@ -61,9 +62,9 @@ class RecordController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'record created',
+        
         ]);
     }
-
     /**
      * Display the specified resource.
      *
@@ -95,15 +96,7 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate([
-            'project_id', 
-            'user_id', 
-            'name', 
-            'description', 
-            'is_curent', 
-            'is_paused', 
-            'is_completed'
-            ]);
+       
         $record->update($request->all());
         $record = Record::find($request->id);
         

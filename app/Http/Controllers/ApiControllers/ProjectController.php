@@ -5,9 +5,8 @@ namespace App\Http\Controllers\ApiControllers;
 use App\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Project as ProjectResource;
 use App\Http\Resources\ProjectCollection;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Project as ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -40,18 +39,15 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'name' => 'required|string|',
-            ]);
-
-        $project = new Project([
-            'name' => $request->name,
+        $this->validate($request,[
+            'name'=>'string|required'
         ]);
 
-        $project->save();
-        return response()->json([
-            'success' => true,
-            'message' => 'project created',
+        $project = Project::create($request->all());
+        return response ([
+            'status' => true,
+            'project' => new ProjectResource($project),
+            'message' => 'new project created successfully'
         ]);
     }
 
@@ -87,7 +83,6 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $this->validate($request,[
-            'user_id'=> 'integer|required',
             'name'=>'string|required'
         ]);
 
@@ -110,5 +105,10 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete($project);
+        return response([
+            'status' => true,
+            'message' => 'project deleted successfully'
+
+        ]);
     }
 }
