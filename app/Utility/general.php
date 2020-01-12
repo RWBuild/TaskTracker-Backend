@@ -1,22 +1,18 @@
 
 <?php
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
-
-function vincentyGreatCircleDistance(
-  $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000)
+function user() 
 {
-  // convert from degrees to radians
-  $latFrom = deg2rad($latitudeFrom);
-  $lonFrom = deg2rad($longitudeFrom);
-  $latTo = deg2rad($latitudeTo);
-  $lonTo = deg2rad($longitudeTo);
+  return Auth::user();
+}
 
-  $lonDelta = $lonTo - $lonFrom;
-  $a = pow(cos($latTo) * sin($lonDelta), 2) +
-    pow(cos($latFrom) * sin($latTo) - sin($latFrom) * cos($latTo) * cos($lonDelta), 2);
-  $b = sin($latFrom) * sin($latTo) + cos($latFrom) * cos($latTo) * cos($lonDelta);
-
-  $angle = atan2(sqrt($a), $b);
-  return $angle * $earthRadius;//distance from pointA to pointB in meters
+function diffTime($from_time, $to_time,  $format='%YY-MM-dD %H:%I:%S')
+{
+  $from_time = Carbon::parse($from_time);
+  $to_time = Carbon::parse($to_time);
+  $totalDuration = $from_time->diff($to_time)->format($format);
+  return $totalDuration ;
 }
