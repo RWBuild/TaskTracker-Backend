@@ -21,10 +21,9 @@ Route::group(['middleware' => ['auth:api']], function()
     
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
     Route::get("/logout","ApiControllers\Auth\LoginController@logout");
+    Route::resource("records","ApiControllers\RecordController");
 
 });
 
-Route::resource("records","ApiControllers\RecordController");
 Route::resource("projects","ApiControllers\ProjectController");
 Route::resource("entries","ApiControllers\EntryController");
-Route::get("users","ApiControllers\Auth\UserController");

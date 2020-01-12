@@ -5,6 +5,9 @@ namespace App\Http\Controllers\ApiControllers;
 use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\RecordCollection;
+use App\Http\Resources\Record as RecordResource;
 
 class RecordController extends Controller
 {
@@ -37,18 +40,28 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
-         'project_id', 
-         'user_id', 
-         'name', 
-         'description', 
-         'is_curent', 
-         'is_paused', 
-         'is_completed'
+        $user = Auth::user()->id;
+        $is_checked = Auth::user()->has_checked;
+        $this->validate($request,[
+            'project_id'=>'integer|required',
+            'name'=>'string|required'
         ]);
-        
-        $record = Record::create($request->all());
-        return new RecordResource($record);
+        if($is_checked == 0)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'checkin first',
+            ]);
+        }
+        $record = Record::create([
+            'name' => $request->name,
+            'project_id' => $request->project_id,
+            'user_id' => $user,
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'record created',
+        ]);
     }
 
     /**
@@ -110,5 +123,10 @@ class RecordController extends Controller
     public function destroy(Record $record)
     {
         $record->delete($record);
+    }
+
+    public function record_by_type($type)
+    {
+        
     }
 }
