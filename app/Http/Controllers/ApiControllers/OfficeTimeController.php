@@ -2,83 +2,108 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+
+use Carbon\Carbon;
 use App\OfficeTime;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OfficeTimeCollection;
+use App\Http\Resources\OfficeTime as OfficeTimeResource;
 
 class OfficeTimeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+   public function __construct()
+   {
+       $this->middleware('checkin_validator')->only('store');
+   }
+
     public function index()
     {
-        //
+        $office_times = user()->office_times;
+        return new OfficeTimeCollection($office_times);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        //
+        $user = user();
+        $officeTime = $user->office_times()->create([
+            'checkin_time' => $request->checkin_time,
+            'has_checked_in' => true
+        ]);
+
+        $user->update(['has_checked' => true]);
+
+        return response([
+            'success' => true,
+            'message' => 'successfully checked in',
+            'office_time' => new OfficeTimeResource($officeTime)
+        ]);
+       
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\OfficeTime  $officeTime
-     * @return \Illuminate\Http\Response
-     */
+
     public function show(OfficeTime $officeTime)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\OfficeTime  $officeTime
-     * @return \Illuminate\Http\Response
-     */
+ 
     public function edit(OfficeTime $officeTime)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\OfficeTime  $officeTime
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, OfficeTime $officeTime)
+
+    public function update(Request $request, $id)
     {
-        //
+
+        $request->validate([
+            'checkout_time' => 'required|date'
+        ]);
+        
+        $user = user();
+        $officeTime = $user->office_times()->find($id);
+
+        if (!$officeTime) {
+            return response([
+                'success' => false,
+                'message' => 'Office time not found'
+            ]);
+        }
+       
+        if (!$user->has_checked and $officeTime->has_checked_out) {
+            return response([
+                'success' => false,
+                'message' => 'You have already checked out for today'
+            ]);
+        }
+
+        $officeTime->duration = diffTime($officeTime->checkin_time,$request->checkout_time,'%H:%I');
+        $officeTime->has_checked_out = true;
+        $officeTime->checkout_time = $request->checkout_time;
+        $officeTime->save();
+       
+        $user->update(['has_checked' => false]);
+
+        $officeTime = OfficeTime::find($officeTime->id);
+
+        return response([
+            'success' => true,
+            'message' => 'successfully checked out',
+            'office_time' => new OfficeTimeResource($officeTime)
+        ]);
+     
+        
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\OfficeTime  $officeTime
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(OfficeTime $officeTime)
     {
         //

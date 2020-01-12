@@ -17,8 +17,8 @@ class CreateEntriesTable extends Migration
             $table->bigIncrements('id');
             $table->integer("record_id");
             $table->string("entry_type");
-            $table->time("entry_time");
-            $table->time("entry_duration");
+            $table->dateTime("entry_time");
+            $table->dateTime("entry_duration");
             $table->timestamps();
         });
     }

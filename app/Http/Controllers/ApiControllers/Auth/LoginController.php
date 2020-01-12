@@ -64,7 +64,7 @@ class LoginController extends Controller
 
     public function logout() 
     {
-        Auth::user()->AauthAcessToken()->delete();
+        user()->AauthAcessToken()->delete();
 
         return response()->json([
             'success' => true,
@@ -72,8 +72,8 @@ class LoginController extends Controller
         ]);
     }
 
-    public function auth_user(Request $request) 
+    public function auth_user() 
     {
-        return new UserResource($request->user());
+        return new UserResource(user());
     }
 }

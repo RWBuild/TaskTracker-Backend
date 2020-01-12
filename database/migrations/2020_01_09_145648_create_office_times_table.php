@@ -15,10 +15,10 @@ class CreateOfficeTimesTable extends Migration
     {
         Schema::create('office_times', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->time("checkin_time");
-            $table->time("checkout_time");
-            $table->time("duration")->nullable();
-            $table->time("user_id");
+            $table->dateTime("checkin_time");
+            $table->dateTime("checkout_time")->nullable();
+            $table->string("duration")->nullable();
+            $table->integer("user_id");
             $table->timestamps();
         });
     }
