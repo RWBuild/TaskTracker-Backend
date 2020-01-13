@@ -23,6 +23,7 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
+    // display the current,opened and finished records of all users
     public function recordByStatus(Request $request,$recordStatus) 
     {
         $records = [];
@@ -61,6 +62,22 @@ class RecordController extends Controller
     //     return new RecordCollection($records);
     // }
 
+    public function searchRecord(Request $request)
+    {
+        $this->validate($request, [
+            'record_value' => "required"
+        ]);
+
+        $records = Record::where('name','like','%'.$request->record_value.'%')
+        ->orWhere('start_date',$request->record_value)
+        ->get();
+
+        return response([
+            'success' => true,
+            'records' => new RecordCollection($records)
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -80,7 +97,7 @@ class RecordController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user()->id;
-        $is_checked = Auth::user()->has_checked;
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'project_id'=>'integer|required',
             'name'=>'string|required',
