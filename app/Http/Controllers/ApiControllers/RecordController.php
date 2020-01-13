@@ -18,6 +18,8 @@ class RecordController extends Controller
      * @return \Illuminate\Http\Response
      */
     protected $knownTypes = ['current', 'open', 'complete'];
+
+    //returning a list of all records
     public function index()
     {
         $records = Record::all();
@@ -56,6 +58,8 @@ class RecordController extends Controller
         ]);
     }
 
+
+    //search a record by name or date
     public function searchRecord(Request $request)
     {
         $this->validate($request, [
@@ -88,6 +92,8 @@ class RecordController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     //creating a new record
     public function store(Request $request)
     {
         $user = Auth::user()->id;
@@ -105,7 +111,6 @@ class RecordController extends Controller
                 'message' => 'checkin first',
             ]);
         }
-        // return $request->all();
         $record = Record::create([
             'name' => $request->name,
             'project_id' => $request->project_id,
@@ -148,6 +153,8 @@ class RecordController extends Controller
      * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
+
+     //updating a record
     public function update(Request $request, Record $record)
     {
        
@@ -157,7 +164,7 @@ class RecordController extends Controller
             'start_date' => 'required',
             'start_time' => 'required',
         ));
-        // return $request->all();
+
         $record->update([
             'project_id' => $request->project_id,
             'name' => $request->name,
@@ -177,6 +184,8 @@ class RecordController extends Controller
      * @param  \App\Record  $record
      * @return \Illuminate\Http\Response
      */
+
+     //deleting a record
     public function destroy(Record $record)
     {
         $record->delete($record);
@@ -186,6 +195,7 @@ class RecordController extends Controller
         ]);
     }
 
+    //view opened,current and completed records of an authenticated user
     public function userRecordByType($recordType)
     {
 
