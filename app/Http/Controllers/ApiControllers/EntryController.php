@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ApiControllers;
 
 use App\Entry;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -40,14 +41,81 @@ class EntryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'record_id',
-            'entry_type',
-            'entry_time',
-            'entry_duration'
+            'record_id'=>'integer|required',
+            'entry_type'=>'string|required',
         ]);
-        
-        $entry = Entry::create($request->all());
-        return new EntryResource($entry);
+
+        if($request->entry_type == 'start')
+        {
+            $entry = Entry::create([
+                'record_id' => $request->record_id,
+                'entry_type' => $request->entry_type,
+            ]);
+            return response()->json([
+                'success' => true,
+                'entry' => new EntryResource($entry),
+            ]);
+        }
+
+        else if($request->entry_type == 'pause')
+        {
+            $entry = new Entry([
+                'record_id' => $request->record_id,
+                'entry_type' => $request->entry_type,
+            ]);
+            $entry->save();
+            $id = $entry->id;
+            $id2 = $id - 1;
+            $current_time = new Carbon(Entry::find($id)->entry_time); 
+            $previous_time = new Carbon(Entry::find($id2)->entry_time);
+            $duration = $current_time->diff($previous_time)->format('%H:%I:%S');
+            $entry->update([
+                'entry_duration' => $duration,
+            ]);
+            return response()->json([
+                'success' => true,
+                'entry' => new EntryResource($entry),
+            ]);
+
+
+        }
+        else if($request->entry_type == 'resume')
+        {
+            $entry = Entry::create([
+                'record_id' => $request->record_id,
+                'entry_type' => $request->entry_type,
+            ]);
+            return response()->json([
+                'success' => true,
+                'entry' => new EntryResource($entry),
+            ]);
+        }
+
+        else if($request->entry_type == 'end')
+        {
+            $entry = new Entry([
+                'record_id' => $request->record_id,
+                'entry_type' => $request->entry_type,
+            ]);
+            $entry->save();
+            $id = $entry->id;
+            $id2 = $id - 1;
+            $current_time = new Carbon(Entry::find($id)->entry_time); 
+            $previous_time = new Carbon(Entry::find($id2)->entry_time);
+            $duration = $current_time->diff($previous_time)->format('%H:%I:%S');
+            $entry->update([
+                'entry_duration' => $duration,
+            ]);
+            return response()->json([
+                'success' => true,
+                'entry' => new EntryResource($entry),
+            ]);
+        }
+
+        else
+        {
+            return 'invalid request';
+        }
 
     }
 
@@ -90,7 +158,7 @@ class EntryController extends Controller
         ]);
         
         $entry = update($request->all());
-        $entry = Entry::find($request_>id);
+        $entry = Entry::find($request->id);
         return response([ 
             'status' => true,
             'message' => 'entry updated successfully',
