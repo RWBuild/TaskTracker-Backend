@@ -64,7 +64,18 @@ class RecordController extends Controller
 
     public function searchRecord(Request $request)
     {
-        $this->validate();
+        $this->validate($request, [
+            'record_value' => "required"
+        ]);
+
+        $records = Record::where('name','like','%'.$request->record_value.'%')
+        ->orWhere('start_date',$request->record_value)
+        ->get();
+
+        return response([
+            'success' => true,
+            'records' => new RecordCollection($records)
+        ]);
     }
 
     /**
@@ -86,7 +97,7 @@ class RecordController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user()->id;
-        $is_checked = Auth::user()->has_checked;
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'project_id'=>'integer|required',
             'name'=>'string|required',
