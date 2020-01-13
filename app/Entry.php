@@ -11,11 +11,11 @@ class Entry extends Model
         'record_id',
         'entry_type',
         'entry_time',
-        'entry_duration'
+        'entry_duration',
     ];
     public function record()
     {
-        //return $this->belongsTo(Record::class);
+        return $this->belongsTo(Record::class);
     }
     
 

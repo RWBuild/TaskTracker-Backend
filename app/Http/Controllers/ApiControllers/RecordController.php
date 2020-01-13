@@ -5,9 +5,10 @@ namespace App\Http\Controllers\ApiControllers;
 use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\RecordCollection;
 use App\Http\Resources\Record as RecordResource;
-
+use Illuminate\Support\Facades\Validator;
 
 class RecordController extends Controller
 {
@@ -40,25 +41,25 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
-    public function userRecordByStatus(Request $request,$recordStatus) 
-    {
-        $records = [];
-        $user = user();
-        if ($recordStatus=='current') {
-            $records = $user->records()->where('is_current',true)->first();
-            return new RecordResource($records);
-        }
+    // public function userRecordByStatus(Request $request,$recordStatus) 
+    // {
+    //     $records = [];
+    //     $user = user();
+    //     if ($recordStatus=='current') {
+    //         $records = $user->records()->where('is_current',true)->first();
+    //         return new RecordResource($records);
+    //     }
 
-        if ($recordStatus=='opened') {
-            $records = $user->records()->where('is_opened',true)->get();
-        }
+    //     if ($recordStatus=='opened') {
+    //         $records = $user->records()->where('is_opened',true)->get();
+    //     }
 
-        if ($recordStatus=='finished') {
-            $records = $user->records()->where('is_finished',true)->get();
-        }
+    //     if ($recordStatus=='finished') {
+    //         $records = $user->records()->where('is_finished',true)->get();
+    //     }
 
-        return new RecordCollection($records);
-    }
+    //     return new RecordCollection($records);
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -78,20 +79,35 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user()->id;
+        $is_checked = Auth::user()->has_checked;
         $this->validate($request,[
-         'project_id', 
-         'user_id', 
-         'name', 
-         'description', 
-         'is_curent', 
-         'is_paused', 
-         'is_completed'
+            'project_id'=>'integer|required',
+            'name'=>'string|required',
+            'start_date' => 'required',
+            'start_time' => 'required',
         ]);
-        
-        $record = Record::create($request->all());
-        return new RecordResource($record);
+        if($is_checked == 0)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'checkin first',
+            ]);
+        }
+        // return $request->all();
+        $record = Record::create([
+            'name' => $request->name,
+            'project_id' => $request->project_id,
+            'user_id' => $user,
+            'start_date' =>$request->start_date,
+            'start_time' =>$request->start_time,
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'record created',
+            'record' => new RecordResource($record),
+        ]);
     }
-
     /**
      * Display the specified resource.
      *
@@ -123,22 +139,24 @@ class RecordController extends Controller
      */
     public function update(Request $request, Record $record)
     {
-        $this->validate($request,[
-            'project_id', 
-            'user_id', 
-            'name', 
-            'description', 
-            'is_curent', 
-            'is_paused', 
-            'is_completed'
-            ]);
-        $record->update($request->all());
-        $record = Record::find($request->id);
-        
+       
+        $this->validate($request, array(
+            'project_id'=>'integer|required',
+            'name'=>'string|required',
+            'start_date' => 'required',
+            'start_time' => 'required',
+        ));
+        // return $request->all();
+        $record->update([
+            'project_id' => $request->project_id,
+            'name' => $request->name,
+            'start_date' =>$request->start_date,
+            'start_time' =>$request->start_time,
+        ]);
         return response([
                 'status' => true,
-                'message' => 'record added successfully',
-                'record' => new RecordResource($record)
+                'message' => 'record updated successfully',
+                'record' => new RecordResource($record),
             ]);
     }
 
@@ -151,5 +169,40 @@ class RecordController extends Controller
     public function destroy(Record $record)
     {
         $record->delete($record);
+        return response([
+            'status' => true,
+            'message' => 'record deleted successfully',
+        ]);
+    }
+
+    public function record_by_type($type)
+    {
+
+        if($type != 'open' && $type != 'current' && $type != 'completed')
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'invalid request',
+            ]);
+        }
+        
+        else if($type == 'current')
+        {
+            $record = Record::where('is_current',1)->first();
+            return new RecordResource($record);
+        }
+       
+        else if($type == 'open')
+        {
+            $record = Record::where('is_opened',1)->get();
+            return new RecordCollection($record);
+        }
+
+        else if($type == 'completed')
+        {
+            $record = Record::where('is_finished',1)->get();
+            return new RecordCollection($record);
+        }
+    
     }
 }
