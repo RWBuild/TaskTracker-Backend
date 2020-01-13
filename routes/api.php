@@ -22,9 +22,9 @@ Route::group(['middleware' => ['auth:api']], function()
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
     Route::get("/logout","ApiControllers\Auth\LoginController@logout");
     Route::resource("records","ApiControllers\RecordController");
-
+    Route::get("/records/record_by_type/{type}","ApiControllers\RecordController@record_by_type");
+    Route::resource("entries","ApiControllers\EntryController");
 });
 
 Route::resource("projects","ApiControllers\ProjectController");
-Route::resource("entries","ApiControllers\EntryController");
-Route::resource("entries","ApiControllers\EntryController");
+
