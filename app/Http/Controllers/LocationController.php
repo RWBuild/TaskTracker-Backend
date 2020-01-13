@@ -27,7 +27,7 @@ class LocationController extends Controller
      */
     public function create()
     {
-        return view('location.createLocation');
+
     }
 
     /**
