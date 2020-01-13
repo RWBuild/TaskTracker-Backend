@@ -8,13 +8,15 @@ class Record extends Model
 {
     protected $fillable = [
         'id',
-         'project_id', 
-         'user_id', 
-         'name', 
-         'description', 
-         'is_curent', 
-         'is_paused', 
-         'is_completed'
+        'name',
+        'is_current',    
+        'is_opened',
+        'is_finished',
+        'description',
+        'user_id', 
+        'project_id',
+        'start_date',
+        'start_time',
     ];
 
     public function user()
