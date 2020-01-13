@@ -23,6 +23,44 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
+    public function recordByStatus(Request $request,$recordStatus) 
+    {
+        $records = [];
+        if ($recordStatus=='current') {
+            $records = Record::where('is_current',true)->get();
+        }
+
+        if ($recordStatus=='opened') {
+            $records = Record::where('is_opened',true)->get();
+        }
+
+        if ($recordStatus=='finished') {
+            $records = Record::where('is_finished',true)->get();
+        }
+
+        return new RecordCollection($records);
+    }
+
+    // public function userRecordByStatus(Request $request,$recordStatus) 
+    // {
+    //     $records = [];
+    //     $user = user();
+    //     if ($recordStatus=='current') {
+    //         $records = $user->records()->where('is_current',true)->first();
+    //         return new RecordResource($records);
+    //     }
+
+    //     if ($recordStatus=='opened') {
+    //         $records = $user->records()->where('is_opened',true)->get();
+    //     }
+
+    //     if ($recordStatus=='finished') {
+    //         $records = $user->records()->where('is_finished',true)->get();
+    //     }
+
+    //     return new RecordCollection($records);
+    // }
+
     /**
      * Show the form for creating a new resource.
      *

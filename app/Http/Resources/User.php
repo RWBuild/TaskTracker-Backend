@@ -20,8 +20,8 @@ class User extends JsonResource
             'email' => $this->email,
             'avatar' => $this->avatar,
             'has_checked' => $this->has_checked,
-            'record' => RecordResource::collection($this->records),
-            'office_time' => OfficeTimeResource::collection($this->office_times),
+            //'records' => RecordResource::collection($this->records),
+            'office_times' => OfficeTimeResource::collection($this->office_times),
         ];
     }
 }
