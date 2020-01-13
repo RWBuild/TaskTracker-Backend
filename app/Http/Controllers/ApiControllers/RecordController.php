@@ -60,9 +60,9 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
-    public function searchRecord()
+    public function searchRecord(Request $request)
     {
-        
+        $this->validate();
     }
 
     /**
