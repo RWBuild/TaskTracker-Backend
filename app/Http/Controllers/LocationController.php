@@ -47,6 +47,7 @@ class LocationController extends Controller
         $location = Location::create($request->all());
         return $location;
     }
+    
 
     /**
      * Display the specified resource.
@@ -79,7 +80,7 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location)
     {
-        //
+        
     }
 
     /**

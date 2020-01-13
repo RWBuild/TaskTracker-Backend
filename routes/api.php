@@ -24,7 +24,7 @@ Route::group(['middleware' => ['auth:api']], function()
     Route::resource('users','ApiControllers\UserController');
 
     //Location
-    Route::get("/office-location","ApiControllers\LocationController@office_location");
+    Route::resource("/office-location","ApiControllers\LocationController@office_location");
 
     //user  Checkin and Checkout management
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
