@@ -23,6 +23,7 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
+    // display the current,opened and finished records of all users
     public function recordByStatus(Request $request,$recordStatus) 
     {
         $records = [];
