@@ -87,7 +87,7 @@ class ProjectController extends Controller
         ]);
 
         $project->update($request->all());
-        $project = Project::find($request->id);
+        $project = Project::find($project->id);
 
         return response ([
             'status' => true,
