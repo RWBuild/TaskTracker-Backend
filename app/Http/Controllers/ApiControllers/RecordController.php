@@ -60,6 +60,11 @@ class RecordController extends Controller
         return new RecordCollection($records);
     }
 
+    public function searchRecord()
+    {
+        
+    }
+
     /**
      * Show the form for creating a new resource.
      *
