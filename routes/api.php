@@ -25,14 +25,16 @@ Route::group(['middleware' => ['auth:api']], function()
 
     //Location
     Route::get("/office-location","ApiControllers\LocationController@office_location");
+    Route::resource("locations","ApiControllers\LocationController");
 
     //user  Checkin and Checkout management
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
 
     //Records
     Route::resource("records","ApiControllers\RecordController");
-    Route::get("/record-by-status/{status}","ApiControllers\RecordController@recordByStatus");
-    Route::get("/record_by_type/{type}","ApiControllers\RecordController@record_by_type");
+    Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
+    Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
+    Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
 
     //Projects
     Route::resource("projects","ApiControllers\ProjectController");

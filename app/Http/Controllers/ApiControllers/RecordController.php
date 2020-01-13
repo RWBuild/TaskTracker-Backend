@@ -17,49 +17,60 @@ class RecordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    protected $knownTypes = ['current', 'open', 'complete'];
     public function index()
     {
         $records = Record::all();
         return new RecordCollection($records);
     }
 
-    public function recordByStatus(Request $request,$recordStatus) 
+    // display the current,opened and finished records of all users
+    public function recordByType($recordType) 
     {
         $records = [];
-        if ($recordStatus=='current') {
+       
+        if (in_array($recordType, $this->knownTypes)==false) {
+           return response([
+               'success' => false,
+               'message' => 'the record type must be : current,open or complete '
+           ]);
+        }
+
+        if ($recordType=='current') {
             $records = Record::where('is_current',true)->get();
         }
 
-        if ($recordStatus=='opened') {
+        if ($recordType=='open') {
             $records = Record::where('is_opened',true)->get();
         }
 
-        if ($recordStatus=='finished') {
+        if ($recordType=='complete') {
             $records = Record::where('is_finished',true)->get();
         }
 
-        return new RecordCollection($records);
+
+
+        return response([
+            'success' => true,
+            'records' => new RecordCollection($records)
+        ]);
     }
 
-    // public function userRecordByStatus(Request $request,$recordStatus) 
-    // {
-    //     $records = [];
-    //     $user = user();
-    //     if ($recordStatus=='current') {
-    //         $records = $user->records()->where('is_current',true)->first();
-    //         return new RecordResource($records);
-    //     }
+    public function searchRecord(Request $request)
+    {
+        $this->validate($request, [
+            'record_value' => "required"
+        ]);
 
-    //     if ($recordStatus=='opened') {
-    //         $records = $user->records()->where('is_opened',true)->get();
-    //     }
+        $records = Record::where('name','like','%'.$request->record_value.'%')
+        ->orWhere('start_date',$request->record_value)
+        ->get();
 
-    //     if ($recordStatus=='finished') {
-    //         $records = $user->records()->where('is_finished',true)->get();
-    //     }
-
-    //     return new RecordCollection($records);
-    // }
+        return response([
+            'success' => true,
+            'records' => new RecordCollection($records)
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -80,7 +91,7 @@ class RecordController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user()->id;
-        $is_checked = Auth::user()->has_checked;
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'project_id'=>'integer|required',
             'name'=>'string|required',
@@ -175,34 +186,36 @@ class RecordController extends Controller
         ]);
     }
 
-    public function record_by_type($type)
+    public function userRecordByType($recordType)
     {
 
-        if($type != 'open' && $type != 'current' && $type != 'completed')
-        {
-            return response()->json([
+        if (in_array($recordType, $this->knownTypes)==false) {
+            return response([
                 'success' => false,
-                'message' => 'invalid request',
+                'message' => 'the record type must be : current,open or complete '
             ]);
-        }
+         }
+       $user = user();
         
-        else if($type == 'current')
+       if($recordType == 'current')
         {
-            $record = Record::where('is_current',1)->first();
+            $record = $user->records()->where('is_current',1)->first();
             return new RecordResource($record);
         }
+
+        $records = [];
        
-        else if($type == 'open')
+        if($recordType == 'open')
         {
-            $record = Record::where('is_opened',1)->get();
-            return new RecordCollection($record);
+            $records = $user->records()->where('is_opened',1)->get();
         }
 
-        else if($type == 'completed')
+        if($recordType == 'complete')
         {
-            $record = Record::where('is_finished',1)->get();
-            return new RecordCollection($record);
+            $records = $user->records()->where('is_finished',1)->get();
         }
+
+        return new RecordCollection($records);
     
     }
 }
