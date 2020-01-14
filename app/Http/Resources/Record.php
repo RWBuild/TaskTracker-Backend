@@ -22,10 +22,7 @@ class Record extends JsonResource
             'is_current' => $this->is_current,
             'is_opened' => $this->is_opened,
             'is_finished' => $this->is_finished,
-            'description' => $this->description,
-            //'user' => new UserResource($this->user),
-            // 'project' => new ProjectResource($this->project),
-            // 'entries' => new EntryResource($this->entries),
+            'description' => $this->description
         ];
     }
 }

@@ -287,6 +287,11 @@ class EntryController extends Controller
     public function destroy(Entry $entry)
     {
         $entry->delete($entry);
+
+        return response()->json([
+            'success' => true,
+            'entry' => 'entry deleted successfully',
+        ]);
     }
 
     public function SumationOfDuration($records)
