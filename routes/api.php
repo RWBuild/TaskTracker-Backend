@@ -42,6 +42,11 @@ Route::group(['middleware' => ['auth:api']], function()
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
 
+    Route::group(['middleware' => ['role:superadministrator']], function()
+    {
+        //Entries
+        Route::resource("roles","ApiControllers\RoleController");
+    });
 
 });
 
