@@ -61,6 +61,8 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'checkin_validator' => \App\Http\Middleware\CheckinValidator::class,
+        'role' => \Laratrust\Middleware\LaratrustRole::class,
+        'assign-role-checker' => \App\Http\Middleware\UserAndRoleChecker::class
     ];
 
     /**

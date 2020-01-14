@@ -39,13 +39,19 @@ class LocationController extends Controller
     
     public function store(Request $request)
     {
+        
         $this->validate($request,[
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
             'radius' => 'required|numeric'
         ]);
         
-        Location::truncate();//we delete every things from this table
+        if (Location::all()->count()> 0) {
+            return response([
+                'success' => false,
+                'message' => 'The office must have only one location.delete the current location first'
+            ]);
+        }
 
         $location = Location::create([
             'longitude' => $request->longitude,
