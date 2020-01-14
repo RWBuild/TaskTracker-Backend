@@ -18,7 +18,7 @@ class CreateEntriesTable extends Migration
             $table->integer("record_id");
             $table->string("entry_type");
             $table->dateTime("entry_time");
-            $table->dateTime("entry_duration");
+            $table->integer("entry_duration")->nullable();
             $table->timestamps();
         });
     }
