@@ -36,7 +36,7 @@ class LoginController extends Controller
            $this->validate($request,[
                'names' => 'required',
                'email' => 'required|email|unique:users',
-               'avatar' => 'required'
+               'avatar'
            ]);
            $user = User::create([
                 'names' => $request->names,

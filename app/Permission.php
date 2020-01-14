@@ -2,9 +2,9 @@
 
 namespace App;
 
-use Laratrust\Models\LaratrustRole;
+use Laratrust\Models\LaratrustPermission;
 
-class Role extends LaratrustRole
+class Permission extends LaratrustPermission
 {
     protected $fillable = [
         'name','display_name','description'

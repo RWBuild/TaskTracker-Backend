@@ -64,6 +64,8 @@ class Kernel extends HttpKernel
         'checkin_validator' => \App\Http\Middleware\CheckinValidator::class,
         'test-fred' => \App\Http\Middleware\AdMidd::class, 
         
+        'role' => \Laratrust\Middleware\LaratrustRole::class,
+        'assign-role-checker' => \App\Http\Middleware\UserAndRoleChecker::class
     ];
 
     /**
