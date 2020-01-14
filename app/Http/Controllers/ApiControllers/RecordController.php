@@ -96,7 +96,7 @@ class RecordController extends Controller
      //creating a new record
     public function store(Request $request)
     {
-        $user = Auth::user()->id;
+        $user = user();
         $is_checked = $user->has_checked;
         $this->validate($request,[
             'project_id'=>'integer|required',
@@ -114,7 +114,7 @@ class RecordController extends Controller
         $record = Record::create([
             'name' => $request->name,
             'project_id' => $request->project_id,
-            'user_id' => $user,
+            'user_id' => $user->id,
             'start_date' =>$request->start_date,
             'start_time' =>$request->start_time,
         ]);
