@@ -18,7 +18,7 @@ class VerifyAppKey
      */
     public function handle($request, Closure $next)
     {
-        $validator = Validator::make($request->all(),[
+        $request->validate([
             'client_id'=>'integer|required',
             'client_secret'=>'string|required',
         ]);
