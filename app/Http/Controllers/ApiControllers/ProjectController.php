@@ -40,7 +40,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects',
         ]);
 
         $project = Project::create($request->all());
@@ -83,7 +83,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects,name,'.$project->id
         ]);
 
         $project->update($request->all());

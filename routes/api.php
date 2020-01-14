@@ -36,18 +36,23 @@ Route::group(['middleware' => ['auth:api']], function()
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
     Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
 
+     //Projects
+     Route::resource("projects","ApiControllers\ProjectController")->only(['index']);
+
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
 
 
    //Routes for administrators on;y
-    Route::group(['prefix'=>'admin','middleware' => ['role:project manager']], function()
+    Route::group(['prefix'=>'admin'], function()
     {
         //Projects
-        Route::resource("projects","ApiControllers\ProjectController");
+        Route::resource("projects","ApiControllers\ProjectController")
+        ->middleware('role:project manager|superadministrator')->except(['index']);
         //Location
-        Route::resource("locations","ApiControllers\LocationController");
+        Route::resource("locations","ApiControllers\LocationController")
+        ->middleware('role:project manager|superadministrator');
     });
 
 
