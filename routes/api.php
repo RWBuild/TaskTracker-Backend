@@ -13,10 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::group(['prefix'=>'auth','middleware' => 'checkin_app_key:api'], function()
+{
+    // Route::resource("projects","ApiControllers\ProjectController");
+   Route::post("/login","ApiControllers\Auth\LoginController@login");
+});
 
-Route::post("/login","ApiControllers\Auth\LoginController@login");
-
-Route::group(['middleware' => ['auth:api']], function()
+Route::group(['middleware' => 'auth:api'], function()
 {
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
@@ -44,6 +47,7 @@ Route::group(['middleware' => ['auth:api']], function()
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
+    Route::get("summation/{records}","ApiControllers\EntryController@SumationOfDuration");
 
 
    //Routes for administrators on;y

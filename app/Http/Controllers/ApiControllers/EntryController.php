@@ -130,9 +130,11 @@ class EntryController extends Controller
                 $previous_time = ($entry->entry_time);
                 $current_time = ($new_entry->entry_time);
                 $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
-               
+                $parsed = date_parse($duration);
+                $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
+
                 $new_entry->update([
-                'entry_duration' => $duration,
+                'entry_duration' => $seconds,
                 ]);
                 
                 return response()->json([
@@ -204,9 +206,11 @@ class EntryController extends Controller
                 $previous_time = ($entry->entry_time);
                 $current_time = ($new_entry->entry_time);
                 $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
-               
+                $parsed = date_parse($duration);
+                $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
+
                 $new_entry->update([
-                'entry_duration' => $duration,
+                'entry_duration' => $seconds,
                 ]);
                 
                 return response()->json([
@@ -285,22 +289,11 @@ class EntryController extends Controller
         $entry->delete($entry);
     }
 
-    public function SumationOfDuration()
+    public function SumationOfDuration($records)
     {
-        $record = user()->records()->find($request->record_id);
-        $entry = $record->entries()->orderBy('id','desc')->first();
-        $durations = $entry->entry_duration;
-        return $durations;
-        $sumSeconds = 0;
-        foreach($durations as $duration) {
-            $explodedTime = explode(':', $duration);
-             $seconds = $explodedTime[0]*3600+$explodedTime[1]*60+$explodedTime[2];
-             $sumSeconds += $explodedTime;
-        }
-        $hours = floor($sumSeconds/3600);
-        $minutes = floor(($sumSeconds % 3600)/60);
-        $seconds = (($sumSeconds%3600)%60);
-        $sumTime = $hours.':'.$minutes.':'.$seconds;
-        return $sumTime;
+
+        $record = user()->records()->find($records);
+        $entries = $record->entries()->get();
+        return $entries->sum('entry_duration');
     }
 }
