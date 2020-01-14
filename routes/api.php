@@ -21,7 +21,7 @@ Route::group(['middleware' => ['auth:api']], function()
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
     Route::get("/logout","ApiControllers\Auth\LoginController@logout");
-    Route::resource('users','ApiControllers\UserController');
+    
 
     //Location
     Route::get("/office-location","ApiControllers\LocationController@office_location");
@@ -33,6 +33,8 @@ Route::group(['middleware' => ['auth:api']], function()
     //Records
     Route::resource("records","ApiControllers\RecordController");
     Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
+
+    //for authenticated user
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
     Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
 
@@ -45,14 +47,18 @@ Route::group(['middleware' => ['auth:api']], function()
 
 
    //Routes for administrators on;y
-    Route::group(['prefix'=>'admin'], function()
+    Route::group(['prefix'=>'admin','middleware' => ['role:project manager|superadministrator']], function()
     {
         //Projects
-        Route::resource("projects","ApiControllers\ProjectController")
-        ->middleware('role:project manager|superadministrator')->except(['index']);
+        Route::resource("projects","ApiControllers\ProjectController");
         //Location
-        Route::resource("locations","ApiControllers\LocationController")
-        ->middleware('role:project manager|superadministrator');
+        Route::resource("locations","ApiControllers\LocationController");
+
+        //Users
+        Route::resource('users','ApiControllers\UserController');
+
+        //Get current,open,complete record for a specific user
+        Route::get("/specific-user-record/{user_id}/{type}","ApiControllers\RecordController@specificUserRecord");
     });
 
 

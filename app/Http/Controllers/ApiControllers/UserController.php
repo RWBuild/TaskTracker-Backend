@@ -14,7 +14,10 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return new UserCollection($users);
+        return response([
+            'success' => true,
+            'users' => new UserCollection($users)
+        ]);
     }
 
 
@@ -32,7 +35,20 @@ class UserController extends Controller
 
     public function show($id)
     {
-        //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response([
+                'success' => true,
+                'message' => 'user not found'
+            ],404);          
+        }
+
+    
+        return response([
+            'success' => true,
+            'users' => new UserResource($user)
+        ]);
     }
 
 
