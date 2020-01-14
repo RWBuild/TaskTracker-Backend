@@ -25,7 +25,7 @@ Route::group(['middleware' => ['auth:api']], function()
 
     //Location
     Route::get("/office-location","ApiControllers\LocationController@office_location");
-    Route::resource("locations","ApiControllers\LocationController");
+    
 
     //user  Checkin and Checkout management
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
@@ -36,16 +36,33 @@ Route::group(['middleware' => ['auth:api']], function()
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
     Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
 
-    //Projects
-    Route::resource("projects","ApiControllers\ProjectController");
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
 
-    Route::group(['middleware' => ['role:superadministrator']], function()
+
+   //Routes for administrators on;y
+    Route::group(['prefix'=>'admin','middleware' => ['role:project manager']], function()
     {
-        //Entries
+        //Projects
+        Route::resource("projects","ApiControllers\ProjectController");
+        //Location
+        Route::resource("locations","ApiControllers\LocationController");
+    });
+
+
+    Route::group(['prefix'=>'admin','middleware' => ['role:superadministrator']], function()
+    {
+        //Roles
         Route::resource("roles","ApiControllers\RoleController");
+
+        //a route to assign a role to a user
+        Route::post("assign-role","ApiControllers\AdminController@attachRole")
+        ->middleware('assign-role-checker');
+
+        //a route to detach a role to a user
+        Route::post("unassign-role","ApiControllers\AdminController@detachRole")
+        ->middleware('assign-role-checker');
     });
 
 });
