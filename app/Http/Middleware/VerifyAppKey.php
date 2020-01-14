@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\OauthClient;
 use App\Http\Resources\AuthClient as AuthClientResource;
+use Illuminate\Support\Facades\Validator;
 
 class VerifyAppKey
 {
@@ -16,11 +18,11 @@ class VerifyAppKey
      */
     public function handle($request, Closure $next)
     {
-        $this->validate($request,[
-            'auth_client_id'=>'integer|required',
-            'auth_client_secret'=>'string|required',
+        $validator = Validator::make($request->all(),[
+            'client_id'=>'integer|required',
+            'client_secret'=>'string|required',
         ]);
-        $id = AuthClient::where('id',$request->auth_client_id);
+        $id = OauthClient::where('id',$request->client_id)->first();
         if(!$id)
         {
             return response()->json([
@@ -28,9 +30,8 @@ class VerifyAppKey
                 'message' => 'the auth client id does not exist',
             ]);
         }
-        $secret = new AuthClientResource($id);
-        $client_secret = $secret->secret;
-        if($client_secret != $request->auth_client_secret)
+        $secret = $id->secret;
+        if($secret != $request->client_secret)
         {
             return response()->json([
                 'success' => false,
