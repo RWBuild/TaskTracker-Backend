@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 
-Route::post("/login","ApiControllers\Auth\LoginController@login");
+Route::post("/login","ApiControllers\Auth\LoginController@login")->middleware('checkin_app_key');
 
 Route::group(['middleware' => ['auth:api']], function()
 {
@@ -41,7 +41,7 @@ Route::group(['middleware' => ['auth:api']], function()
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
-
+    Route::get("summation/{records}","ApiControllers\EntryController@SumationOfDuration");
 });
 
 
