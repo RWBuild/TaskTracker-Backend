@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Project as ProjectResource;
-use App\Http\Resources\Entry as EntryResource;
+use App\Http\Resources\EntryCollection;
 
 class Record extends JsonResource
 {
@@ -22,7 +22,10 @@ class Record extends JsonResource
             'is_current' => $this->is_current,
             'is_opened' => $this->is_opened,
             'is_finished' => $this->is_finished,
-            'description' => $this->description
+            'description' => $this->description,
+            'user' => new UserResource($this->user),
+            'project' => $this->when($this->project != null,new ProjectResource($this->project)),
+            'entries' => new EntryCollection($this->entries),
         ];
     }
 }

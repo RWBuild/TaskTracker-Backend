@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+use App\User;
 use App\Record;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\RecordCollection;
-use App\Http\Resources\Record as RecordResource;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Record as RecordResource;
 
 class RecordController extends Controller
  {
@@ -58,6 +59,53 @@ class RecordController extends Controller
         ] );
     }
 
+    //a function to provide : current , open and complete task of a specific user
+    public function specificUserRecord($user_id,$recordType) 
+    {
+        $records = [];
+        $user = User::findOrFail($user_id);
+       
+        if (in_array($recordType, $this->knownTypes)==false) {
+           return response([
+               'success' => false,
+               'message' => 'the record type must be : current,open or complete '
+           ]);
+        }
+
+        if ($recordType=='current') {
+            $record = $user->records()->where('is_current',true)->first();
+
+            if (!$record) {
+                return response([
+                    'success' => false,
+                    'message' => "User doesn't have any current task he is working on"
+                ],404);
+            }
+
+            return response([
+                'success' => true,
+                'record' => new RecordResource($record),
+                'user_names' =>  $user->names
+            ]);
+        }
+
+        if ($recordType=='open') {
+            $records = $user->records()->where('is_opened',true)->get();
+        }
+
+        if ($recordType=='complete') {
+            $records = $user->records()->where('is_finished',true)->get();
+        }
+
+
+
+        return response([
+            'success' => true,
+            'records' => new RecordCollection($records)
+        ]);
+    }
+
+
     //search a record by name or date
 
     public function searchRecord( Request $request )
@@ -103,7 +151,7 @@ class RecordController extends Controller
         $this->validate( $request, [
             'project_id'=>'integer|required',
             'name'=>'string|required',
-            'start_date' => 'required',
+            'start_date' => 'required|date',
             'start_time' => 'required',
         ] );
         if ( $is_checked == 0 )
@@ -124,7 +172,7 @@ class RecordController extends Controller
             'start_time' =>$request->start_time,
         ] );
         $record->save();
-        
+
         return response()->json( [
             'success' => true,
             'message' => 'record created',

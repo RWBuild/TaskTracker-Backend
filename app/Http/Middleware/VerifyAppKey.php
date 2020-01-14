@@ -27,7 +27,7 @@ class VerifyAppKey
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the auth client id does not exist',
+                'message' => 'Client request not identified',
             ]);
         }
         $secret = $id->secret;
@@ -35,7 +35,7 @@ class VerifyAppKey
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the auth client secret does not match',
+                'message' => 'Client request not identified',
             ]);
         }
         return $next($request);

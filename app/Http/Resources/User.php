@@ -21,7 +21,8 @@ class User extends JsonResource
             'avatar' => $this->avatar,
             'has_checked' => $this->has_checked,
             //'records' => RecordResource::collection($this->records),
-            'office_times' => OfficeTimeResource::collection($this->office_times),
+            //'office_times' => OfficeTimeResource::collection($this->office_times),
+            'roles' => $this->getRoles()
         ];
     }
 }
