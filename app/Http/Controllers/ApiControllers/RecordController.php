@@ -59,6 +59,7 @@ class RecordController extends Controller
         ]);
     }
 
+    //a function to provide : current , open and complete task of a specific user
     public function specificUserRecord($user_id,$recordType) 
     {
         $records = [];
@@ -147,7 +148,7 @@ class RecordController extends Controller
         $this->validate($request,[
             'project_id'=>'integer|required',
             'name'=>'string|required',
-            'start_date' => 'required',
+            'start_date' => 'required|date',
             'start_time' => 'required',
         ]);
         if($is_checked == 0)
