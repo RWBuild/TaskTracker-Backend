@@ -13,9 +13,8 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(['prefix'=>'auth','middleware' => 'checkin_app_key:api'], function()
+Route::group(['prefix'=>'auth','middleware' => 'checkin_app_key'], function()
 {
-    // Route::resource("projects","ApiControllers\ProjectController");
    Route::post("/login","ApiControllers\Auth\LoginController@login");
 });
 
