@@ -17,8 +17,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::all();
-        return new projectCollection($projects);
+        $projects = Project::where('active',1)->get();
+        return new ProjectCollection($projects);
     }
 
     /**
@@ -40,7 +40,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects',
         ]);
 
         $project = Project::create($request->all());
@@ -81,13 +81,13 @@ class ProjectController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Project $project)
-    {
+    {  
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects,name,'.$project->id
         ]);
 
         $project->update($request->all());
-        $project = Project::find($request->id);
+        $project = Project::find($project->id);
 
         return response ([
             'status' => true,
@@ -104,10 +104,12 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $project->delete($project);
+        $project->active = false;
+        $project->save();
+
         return response([
             'status' => true,
-            'message' => 'project deleted successfully'
+            'message' => 'project successfully deactivated'
 
         ]);
     }

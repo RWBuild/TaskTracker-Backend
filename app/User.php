@@ -7,10 +7,11 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laratrust\Traits\LaratrustUserTrait;
 
 class User extends Authenticatable
 {
-    use HasApiTokens,Notifiable;
+    use HasApiTokens,Notifiable,LaratrustUserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -58,8 +59,5 @@ class User extends Authenticatable
         return $this->hasOne(MurugoUser::class);
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class)->withPivot('user_role');
-    }
+
 }

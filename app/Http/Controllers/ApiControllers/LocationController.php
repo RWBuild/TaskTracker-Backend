@@ -19,6 +19,14 @@ class LocationController extends Controller
     public function office_location()
     {
         $location = Location::first();
+
+        if(!$location) {
+            return response([
+                'success' => false,
+                'message' => 'No location has been registered'
+            ]);
+        }
+
         return new LocationRessource($location);
     }
 
@@ -32,12 +40,36 @@ class LocationController extends Controller
     public function store(Request $request)
     {
         
+        $this->validate($request,[
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+            'radius' => 'required|numeric'
+        ]);
+        
+        if (Location::all()->count()> 0) {
+            return response([
+                'success' => false,
+                'message' => 'The office must have only one location.delete the current location first'
+            ]);
+        }
+
+        $location = Location::create([
+            'longitude' => $request->longitude,
+            'latitude' => $request->latitude,
+            'radius' => $request->radius
+        ]);
+
+        return response([
+            'success' => true,
+            'message' => 'Office location well created.',
+            'location' => new LocationRessource($location)
+        ]);
     }
 
     
     public function show(Location $location)
     {
-        //
+        
     }
 
     
@@ -48,12 +80,33 @@ class LocationController extends Controller
 
     public function update(Request $request, Location $location)
     {
-        //
+        $this->validate($request,[
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+            'radius' => 'required|numeric'
+        ]);
+
+        $location->update([
+            'longitude' => $request->longitude,
+            'latitude' => $request->latitude,
+            'radius' => $request->radius
+        ]);
+
+        return response([
+            'success' => true,
+            'message' => 'Office location well updated.',
+            'location' => new LocationRessource(Location::first())
+        ]);
     }
 
   
     public function destroy(Location $location)
     {
-        //
+        $location->delete();
+        return response([
+            'success' => true,
+            'message' => 'Office location well deleted.',
+        ]);
+
     }
 }
