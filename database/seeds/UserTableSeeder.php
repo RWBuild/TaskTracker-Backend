@@ -13,7 +13,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $murugo_user_list = explode(',',env('MURUGO_USER_SAMPLE'));
-        $user_names = ['doctor prodoo',"cedric", "fred geek","michecl yes","kevin lar"];
+        $user_names = ['doctor prodoo',"cedric", "fred geek","michecl yes"];
         $i = 0;
 
         foreach ($murugo_user_list as $murugo_user_id) {

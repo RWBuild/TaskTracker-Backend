@@ -3,6 +3,7 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 function user() 
 {
@@ -15,4 +16,9 @@ function diffTime($from_time, $to_time,  $format='%YY-MM-dD %H:%I:%S')
   $to_time = Carbon::parse($to_time);
   $totalDuration = $from_time->diff($to_time)->format($format);
   return $totalDuration ;
+}
+
+function str_toSlug($value)
+{
+  return Str::slug($value);
 }
