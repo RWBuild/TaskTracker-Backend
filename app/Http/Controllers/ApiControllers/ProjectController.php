@@ -17,7 +17,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::all();
+        $projects = Project::where('active',1)->get();
         return new ProjectCollection($projects);
     }
 
@@ -81,7 +81,7 @@ class ProjectController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Project $project)
-    {
+    {  
         $this->validate($request,[
             'name'=>'string|required|unique:projects,name,'.$project->id
         ]);
@@ -104,7 +104,9 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $project->delete();
+        $project->active = false;
+        $project->save();
+
         return response([
             'success' => true,
             'message' => 'project deleted successfully'

@@ -19,15 +19,18 @@ class VerifyAppKey
     public function handle($request, Closure $next)
     {
         $validator = Validator::make($request->all(),[
-            'client_id'=>'integer|required',
+            'client_id'=>'required|numeric',
             'client_secret'=>'string|required',
         ]);
         $id = OauthClient::where('id',$request->client_id)->first();
+        return response([
+            "ok" => $request->client_id
+        ]);
         if(!$id)
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the auth client id does not exist',
+                'message' => 'Client request not identified',
             ]);
         }
         $secret = $id->secret;
@@ -35,7 +38,7 @@ class VerifyAppKey
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the auth client secret does not match',
+                'message' => 'Client request not identified',
             ]);
         }
         return $next($request);

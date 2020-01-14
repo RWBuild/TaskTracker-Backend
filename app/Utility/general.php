@@ -4,6 +4,17 @@
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Route;
+
+
+function getRouteName() {
+    return Route::currentRouteName();
+}
+
+function isRouteName($routeName) {
+    return getRouteName() == $routeName;
+}
+
 
 function user() 
 {

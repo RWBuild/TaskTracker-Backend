@@ -25,6 +25,13 @@ class UserAndRoleChecker
         $role = Role::find($request->role_id);
         $user = User::find($request->user_id);
 
+        if ($role->name == 'superadministrator') {
+            return response([
+                'success' => false,
+                'message' => "You can't assign the {$role->name} to another user."
+            ]);            
+        }
+
         if (!$role) {
            return response([
                'success' => false,
