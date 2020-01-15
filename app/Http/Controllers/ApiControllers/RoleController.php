@@ -43,8 +43,9 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'name' => $request->name,
-            'description' => $request->description
+            'name' => str_replace(" ","",$request->name),
+            'description' => $request->description,
+            'display_name' => $request->name
         ]);
 
         return response([
@@ -91,8 +92,9 @@ class RoleController extends Controller
         ]);
 
         $role->update([
-            'name' => $request->name,
-            'description' => $request->description
+            'name' => str_replace(" ","",$request->name),
+            'description' => $request->description,
+            'display_name' => $request->name
         ]);
 
         return response([
