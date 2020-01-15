@@ -24,7 +24,7 @@ class LocationController extends Controller
             return response([
                 'success' => false,
                 'message' => 'No location has been registered'
-            ]);
+            ],404);
         }
 
         return new LocationRessource($location);
@@ -50,7 +50,7 @@ class LocationController extends Controller
             return response([
                 'success' => false,
                 'message' => 'The office must have only one location.delete the current location first'
-            ]);
+            ],409);
         }
 
         $location = Location::create([
@@ -63,7 +63,7 @@ class LocationController extends Controller
             'success' => true,
             'message' => 'Office location well created.',
             'location' => new LocationRessource($location)
-        ]);
+        ],201);
     }
 
     
@@ -96,7 +96,7 @@ class LocationController extends Controller
             'success' => true,
             'message' => 'Office location well updated.',
             'location' => new LocationRessource(Location::first())
-        ]);
+        ],200);
     }
 
   
@@ -106,7 +106,7 @@ class LocationController extends Controller
         return response([
             'success' => true,
             'message' => 'Office location well deleted.',
-        ]);
+        ],204);
 
     }
 }

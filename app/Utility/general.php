@@ -24,7 +24,8 @@ function user()
 function isOwner($item)
 {
   $user = user();
-  return $user->id == $item->user_id or $user->hasRoles('superadministrator|projectmanager');
+  return $user->id == $item->id;
+  // or $user->hasRoles('superadministrator|projectmanager');
 }
 
 function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S')
@@ -39,3 +40,12 @@ function str_toSlug($value)
 {
   return Str::slug($value);
 }
+
+// status codes
+// ==============
+// bad request => 400
+// new created object => 201
+// success => 200
+// forbiden =>403
+// not found =>404
+// delete =>204

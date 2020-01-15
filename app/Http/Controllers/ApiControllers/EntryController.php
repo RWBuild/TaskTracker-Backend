@@ -44,11 +44,22 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
+        $user = user();
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'record_id'=>'integer|required',
             'entry_type'=>'string|required',
             'entry_time'=>'required',
         ]);
+        //checking if the user has checked in
+        if ( $is_checked == 0 )
+        {
+            return response()->json( [
+                'success' => false,
+                'message' => 'the user must checkin first to create a record',
+            ]);
+        }
+    
         //checking a type of an entry(start,pause,resume and end)
         if($request->entry_type == 'start')
         {
@@ -295,11 +306,10 @@ class EntryController extends Controller
     public function destroy(Entry $entry)
     {
         $entry->delete($entry);
-
-        return response()->json([
-            'success' => true,
-            'entry' => 'entry deleted successfully',
-        ]);
+        return response( [
+            'status' => true,
+            'message' => 'entry deleted successfully',
+        ],204);
     }
     // summation of total duration of a record
     public function SumationOfDuration($records)

@@ -29,7 +29,7 @@ class UserAndRoleChecker
             return response([
                 'success' => false,
                 'message' => "You can't assign or unassign the role {$role->name} to user in this way."
-            ]);            
+            ],400);            
         }
 
         if (!$role) {
