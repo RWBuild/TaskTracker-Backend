@@ -2,10 +2,21 @@
 <?php
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Classes\EntryHelper;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+
+
+if (! function_exists('entry_helper')) {
+
+  function entry_helper($record)
+  {
+    return new EntryHelper($record);
+  }
+
+}
 
 function getRouteName() {
     return Route::currentRouteName();
@@ -35,7 +46,20 @@ function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S')
   return $totalDuration ;
 }
 
+function diffSecond($from_time, $to_time)
+{
+  $from_time = Carbon::parse($from_time);
+  $to_time = Carbon::parse($to_time);
+  $totalDuration = $to_time->diffInSeconds($from_time);
+  return $totalDuration ;
+}
+
 function str_toSlug($value)
 {
   return Str::slug($value);
+}
+
+function to_object($value)
+{
+  return ((Object)$value);
 }

@@ -116,7 +116,7 @@ class RoleController extends Controller
 
         return response([
             'success' => true,
-            'message' => 'role successfully deleted'
+            'message' => 'Role successfully deleted'
         ]);
     }
 }
