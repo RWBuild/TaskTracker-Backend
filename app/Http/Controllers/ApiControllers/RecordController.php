@@ -155,7 +155,7 @@ class RecordController extends Controller
             'start_time' => 'required',
         ] );
         if ( $is_checked == 0 )
- {
+        {
             return response()->json( [
                 'success' => false,
                 'message' => 'checkin first',
@@ -214,7 +214,7 @@ class RecordController extends Controller
     //updating a record
 
     public function update( Request $request, Record $record )
- {
+    {
 
         $this->validate( $request, array(
             'project_id'=>'integer|required',
@@ -246,7 +246,7 @@ class RecordController extends Controller
     //deleting a record
 
     public function destroy( Record $record )
- {
+    {
         $record->delete( $record );
         return response( [
             'status' => true,
