@@ -40,15 +40,16 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files": [
+            "app/Utility/general.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        },
-        "files": [
-            "app/Utility/general.php"
-        ]
+        }
+
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

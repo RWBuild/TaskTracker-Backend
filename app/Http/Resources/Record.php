@@ -23,9 +23,15 @@ class Record extends JsonResource
             'is_opened' => $this->is_opened,
             'is_finished' => $this->is_finished,
             'description' => $this->description,
+            'total_duration' => $this->entry_total_duration(),
             'user' => new UserResource($this->user),
             'project' => $this->when($this->project != null,new ProjectResource($this->project)),
             'entries' => new EntryCollection($this->entries),
         ];
+    }
+
+    public function entry_total_duration()
+    {
+        return $this->entries->sum('entry_duration');
     }
 }
