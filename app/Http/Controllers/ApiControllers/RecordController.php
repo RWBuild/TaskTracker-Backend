@@ -162,8 +162,6 @@ class RecordController extends Controller
         $this->validate( $request, [
             'project_id'=>'integer|required',
             'name'=>'string|required',
-            'start_date' => 'required|date',
-            'start_time' => 'required',
         ] );
         if ( $is_checked == 0 )
         {
@@ -179,8 +177,6 @@ class RecordController extends Controller
             'is_current' => 1,
             'is_opened' => 1,
             'is_finished' => 0,
-            'start_date' =>$request->start_date,
-            'start_time' =>$request->start_time,
         ] );
         $record->save();
 
