@@ -33,12 +33,12 @@ Route::group(['middleware' => 'auth:api'], function()
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
 
     //Records
-    Route::resource("records","ApiControllers\RecordController");
-    Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
+    Route::resource("records","ApiControllers\RecordController")->except('show');
+    
 
     //for authenticated user
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
-    Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
+    
 
      //Projects
      Route::resource("projects","ApiControllers\ProjectController")->only(['index']);
@@ -50,7 +50,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
 
    //Routes for administrators on;y
-    Route::group(['prefix'=>'admin','middleware' => ['role:project manager|superadministrator']], function()
+    Route::group(['prefix'=>'admin','middleware' => ['role:projectmanager|superadministrator']], function()
     {
         //Projects
         Route::resource("projects","ApiControllers\ProjectController");
@@ -62,6 +62,11 @@ Route::group(['middleware' => 'auth:api'], function()
 
         //Get current,open,complete record for a specific user
         Route::get("/specific-user-record/{user_id}/{type}","ApiControllers\RecordController@specificUserRecord");
+        // route to get current,open,complete task of all users
+        Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
+        //search record filter by name or date
+        Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
+
     });
 
 
