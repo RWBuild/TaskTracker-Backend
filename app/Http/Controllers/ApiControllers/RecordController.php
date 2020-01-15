@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ApiControllers;
 
 use App\User;
 use App\Record;
+use App\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -106,16 +107,29 @@ class RecordController extends Controller
     }
 
 
-    //search a record by name or date
+    //search a record by name or date | or search record which belongs to a project
     public function searchRecord(Request $request)
     {
         $this->validate($request, [
             'record_value' => "required"
         ]);
 
-        $records = Record::where('name','like','%'.$request->record_value.'%')
-        ->orWhere('start_date',$request->record_value)
-        ->get();
+        //Find the id of the project that may be looking for
+        $project = Project::where("name",'like','%'.$request->record_value.'%')->first();
+        $records = [];
+
+        if ($project) {// once find project, search where record belongs to the project
+
+            $records = Record::where('name','like','%'.$request->record_value.'%')
+            ->orWhere('start_date',$request->record_value)
+            ->orWhere('project_id',$project->id)
+            ->get();
+        }
+        else{// 
+            $records = Record::where('name','like','%'.$request->record_value.'%')
+            ->orWhere('start_date',$request->record_value)
+            ->get();
+        }
 
         return response([
             'success' => true,
