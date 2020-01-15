@@ -26,7 +26,7 @@ class CheckinValidator
             return response([
                 'success' => false,
                 'message' => 'You have already checked in for today, Please check out first'
-            ]);
+            ],409);
         }
 
         //verify if the user is not trying to double checkin in the same day
@@ -35,7 +35,7 @@ class CheckinValidator
                 return response([
                     'success' => false,
                     'message' => 'Please Wait for tomorrow to checkin again'
-                ]);              
+                ],409);              
             }
         }
 

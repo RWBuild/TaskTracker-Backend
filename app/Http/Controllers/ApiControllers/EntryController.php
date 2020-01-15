@@ -44,15 +44,26 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
+        $user = user();
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'record_id'=>'integer|required',
             'entry_type'=>'string|required',
             'entry_time'=>'required',
         ]);
-
-         //checking a type of an entry(start,pause,resume and end)
+        //checking if the user has checked in
+        if ( $is_checked == 0 )
+        {
+            return response()->json( [
+                'success' => false,
+                'message' => 'the user must checkin first to create a record',
+            ]);
+        }
+    
+        //checking a type of an entry(start,pause,resume and end)
         if($request->entry_type == 'start')
         {
+            //checking if record exists
             $record = user()->records()->find($request->record_id);
             if(!$record)
             {
@@ -61,6 +72,7 @@ class EntryController extends Controller
                     'message' => 'record does not exist',
                 ]);
             }
+            //getting last entry info
             $entry = $record->entries()->orderBy('id','desc')->first();
             if(!$entry)
             {
@@ -77,6 +89,7 @@ class EntryController extends Controller
                 ]);
             }
             $entry->entry_type;
+            //checking if the last entry type matches the coming entry type
             if($entry->entry_type == $request->entry_type)
             {
                 return response()->json([
@@ -99,9 +112,9 @@ class EntryController extends Controller
                 ]);
             }
         }
-
         else if($request->entry_type == 'pause')
         {
+            //checking if record exists
             $record = user()->records()->find($request->record_id);
             if(!$record)
             {
@@ -110,8 +123,10 @@ class EntryController extends Controller
                     'message' => 'record does not exist',
                 ]);
             }
+            //getting last entry info
             $entry = $record->entries()->orderBy('id','desc')->first();
             $entry->entry_type;
+            //checking if the last entry type matches the coming entry type
             if($entry->entry_type == $request->entry_type)
             {
                 return response()->json([
@@ -132,11 +147,10 @@ class EntryController extends Controller
                 $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
                 $parsed = date_parse($duration);
                 $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
-
+                //update duration
                 $new_entry->update([
                 'entry_duration' => $seconds,
                 ]);
-                
                 return response()->json([
                 'success' => true,
                 'entry' => new EntryResource($new_entry),
@@ -145,6 +159,7 @@ class EntryController extends Controller
         }
         else if($request->entry_type == 'resume')
         {
+             //checking if record exists
             $record = user()->records()->find($request->record_id);
             if(!$record)
             {
@@ -153,8 +168,10 @@ class EntryController extends Controller
                     'message' => 'record does not exist',
                 ]);
             }
+            //getting last entry info
             $entry = $record->entries()->orderBy('id','desc')->first();
             $entry->entry_type;
+            //checking if the last entry type matches the coming entry type
             if($entry->entry_type == $request->entry_type)
             {
                 return response()->json([
@@ -178,6 +195,7 @@ class EntryController extends Controller
         }
         else if($request->entry_type == 'end')
         {
+            //checking if record exists
             $record = user()->records()->find($request->record_id);
             if(!$record)
             {
@@ -186,8 +204,10 @@ class EntryController extends Controller
                     'message' => 'record does not exist',
                 ]);
             }
+            //getting last entry info
             $entry = $record->entries()->orderBy('id','desc')->first();
             $entry->entry_type;
+            //checking if the last entry type matches the coming entry type
             if($entry->entry_type == $request->entry_type)
             {
                 return response()->json([
@@ -208,11 +228,10 @@ class EntryController extends Controller
                 $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
                 $parsed = date_parse($duration);
                 $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
-
+                //update duration
                 $new_entry->update([
                 'entry_duration' => $seconds,
                 ]);
-                
                 return response()->json([
                 'success' => true,
                 'entry' => new EntryResource($new_entry),
@@ -287,13 +306,18 @@ class EntryController extends Controller
     public function destroy(Entry $entry)
     {
         $entry->delete($entry);
+        return response( [
+            'status' => true,
+            'message' => 'entry deleted successfully',
+        ],204);
     }
-
+    // summation of total duration of a record
     public function SumationOfDuration($records)
     {
 
         $record = user()->records()->find($records);
         $entries = $record->entries()->get();
-        return $entries->sum('entry_duration');
+        $total_duration = $entries->sum('entry_duration');
+        return response(['total duration' => $total_duration ]);
     }
 }

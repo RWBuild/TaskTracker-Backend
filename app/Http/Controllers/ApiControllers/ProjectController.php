@@ -48,7 +48,7 @@ class ProjectController extends Controller
             'success' => true,
             'project' => new ProjectResource($project),
             'message' => 'new project created successfully'
-        ]);
+        ],201);
     }
 
     /**
@@ -93,7 +93,7 @@ class ProjectController extends Controller
             'success' => true,
             'message' => 'Project Updated Successfully',
             'project' => new ProjectResource($project)
-        ]);
+        ],200);
     }
 
     /**
@@ -111,6 +111,6 @@ class ProjectController extends Controller
             'success' => true,
             'message' => 'project deleted successfully'
 
-        ]);
+        ],204);
     }
 }
