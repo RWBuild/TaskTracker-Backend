@@ -13,51 +13,51 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Record as RecordResource;
 
 class RecordController extends Controller
-{
+ {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    * Display a listing of the resource.
+    *
+    * @return \Illuminate\Http\Response
+    */
     protected $knownTypes = ['current', 'open', 'complete'];
 
     //returning a list of all records
+
     public function index()
     {
-        $records = Record::all();
+        $records = user()->records;
         return new RecordCollection($records);
     }
 
-    // display the current,opened and finished records of all users
-    public function recordByType($recordType) 
-    {
+    // display the current, opened and finished records of all users
+
+    public function recordByType( $recordType ) 
+ {
         $records = [];
-       
-        if (in_array($recordType, $this->knownTypes)==false) {
-           return response([
-               'success' => false,
-               'message' => 'the record type must be : current,open or complete '
-           ]);
+
+        if ( in_array( $recordType, $this->knownTypes ) == false ) {
+            return response( [
+                'success' => false,
+                'message' => 'the record type must be : current,open or complete '
+            ],400);
         }
 
-        if ($recordType=='current') {
-            $records = Record::where('is_current',true)->get();
+        if ( $recordType == 'current' ) {
+            $records = Record::where( 'is_current', true )->get();
         }
 
-        if ($recordType=='open') {
-            $records = Record::where('is_opened',true)->get();
+        if ( $recordType == 'open' ) {
+            $records = Record::where( 'is_opened', true )->get();
         }
 
-        if ($recordType=='complete') {
-            $records = Record::where('is_finished',true)->get();
+        if ( $recordType == 'complete' ) {
+            $records = Record::where( 'is_finished', true )->get();
         }
 
-
-
-        return response([
+        return response( [
             'success' => true,
-            'records' => new RecordCollection($records)
-        ]);
+            'records' => new RecordCollection( $records )
+        ],200);
     }
 
     //a function to provide : current , open and complete task of a specific user
@@ -70,7 +70,7 @@ class RecordController extends Controller
            return response([
                'success' => false,
                'message' => 'the record type must be : current,open or complete '
-           ]);
+           ],400);
         }
 
         if ($recordType=='current') {
@@ -87,7 +87,7 @@ class RecordController extends Controller
                 'success' => true,
                 'record' => new RecordResource($record),
                 'user_names' =>  $user->names
-            ]);
+            ],200);
         }
 
         if ($recordType=='open') {
@@ -98,12 +98,10 @@ class RecordController extends Controller
             $records = $user->records()->where('is_finished',true)->get();
         }
 
-
-
         return response([
             'success' => true,
             'records' => new RecordCollection($records)
-        ]);
+        ],200);
     }
 
 
@@ -131,162 +129,178 @@ class RecordController extends Controller
             ->get();
         }
 
-        return response([
+        return response( [
             'success' => true,
-            'records' => new RecordCollection($records)
-        ]);
+            'records' => new RecordCollection( $records )
+        ],200);
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    * Show the form for creating a new resource.
+    *
+    * @return \Illuminate\Http\Response
+    */
+
     public function create()
-    {
+ {
         //
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    * Store a newly created resource in storage.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return \Illuminate\Http\Response
+    */
 
-     //creating a new record
-    public function store(Request $request)
-    {
+    //creating a new record
+
+    public function store( Request $request )
+ {
         $user = user();
         $is_checked = $user->has_checked;
-        $this->validate($request,[
+        $this->validate( $request, [
             'project_id'=>'integer|required',
             'name'=>'string|required',
-            'start_date' => 'required|date',
-            'start_time' => 'required',
-        ]);
-        if($is_checked == 0)
+        ] );
+        if ( $is_checked == 0 )
         {
-            return response()->json([
+            return response()->json( [
                 'success' => false,
-                'message' => 'checkin first',
+                'message' => 'the user must checkin first to create a record',
             ]);
         }
-        $record = Record::create([
+        $record = new Record( [
             'name' => $request->name,
             'project_id' => $request->project_id,
             'user_id' => $user->id,
-            'start_date' =>$request->start_date,
-            'start_time' =>$request->start_time,
-        ]);
-        return response()->json([
+            'is_current' => 1,
+            'is_opened' => 1,
+            'is_finished' => 0,
+        ] );
+        $record->save();
+
+        return response()->json( [
             'success' => true,
-            'message' => 'record created',
-            'record' => new RecordResource($record),
-        ]);
+            'message' => 'record created successfully',
+            'record' => new RecordResource( $record ),
+        ],201);
     }
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Record  $record
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Record $record)
-    {
-        return new RecordResource($record);
+    * Display the specified resource.
+    *
+    * @param  \App\Record  $record
+    * @return \Illuminate\Http\Response
+    */
+
+    public function show( Record $record )
+ {
+        return new RecordResource( $record );
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Record  $record
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Record $record)
-    {
+    * Show the form for editing the specified resource.
+    *
+    * @param  \App\Record  $record
+    * @return \Illuminate\Http\Response
+    */
+
+    public function edit( Record $record )
+ {
         //
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Record  $record
-     * @return \Illuminate\Http\Response
-     */
+    * Update the specified resource in storage.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @param  \App\Record  $record
+    * @return \Illuminate\Http\Response
+    */
 
-     //updating a record
-    public function update(Request $request, Record $record)
+    //updating a record
+
+    public function update( Request $request, Record $record )
     {
-       
-        $this->validate($request, array(
+
+        $this->validate( $request, array(
             'project_id'=>'integer|required',
             'name'=>'string|required',
             'start_date' => 'required',
             'start_time' => 'required',
-        ));
+        ) );
 
-        $record->update([
+        $record->update( [
             'project_id' => $request->project_id,
             'name' => $request->name,
             'start_date' =>$request->start_date,
             'start_time' =>$request->start_time,
-        ]);
-        return response([
-                'status' => true,
-                'message' => 'record updated successfully',
-                'record' => new RecordResource($record),
-            ]);
+        ] );
+        return response( [
+            'status' => true,
+            'message' => 'record updated successfully',
+            'record' => new RecordResource( $record ),
+        ] );
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Record  $record
-     * @return \Illuminate\Http\Response
-     */
+    * Remove the specified resource from storage.
+    *
+    * @param  \App\Record  $record
+    * @return \Illuminate\Http\Response
+    */
 
-     //deleting a record
+    //deleting a record
+
     public function destroy(Record $record)
     {
-        $record->delete($record);
-        return response([
-            'status' => true,
-            'message' => 'record deleted successfully',
-        ]);
-    }
-
-    //view opened,current and completed records of an authenticated user
-    public function userRecordByType($recordType)
-    {
-
-        if (in_array($recordType, $this->knownTypes)==false) {
+        if(!isOwner($record->user))
+        {
             return response([
                 'success' => false,
+                'message' => "you are not the owner of the record"
+            ], 403);
+        }
+        $record->entries()->delete();
+        $record->delete();
+        return response( [
+            'status' => true,
+            'message' => 'record deleted successfully',
+        ],204);
+    }
+
+    //view opened, current and completed records of an authenticated user
+
+    public function userRecordByType( $recordType )
+ {
+
+        if ( in_array( $recordType, $this->knownTypes ) == false ) {
+            return response( [
+                'success' => false,
                 'message' => 'the record type must be : current,open or complete '
-            ]);
-         }
-       $user = user();
-        
-       if($recordType == 'current')
+            ],400);
+        }
+        $user = user();
+
+        if ( $recordType == 'current' )
         {
-            $record = $user->records()->where('is_current',1)->first();
-            return new RecordResource($record);
+            $record = $user->records()->where( 'is_current', 1 )->first();
+            return new RecordResource( $record );
         }
 
         $records = [];
-       
-        if($recordType == 'open')
-        {
-            $records = $user->records()->where('is_opened',1)->get();
+
+        if ( $recordType == 'open' )
+ {
+            $records = $user->records()->where( 'is_opened', 1 )->get();
         }
 
-        if($recordType == 'complete')
-        {
-            $records = $user->records()->where('is_finished',1)->get();
+        if ( $recordType == 'complete' )
+ {
+            $records = $user->records()->where( 'is_finished', 1 )->get();
         }
 
-        return new RecordCollection($records);
-    
+        return new RecordCollection( $records );
+
     }
 }

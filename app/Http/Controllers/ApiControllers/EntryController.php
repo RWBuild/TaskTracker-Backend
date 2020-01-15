@@ -46,6 +46,8 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
+        $user = user();
+        $is_checked = $user->has_checked;
         $this->validate($request,[
             'record_id'=>'required|integer',
             'entry_type'=>'required|string',
@@ -135,13 +137,18 @@ class EntryController extends Controller
     public function destroy(Entry $entry)
     {
         $entry->delete($entry);
+        return response( [
+            'status' => true,
+            'message' => 'entry deleted successfully',
+        ],204);
     }
-
+    // summation of total duration of a record
     public function SumationOfDuration($records)
     {
 
         $record = user()->records()->find($records);
         $entries = $record->entries()->get();
-        return $entries->sum('entry_duration');
+        $total_duration = $entries->sum('entry_duration');
+        return response(['total duration' => $total_duration ]);
     }
 }

@@ -17,7 +17,7 @@ class UserController extends Controller
         return response([
             'success' => true,
             'users' => new UserCollection($users)
-        ]);
+        ],200);
     }
 
 
@@ -48,7 +48,7 @@ class UserController extends Controller
         return response([
             'success' => true,
             'users' => new UserResource($user)
-        ]);
+        ],200);
     }
 
 

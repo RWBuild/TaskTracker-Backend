@@ -45,10 +45,10 @@ class ProjectController extends Controller
 
         $project = Project::create($request->all());
         return response ([
-            'status' => true,
+            'success' => true,
             'project' => new ProjectResource($project),
             'message' => 'new project created successfully'
-        ]);
+        ],201);
     }
 
     /**
@@ -90,10 +90,10 @@ class ProjectController extends Controller
         $project = Project::find($project->id);
 
         return response ([
-            'status' => true,
+            'success' => true,
             'message' => 'Project Updated Successfully',
             'project' => new ProjectResource($project)
-        ]);
+        ],200);
     }
 
     /**
@@ -108,9 +108,9 @@ class ProjectController extends Controller
         $project->save();
 
         return response([
-            'status' => true,
-            'message' => 'project successfully deactivated'
+            'success' => true,
+            'message' => 'project deleted successfully'
 
-        ]);
+        ],204);
     }
 }

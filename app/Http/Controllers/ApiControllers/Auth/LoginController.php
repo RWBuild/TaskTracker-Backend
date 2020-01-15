@@ -26,7 +26,7 @@ class LoginController extends Controller
            return response()->json([
                'success' => false,
                'message' => 'User not allowed'
-           ]);
+           ],404);
        }
        
        $user = $murugo_user->user;
@@ -43,7 +43,7 @@ class LoginController extends Controller
                 'email' => $request->email,
                 'avatar' => $request->avatar
            ]);
-
+           
            $murugo_user->user_id = $user->id;
            $murugo_user->save();
 
@@ -57,7 +57,7 @@ class LoginController extends Controller
            'user' => new UserResource($user),
            'access_token' => $generated_token->accessToken,
            'token_expires_at' => $generated_token->token->expires_at
-       ]);
+       ],201);
        
     }
 
@@ -69,7 +69,7 @@ class LoginController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User successfully loged out'
-        ]);
+        ],200);
     }
 
     public function auth_user() 

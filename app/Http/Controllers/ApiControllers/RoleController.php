@@ -52,7 +52,7 @@ class RoleController extends Controller
             'success' => true,
             'message' => 'role successfully created',
             'role' => $role
-        ]);
+        ],201);
     }
 
     /**
@@ -101,7 +101,7 @@ class RoleController extends Controller
             'success' => true,
             'message' => 'role successfully updated',
             'role' => Role::find($role->id)
-        ]);
+        ],200);
     }
 
     /**

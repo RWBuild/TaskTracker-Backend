@@ -45,7 +45,7 @@ class OfficeTimeController extends Controller
             'success' => true,
             'message' => 'successfully checked in',
             'office_time' => new OfficeTimeResource($officeTime)
-        ]);
+        ],200);
        
     }
 
@@ -76,14 +76,14 @@ class OfficeTimeController extends Controller
             return response([
                 'success' => false,
                 'message' => 'Office time not found'
-            ]);
+            ],404);
         }
        
         if (!$user->has_checked and $officeTime->has_checked_out) {
             return response([
                 'success' => false,
                 'message' => 'You have already checked out for today'
-            ]);
+            ],409);
         }
 
         $officeTime->duration = diffTime($officeTime->checkin_time,$request->checkout_time,'%H:%I');
@@ -99,7 +99,7 @@ class OfficeTimeController extends Controller
             'success' => true,
             'message' => 'successfully checked out',
             'office_time' => new OfficeTimeResource($officeTime)
-        ]);
+        ],200);
      
         
     }

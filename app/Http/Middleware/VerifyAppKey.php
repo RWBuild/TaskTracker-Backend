@@ -29,7 +29,7 @@ class VerifyAppKey
             return response()->json([
                 'success' => false,
                 'message' => 'Client request not identified',
-            ]);
+            ],404);
         }
         
         return $next($request);
