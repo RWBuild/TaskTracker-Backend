@@ -19,7 +19,7 @@ class User extends JsonResource
             'names' => $this->names,
             'email' => $this->email,
             'avatar' => $this->avatar,
-            'has_checked' => $this->has_checked,
+            'has_checked' => $this->has_checked==0?False:True,
             //'records' => RecordResource::collection($this->records),
             //'office_times' => OfficeTimeResource::collection($this->office_times),
             'roles' => $this->getRoles()
