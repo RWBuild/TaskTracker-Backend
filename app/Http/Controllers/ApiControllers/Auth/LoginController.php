@@ -51,7 +51,7 @@ class LoginController extends Controller
 
        $generated_token = $user->createToken('authToken');
 
-       return response()->json([
+       return response([
            'success' => true,
            'message' => 'Successfully identified',
            'user' => new UserResource($user),
