@@ -241,7 +241,7 @@ class RecordController extends Controller
 
     public function destroy(Record $record)
     {
-        if(!isOwner($record->user))
+        if(!isOwner($record))
         {
             return response([
                 'success' => false,
@@ -253,7 +253,7 @@ class RecordController extends Controller
         return response([
             'status' => true,
             'message' => 'record deleted successfully',
-        ],204);
+        ],200);
     }
 
     //view opened, current and completed records of an authenticated user

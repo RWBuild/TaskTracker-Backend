@@ -54,10 +54,15 @@ class EntryController extends Controller
             'entry_type'=>'required|string',
             'entry_time'=>'required|date',
         ]);
-
-        
+        if($is_checked == 0)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the user must checkin first to create an entry',
+            ]);
+        }
         $record = user()->records()->find($request->record_id);
-        $entry_helper = new EntryHelper($record);;
+        $entry_helper = new EntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
         $duplication_checker = $entry_helper->avoidEntryDuplication();
@@ -137,19 +142,19 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
+        $record = $entry->record;
+        
+        if(!isOwner($record))
+        {
+            return response([
+                'success' => false,
+                'message' => "you are not the owner of this entry"
+            ],403);
+        }
         $entry->delete($entry);
         return response( [
             'status' => true,
             'message' => 'entry deleted successfully',
-        ],204);
-    }
-    // summation of total duration of a record
-    public function SumationOfDuration($records)
-    {
-
-        $record = user()->records()->find($records);
-        $entries = $record->entries()->get();
-        $total_duration = $entries->sum('entry_duration');
-        return response(['total duration' => $total_duration ]);
+        ],200);
     }
 }

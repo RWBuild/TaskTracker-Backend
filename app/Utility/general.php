@@ -36,7 +36,7 @@ function user()
 function isOwner($item)
 {
   $user = user();
-  return $user->id == $item->id or $user->hasRole('superadministrator|projectmanager');
+  return $user->id == $item->user_id or $user->hasRole('superadministrator|projectmanager');
 }
 
 function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S')
