@@ -12,20 +12,12 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use App\Classes\EntryHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
 
-if (! function_exists('entry_helper')) {
 
-  function entry_helper($record)
-  {
-    return new EntryHelper($record);
-  }
-
-}
 
 function getRouteName() {
     return Route::currentRouteName();

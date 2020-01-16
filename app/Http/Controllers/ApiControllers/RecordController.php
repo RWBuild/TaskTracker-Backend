@@ -272,7 +272,7 @@ class RecordController extends Controller
     //view opened, current and completed records of an authenticated user
 
     public function userRecordByType( $recordType )
- {
+    {
 
         if ( in_array( $recordType, $this->knownTypes ) == false ) {
             return response( [
@@ -285,22 +285,36 @@ class RecordController extends Controller
         if ( $recordType == 'current' )
         {
             $record = $user->records()->where( 'is_current', 1 )->first();
-            return new RecordResource( $record );
+            if (!$record) {
+                return response([
+                    'success' => false,
+                    'message' => "you don't  have any current task you are working on"
+                ],404);
+            }
+            return response([
+                'success' => true,
+                'record' => new RecordResource( $record )
+            ]);
         }
 
         $records = [];
 
         if ( $recordType == 'open' )
- {
+        {
             $records = $user->records()->where( 'is_opened', 1 )->get();
         }
 
         if ( $recordType == 'complete' )
- {
+        {
             $records = $user->records()->where( 'is_finished', 1 )->get();
         }
 
-        return new RecordCollection( $records );
+        return response([
+            'success' => true,
+            'record' => new RecordCollection( $records )
+        ]);
+
+        
 
     }
 }

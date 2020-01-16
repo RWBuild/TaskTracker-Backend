@@ -8,7 +8,7 @@ class EntryHelper
 {
 
     public $request,
-              $record;
+           $record;
 
     public function __construct($record)
     {
