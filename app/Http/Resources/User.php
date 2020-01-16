@@ -16,10 +16,11 @@ class User extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'names' => $this->names,
             'email' => $this->email,
             'avatar' => $this->avatar,
-            'has_checked' => $this->has_checked,
+            'has_checked' => (Bool) $this->has_checked,
             //'records' => RecordResource::collection($this->records),
             //'office_times' => OfficeTimeResource::collection($this->office_times),
             'roles' => $this->getRoles()
