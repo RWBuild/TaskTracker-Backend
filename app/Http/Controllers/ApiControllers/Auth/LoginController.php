@@ -48,9 +48,6 @@ class LoginController extends Controller
            $murugo_user->save();
 
        }
-       else{//we delete all his previous token
-        $user->AauthAcessToken()->delete();
-       }
 
        $generated_token = $user->createToken('authToken');
 
