@@ -16,10 +16,14 @@ class CheckinValidator
      */
     public function handle($request, Closure $next)
     {
+ 
+        $to_morrow = now()->addDay();
+        $yesterday = now()->subDay();
         $request->validate([
-            'checkin_time' => 'required|date'
+            'checkin_time' => 'required|date|after:'.$yesterday.'|before:'.$to_morrow 
         ]);
         
+
         $user = user();
 
         if ($user->has_checked) {
