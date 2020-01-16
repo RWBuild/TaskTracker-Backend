@@ -12,6 +12,8 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        $this->truncateTable();
+
         $murugo_user_list = explode(',',env('MURUGO_USER_SAMPLE'));
         $user_names = ['doctor prodoo',"cedric", "fred geek","michecl yes"];
         $i = 0;
@@ -35,5 +37,11 @@ class UserTableSeeder extends Seeder
            $i++;
         }
         
+    }
+
+    public function truncateTable()
+    {
+        \App\MurugoUser::truncate();
+        \App\User::truncate(); 
     }
 }
