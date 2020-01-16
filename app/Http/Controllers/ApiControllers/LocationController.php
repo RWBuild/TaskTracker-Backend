@@ -78,13 +78,22 @@ class LocationController extends Controller
         //
     }
 
-    public function update(Request $request, Location $location)
+    public function update(Request $request, $id)
     {
         $this->validate($request,[
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
             'radius' => 'required|numeric'
         ]);
+
+        $location = Location::find($id);
+
+        if (!$location) {
+            return response([
+                'success' => false,
+                'message' => 'Office location not found'
+            ],404);
+        }
 
         $location->update([
             'longitude' => $request->longitude,
@@ -100,8 +109,17 @@ class LocationController extends Controller
     }
 
   
-    public function destroy(Location $location)
+    public function destroy($id)
     {
+        $location = Location::find($id);
+
+        if (!$location) {
+            return response([
+                'success' => false,
+                'message' => 'Office location not found'
+            ],404);
+        }
+
         $location->delete();
         return response([
             'success' => true,

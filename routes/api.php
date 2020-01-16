@@ -55,7 +55,7 @@ Route::group(['middleware' => 'auth:api'], function()
         //Projects
         Route::resource("projects","ApiControllers\ProjectController");
         //Location
-        Route::resource("get-office-location","ApiControllers\LocationController");
+        Route::resource("office-location","ApiControllers\LocationController");
 
         //Users
         Route::resource('users','ApiControllers\UserController');
