@@ -55,8 +55,8 @@ class LoginController extends Controller
            'success' => true,
            'message' => 'Successfully identified',
            'user' => new UserResource($user),
-           'access_token' => $generated_token->accessToken,
-           'token_expires_at' => $generated_token->token->expires_at
+           'TT_access_token' => $generated_token->accessToken,
+           'TT_token_expires_at' => $generated_token->token->expires_at
        ],201);
        
     }
