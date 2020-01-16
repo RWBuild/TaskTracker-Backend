@@ -19,9 +19,9 @@ class Record extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'is_current' => $this->is_current,
-            'is_opened' => $this->is_opened,
-            'is_finished' => $this->is_finished,
+            'is_current' => (Bool) $this->is_current,
+            'is_opened' => (Bool) $this->is_opened,
+            'is_finished' => (Bool) $this->is_finished,
             'description' => $this->description,
             'total_duration' => $this->entry_total_duration(),
             'user' => new UserResource($this->user),
