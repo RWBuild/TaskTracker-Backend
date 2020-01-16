@@ -112,6 +112,13 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        if ($role->name == 'superadministrator') {
+            return response([
+                'success' => true,
+                'message' => 'You can not delete the super administrator'
+            ],400);
+        }
+
         $role->delete();
 
         return response([
