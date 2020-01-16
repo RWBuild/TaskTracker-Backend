@@ -64,20 +64,20 @@ class OfficeTimeController extends Controller
 
     public function update(Request $request, $id)
     {
-
-        $request->validate([
-            'checkout_time' => 'required|date'
-        ]);
-        
+  
         $user = user();
         $officeTime = $user->office_times()->find($id);
 
         if (!$officeTime) {
             return response([
                 'success' => false,
-                'message' => 'Office time not found'
+                'message' => 'Checkout identifer not valid'
             ],404);
         }
+
+        $request->validate([
+            'checkout_time' => 'required|date|after:'.$officeTime->checkin_time
+        ]);
        
         if (!$user->has_checked and $officeTime->has_checked_out) {
             return response([
