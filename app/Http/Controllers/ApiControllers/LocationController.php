@@ -106,7 +106,7 @@ class LocationController extends Controller
         return response([
             'success' => true,
             'message' => 'Office location well deleted.',
-        ],204);
+        ],200);
 
     }
 }
