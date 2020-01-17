@@ -161,7 +161,15 @@ class RecordController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'the user must checkin first to create a record',
-            ]);
+            ],400);
+        }
+        $project = Project::where('id',$request->project_id)->first();
+        if(!$project)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the project of that record does not exist',
+            ],400);
         }
         $record = new Record([
             'name' => $request->name,
