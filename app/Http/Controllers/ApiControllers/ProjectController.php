@@ -43,7 +43,10 @@ class ProjectController extends Controller
             'name'=>'string|required|unique:projects',
         ]);
 
-        $project = Project::create($request->all());
+        $project = Project::create([
+            'name' => $request->name,
+            'active' => true
+        ]);
         return response ([
             'success' => true,
             'project' => new ProjectResource($project),
