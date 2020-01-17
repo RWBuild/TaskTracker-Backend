@@ -71,7 +71,7 @@ class OfficeTimeController extends Controller
         if (!$officeTime) {
             return response([
                 'success' => false,
-                'message' => 'Checkout identifer not valid'
+                'message' => 'Checkout identifier not valid'
             ],404);
         }
 
