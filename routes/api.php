@@ -46,7 +46,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController");
-    Route::get("summation/{records}","ApiControllers\EntryController@SumationOfDuration");
+    
 
 
    //Routes for administrators on;y
@@ -54,6 +54,10 @@ Route::group(['middleware' => 'auth:api'], function()
     {
         //Projects
         Route::resource("projects","ApiControllers\ProjectController");
+
+        //view a specific record
+        Route::resource("records","ApiControllers\RecordController")->only(['show']);
+        
         //Location
         Route::resource("office-location","ApiControllers\LocationController");
 
