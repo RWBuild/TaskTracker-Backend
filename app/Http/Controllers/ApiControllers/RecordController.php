@@ -218,6 +218,13 @@ class RecordController extends Controller
             'project_id'=>'required|integer',
             'name'=>'required|string',
         ));
+        if(!isOwner($record))
+        {
+            return response([
+                'success' => false,
+                'message' => "you are not the owner of the record"
+            ],403);
+        }
 
         $record->update([
             'project_id' => $request->project_id,
