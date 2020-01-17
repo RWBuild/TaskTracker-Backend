@@ -163,7 +163,15 @@ class RecordController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'the user must checkin first to create a record',
-            ]);
+            ],400);
+        }
+        $project = Project::where('id',$request->project_id)->first();
+        if(!$project)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the project of that record does not exist',
+            ],400);
         }
 
         $record = Record::create([
@@ -222,6 +230,13 @@ class RecordController extends Controller
             'project_id'=>'required|integer',
             'name'=>'required|string',
         ));
+        if(!isOwner($record))
+        {
+            return response([
+                'success' => false,
+                'message' => "you are not the owner of the record"
+            ],403);
+        }
 
         $record->update([
             'project_id' => $request->project_id,

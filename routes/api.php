@@ -33,7 +33,7 @@ Route::group(['middleware' => 'auth:api'], function()
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
 
     //Records
-    Route::resource("records","ApiControllers\RecordController")->except(['show','update']);
+    Route::resource("records","ApiControllers\RecordController")->except(['show']);
     
 
     //for authenticated user

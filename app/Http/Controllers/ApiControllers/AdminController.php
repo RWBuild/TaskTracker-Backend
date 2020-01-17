@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 
 class AdminController extends Controller
 {
+    //assigning a role to a specific user
     public function attachRole(Request $request)
     {
         $user = User::find($request->user_id);
@@ -29,6 +30,7 @@ class AdminController extends Controller
 
     }
 
+    //unassigning a role to a specific user
     public function detachRole(Request $request)
     {
         $user = User::find($request->user_id);

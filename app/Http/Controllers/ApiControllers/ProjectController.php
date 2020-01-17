@@ -15,6 +15,8 @@ class ProjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    //displaying projects which are active only
     public function index()
     {
         $projects = Project::where('active',1)->get();
@@ -37,6 +39,8 @@ class ProjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    //creating a new project
     public function store(Request $request)
     {
         $this->validate($request,[
@@ -60,6 +64,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //displaying a single project
     public function show(Project $project)
     {
         return new ProjectResource($project);
@@ -83,6 +89,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //updating a project
     public function update(Request $request, Project $project)
     {  
         $this->validate($request,[
@@ -105,6 +113,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //deleting a project
     public function destroy(Project $project)
     {
         $project->active = false;
