@@ -27,7 +27,10 @@ class CheckinValidator
                 'message' => 'The check in date must be today'
             ]);
         }
-
+        
+        return response([
+            'time' => Carbon::now()
+        ]);
         
         $user = user();
         if ($user->has_checked) {
