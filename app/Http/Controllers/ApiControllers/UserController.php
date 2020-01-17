@@ -10,7 +10,7 @@ use App\Http\Resources\User  as UserResource;
 
 class UserController extends Controller
 {
-
+    // displaying a list of all users
     public function index()
     {
         $users = User::all();
@@ -32,7 +32,7 @@ class UserController extends Controller
         //
     }
 
-
+    //displaying a single user
     public function show($id)
     {
         $user = User::find($id);
