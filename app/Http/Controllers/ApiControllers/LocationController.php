@@ -16,6 +16,7 @@ class LocationController extends Controller
         //
     }
 
+    //to see the current location registerer
     public function office_location()
     {
         $location = Location::first();
@@ -36,7 +37,7 @@ class LocationController extends Controller
         //
     }
 
-    
+    //creating the office location if it does not exists
     public function store(Request $request)
     {
         
@@ -78,6 +79,7 @@ class LocationController extends Controller
         //
     }
 
+    //updating the office location
     public function update(Request $request, $id)
     {
         $this->validate($request,[
@@ -91,7 +93,7 @@ class LocationController extends Controller
         if (!$location) {
             return response([
                 'success' => false,
-                'message' => 'Office location not found'
+                'message' => 'the office location does not exist'
             ],404);
         }
 
@@ -108,7 +110,7 @@ class LocationController extends Controller
         ],200);
     }
 
-  
+   //delete the office location
     public function destroy($id)
     {
         $location = Location::find($id);
@@ -116,7 +118,7 @@ class LocationController extends Controller
         if (!$location) {
             return response([
                 'success' => false,
-                'message' => 'Office location not found'
+                'message' => 'the office location does not exist'
             ],404);
         }
 
