@@ -27,7 +27,6 @@ class CheckinValidator
                 'message' => 'The check in date must be today'
             ]);
         }
-
         
         $user = user();
         if ($user->has_checked) {
