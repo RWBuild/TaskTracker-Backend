@@ -28,10 +28,6 @@ class CheckinValidator
             ]);
         }
         
-        return response([
-            'time' => Carbon::now()
-        ]);
-        
         $user = user();
         if ($user->has_checked) {
             return response([
