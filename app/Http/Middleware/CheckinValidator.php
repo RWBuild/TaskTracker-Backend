@@ -30,13 +30,18 @@ class CheckinValidator
 
         
         $user = user();
+        if ($user->has_checked) {
+            return response([
+                'success' => false,
+                'message' => 'You have already checked in'
+            ],400);            
+        }
 
         //verify if the user is not trying to double checkin in the same day
         if ($last_check = $user->office_times()->orderBy('id','desc')->first()) {
 
             if (Carbon::parse($last_check->checkin_time)->isToday() 
-            or $last_check->has_checked_in 
-            or $user->has_checked ) 
+            and $last_check->has_checked_in ) 
             {
                 return response([
                     'success' => false,
