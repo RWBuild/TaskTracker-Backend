@@ -82,6 +82,9 @@ Route::group(['middleware' => 'auth:api'], function()
         //a route to detach a role to a user
         Route::post("unassign-role","ApiControllers\AdminController@detachRole")
         ->middleware('assign-role-checker');
+
+        //Roles
+        Route::resource("murugo_users","ApiControllers\MurugoUserController");
     });
 
 });
