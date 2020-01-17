@@ -17,6 +17,7 @@ class RoleController extends Controller
      //display list of all roles
     public function index()
     {
+        //display all roles
         $roles = Role::all();
         return $roles;
     }

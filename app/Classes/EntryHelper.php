@@ -1,6 +1,7 @@
 <?php
 namespace App\Classes;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\Entry as EntryResource;
 
@@ -29,6 +30,42 @@ class EntryHelper
         return $this->record->entries()->orderBy('id','desc')->first();
     }
 
+    //Will help to update the current record status at each and every record entry 
+    public function change_record_status($data = [])
+    {
+        $data['status'] = $this->request->entry_type;
+        $this->record->update($data);
+    }
+
+    //will help to pause the current task(record) before starting or resumming another task
+    public function pause_current_user_task()
+    {
+        $user = user();
+        $current_record = $user->records()->where('is_current',true)->first();
+
+        if ($current_record) {
+
+            $last_entry = $current_record->entries()->orderBy('id','desc')->first();
+
+            //creation of the paused entry
+            $paused_entry = $current_record->entries()->create([
+                'entry_type' => 'pause',
+                'entry_time' => Carbon::now()->timezone('Africa/Cairo')->toDateTimeString(),
+            ]);
+        
+            //calculation of interval duration of a task from its previous entry to the paused one
+            
+            $paused_entry->entry_duration = diffSecond($last_entry->entry_time,$paused_entry->entry_time);
+            $paused_entry->save();
+
+            $current_record->status = 'pause';
+            $current_record->is_current = false;
+            $current_record->save();
+
+
+        }
+    }
+
     public function avoidEntryDuplication ()
     {
        $knownEntryType = ['start','pause','resume','end'];
@@ -47,7 +84,7 @@ class EntryHelper
         if (!$this->record) {
             return to_object([
                 'success' => false,
-                'message' => 'Task not found. please provide an existing task ',
+                'message' => 'Task not found or it may not belong to you. Please provide an existing task ',
                 'status' => 404
             ]);
         }
@@ -105,6 +142,9 @@ class EntryHelper
             ],400);
         }
 
+        //Pause the current user task if exist before starting another one
+        $this->pause_current_user_task();
+
         //creation of new entry
         $request = $this->request;
 
@@ -112,6 +152,9 @@ class EntryHelper
             'entry_type' => $request->entry_type,
             'entry_time' => $request->entry_time            
         ]);
+
+        //change this  record status to start
+        $this->change_record_status(['is_current' => true]);
 
         return response([
             'success' => true,
@@ -137,6 +180,9 @@ class EntryHelper
         $paused_entry->entry_duration = diffSecond($last_entry->entry_time,$paused_entry->entry_time);
         $paused_entry->save();
 
+        //change this  record status to pause
+        $this->change_record_status(['is_current' => false]);
+
         return response([
             'success' => true,
             'entry' => new EntryResource($this->record->entries()->find($paused_entry->id)),
@@ -158,10 +204,16 @@ class EntryHelper
             ],400);        
         }
 
+        //Pause the current user task if exist before starting another one
+        $this->pause_current_user_task();
+
         $entry = $this->record->entries()->create([
             'entry_type' => $request->entry_type,
             'entry_time' => $request->entry_time            
         ]);
+
+        //change this  record status to resume
+        $this->change_record_status(['is_current' => true]);
 
         return response([
             'success' => true,
@@ -194,11 +246,12 @@ class EntryHelper
         $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
         $end_entry->save();
 
-        //modify the task status: is_current,is_opened,is_finished
-        $record->is_current = false;
-        $record->is_opened = false;
-        $record->is_finished = true;
-        $record->save();
+        //modify the task status: is_current,is_opened,is_finished and change record status to end
+         $this->change_record_status([
+            'is_current' => false,
+            'is_opened' => false,
+            'is_finished' => true
+        ]);
 
         return response([
             'success' => true,
@@ -206,4 +259,6 @@ class EntryHelper
         ]);
         
     }
+
+
 }
