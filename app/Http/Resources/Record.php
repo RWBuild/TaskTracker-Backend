@@ -23,6 +23,7 @@ class Record extends JsonResource
             'is_opened' => (Bool) $this->is_opened,
             'is_finished' => (Bool) $this->is_finished,
             'description' => $this->description,
+            'status' => $this->status,
             'total_duration' => $this->entry_total_duration(),
             'user' => new UserResource($this->user),
             'project' => $this->when($this->project != null,new ProjectResource($this->project)),

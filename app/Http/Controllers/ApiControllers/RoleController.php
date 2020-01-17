@@ -15,6 +15,7 @@ class RoleController extends Controller
      */
     public function index()
     {
+        //display all roles
         $roles = Role::all();
         return $roles;
     }
@@ -35,6 +36,7 @@ class RoleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    //create role
     public function store(Request $request)
     {
         $this->validate($request,[

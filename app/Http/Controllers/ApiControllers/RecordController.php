@@ -146,16 +146,18 @@ class RecordController extends Controller
     * @return \Illuminate\Http\Response
     */
 
-    //creating a new record
+    //creating a new record with pending status
 
     public function store(Request $request)
     {
         $user = user();
         $is_checked = $user->has_checked;
+
         $this->validate( $request,[
             'project_id'=>'required|integer',
             'name'=>'required|string',
         ]);
+
         if($is_checked == 0)
         {
             return response()->json([
@@ -163,15 +165,17 @@ class RecordController extends Controller
                 'message' => 'the user must checkin first to create a record',
             ]);
         }
-        $record = new Record([
+
+        $record = Record::create([
             'name' => $request->name,
             'project_id' => $request->project_id,
             'user_id' => $user->id,
-            'is_current' => 1,
-            'is_opened' => 1,
-            'is_finished' => 0,
+            'is_current' => false,
+            'is_opened' => true,
+            'is_finished' => false,
+            'status' => 'pending'
         ]);
-        $record->save();
+
         return response()->json([
             'success' => true,
             'message' => 'record created successfully',

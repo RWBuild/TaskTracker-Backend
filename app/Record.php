@@ -13,6 +13,7 @@ class Record extends Model
         'is_opened',
         'is_finished',
         'description',
+        'status',
         'user_id', 
         'project_id',
         'start_date',
