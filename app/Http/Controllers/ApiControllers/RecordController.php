@@ -165,7 +165,8 @@ class RecordController extends Controller
                 'message' => 'the user must checkin first to create a record',
             ],400);
         }
-        return response($request->all());
+        return $request;
+        // return response()->json($request);
         $project = Project::where('id',$request->project_id)->first();
         if(!$project)
         {
