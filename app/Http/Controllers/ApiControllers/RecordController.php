@@ -153,10 +153,10 @@ class RecordController extends Controller
         $user = user();
         $is_checked = $user->has_checked;
 
-        $this->validate( $request,[
-            'project_id'=>'required|integer',
-            'name'=>'required|string',
-        ]);
+        // $this->validate( $request,[
+        //     'project_id'=>'required|integer',
+        //     'name'=>'required|string',
+        // ]);
 
         if($is_checked == 0)
         {
