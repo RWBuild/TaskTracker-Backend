@@ -25,7 +25,7 @@ class RecordController extends Controller
 
     public function index()
     {
-        $records = user()->records;
+        $records = user()->records()->where('id','desc')->get();
         return new RecordCollection($records);
     }
 
