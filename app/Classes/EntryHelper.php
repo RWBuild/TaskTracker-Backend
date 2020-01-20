@@ -181,7 +181,7 @@ class EntryHelper
         $paused_entry->save();
 
         //change this  record status to pause
-        $this->change_record_status(['is_current' => false]);
+        $this->change_record_status(['is_current' => true]);
 
         return response([
             'success' => true,
