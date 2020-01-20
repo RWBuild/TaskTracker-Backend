@@ -155,7 +155,7 @@ class RecordController extends Controller
 
         $this->validate( $request,[
             'project_id'=>'required|integer',
-            // 'name'=>'required|string',
+            'name'=>'required|string'
         ]);
 
         if($is_checked == 0)
@@ -165,8 +165,7 @@ class RecordController extends Controller
                 'message' => 'the user must checkin first to create a record',
             ],400);
         }
-        return $request;
-        // return response()->json($request);
+
         $project = Project::where('id',$request->project_id)->first();
         if(!$project)
         {
@@ -179,6 +178,7 @@ class RecordController extends Controller
         $record = Record::create([
             'name' => $request->name,
             'project_id' => $request->project_id,
+            'description' => $request->description,
             'user_id' => $user->id,
             'is_current' => false,
             'is_opened' => true,
