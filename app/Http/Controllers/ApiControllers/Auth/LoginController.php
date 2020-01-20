@@ -64,7 +64,7 @@ class LoginController extends Controller
 
     public function logout() 
     {
-        user()->AauthAcessToken()->delete();
+        user()->token()->revoke();
 
         return response()->json([
             'success' => true,
