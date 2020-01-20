@@ -153,10 +153,10 @@ class RecordController extends Controller
         $user = user();
         $is_checked = $user->has_checked;
 
-        // $this->validate( $request,[
-        //     'project_id'=>'required|integer',
-        //     'name'=>'required|string',
-        // ]);
+        $this->validate( $request,[
+            'project_id'=>'required|integer',
+            // 'name'=>'required|string',
+        ]);
 
         if($is_checked == 0)
         {
@@ -165,7 +165,7 @@ class RecordController extends Controller
                 'message' => 'the user must checkin first to create a record',
             ],400);
         }
-        return $request;
+        // return $request;
         // return response()->json($request);
         $project = Project::where('id',$request->project_id)->first();
         if(!$project)
