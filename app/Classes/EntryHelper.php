@@ -1,6 +1,7 @@
 <?php
 namespace App\Classes;
 
+use DateTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\Entry as EntryResource;
@@ -28,6 +29,24 @@ class EntryHelper
     public function get_task_last_entry ()
     {
         return $this->record->entries()->orderBy('id','desc')->first();
+    }
+
+    //checking if the current time is not less than the previous time
+    public function time_validation()
+    {
+      $last_entry_time = new DateTime($this->get_task_last_entry()->entry_time);
+      $current_entry = new DateTime($this->request->entry_time);
+      if($current_entry <= $last_entry_time)
+      {
+        return to_object([
+            'success' => false,
+            'message' => "you can't create an entry which has less time than the previous entry",
+            'status' => 400
+        ]); 
+      }
+
+      return to_object(['success' => true ]);
+       
     }
 
     //Will help to update the current record status at each and every record entry 
@@ -115,6 +134,17 @@ class EntryHelper
                     'status' => 400
                 ]);
             }
+
+            //validating if the time of the current entry is not less than the time of the last entry
+            $time_validation = $this->time_validation();
+                if(!$time_validation->success)
+                {
+                    return to_object([
+                        'success' => false,
+                        'message' => $time_validation->message,
+                        'status' => 400
+                    ]);
+                }
         }
 
         //check first if the task has ended in case user want to : pause or resume
@@ -170,7 +200,7 @@ class EntryHelper
     {
         $request = $this->request;
         $last_entry = $this->get_task_last_entry();
-
+        
         //creation of the paused entry
         $paused_entry = $this->record->entries()->create([
             'entry_type' => $request->entry_type,
