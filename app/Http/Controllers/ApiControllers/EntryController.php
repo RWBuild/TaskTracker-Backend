@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+use DateTime;
 use App\Entry;
 use App\Record;
 use Carbon\Carbon;

@@ -53,7 +53,7 @@ class RecordController extends Controller
         }
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -94,7 +94,7 @@ class RecordController extends Controller
 
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -124,7 +124,7 @@ class RecordController extends Controller
 
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -274,7 +274,7 @@ class RecordController extends Controller
         return response([
             'status' => true,
             'message' => 'record deleted successfully',
-        ],200);
+        ],401);
     }
 
     //view opened, current and completed records of an authenticated user
@@ -315,7 +315,7 @@ class RecordController extends Controller
 
         return response([
             'success' => true,
-            'record' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 }
