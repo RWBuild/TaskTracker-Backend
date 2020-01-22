@@ -12,12 +12,21 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Classes\TaskHistoryHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
+function task_history_helper()
+{
+  return new TaskHistoryHelper();  
+}
 
-
+function record($record)
+{
+   return task_history_helper()
+          ->get_record($record);
+}
 
 function getRouteName() {
     return Route::currentRouteName();
@@ -64,4 +73,19 @@ function to_object($value)
 {
   return ((Object)$value);
 }
+
+function trigger_exception($error)
+{
+  throw new Exception($error);
+}
+
+//get the current time
+function app_now()
+{
+  return Carbon::now()
+                 ->timezone('Africa/Cairo')
+                 ->toDateTimeString();
+}
+
+
 

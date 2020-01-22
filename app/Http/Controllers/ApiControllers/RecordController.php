@@ -184,6 +184,9 @@ class RecordController extends Controller
             'status' => 'pending'
         ]);
 
+        //register the task history
+        record($record)->track_action('create_task');
+
         return response()->json([
             'success' => true,
             'message' => 'record created successfully',
