@@ -152,6 +152,14 @@ class EntryController extends Controller
                 'message' => "you are not the owner of this entry"
             ],403);
         }
+        $last_entry_id = $entry->orderBy('id','desc')->first()->id;
+        if($last_entry_id != $entry->id)
+        {
+            return response([
+                'success' => false,
+                'message' => 'the deleted entry must be a last entry'
+            ],400);
+        }
         $entry->delete($entry);
         return response( [
             'status' => true,
