@@ -6,7 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\Entry as EntryResource;
 
-class EntryHelper 
+//Helper to call only on creation of an entry
+class CreateEntryHelper 
 {
 
     public $request,
@@ -285,28 +286,7 @@ class EntryHelper
     //helper function to be called when user want to end a specific task
     public function endTask ()
     {
-        $request = $this->request;
-        $last_entry = $this->get_task_last_entry();
-        
-        //Check first if the last entry type is different to pause
-        if ($last_entry->entry_type == 'pause') {
-            return response([
-                'success' => false,
-                'message' => 'You can not end a task which is paused,please resume it first'
-            ],400);        
-        }
-
-        //creation of the end entry
-        $record = $this->record;
-        $end_entry = $record->entries()->create([
-            'entry_type' => $request->entry_type,
-            'entry_time' => $request->entry_time,
-        ]);
-        
-        //calculation of interval duration of a task from its previous entry to the paused one
-        $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
-        $end_entry->save();
-
+        $end_entry = $this->create_end_task();
         //modify the task status: is_current,is_opened,is_finished and change record status to end
          $this->change_record_status([
             'is_current' => false,
@@ -316,9 +296,45 @@ class EntryHelper
 
         return response([
             'success' => true,
-            'entry' => new EntryResource($record->entries()->find($end_entry->id))
+            'entry' => new EntryResource($end_entry)
         ]);
         
+    }
+
+    /*
+      - create an end entry with entry_duration=0 when the previous entry of the task was pause 
+      - other wise calculate the duration then save the end entry with that duration 
+      - then return the created end entry
+    */
+    public function create_end_task()
+    {
+        $request = $this->request;
+        $last_entry = $this->get_task_last_entry();
+        
+        //creation of the end entry
+        $record = $this->record;
+        $end_entry;
+        //if the last entry type is  pause, we set the entry duration to 0
+        if ($last_entry->entry_type == 'pause') {
+            $end_entry = $record->entries()->create([
+                'entry_type' => $request->entry_type,
+                'entry_time' => $request->entry_time,
+                'entry_duration' => 0
+            ]);             
+        }
+        else{
+
+            $end_entry = $record->entries()->create([
+                'entry_type' => $request->entry_type,
+                'entry_time' => $request->entry_time
+            ]);
+            
+            //calculation of interval duration of a task from its previous entry to the paused one
+            $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
+            $end_entry->save();
+        }
+
+        return $record->entries()->find($end_entry->id);
     }
 
 
