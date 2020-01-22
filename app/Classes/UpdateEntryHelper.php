@@ -3,14 +3,15 @@ namespace App\Classes;
 
 class UpdateEntryHelper
 {
-    public $request,
-           $record;
+    public $request;
 
-    public function __construct($record)
+    public function _construct()
     {
         $this->request = request();
-        $this->record = $record;
     }
-
-    
+   
+    public function check_if_record_has_many_entries()
+    {
+       
+    }
 }
