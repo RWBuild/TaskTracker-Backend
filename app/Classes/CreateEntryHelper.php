@@ -6,7 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\Entry as EntryResource;
 
-class EntryHelper 
+//Helper to call only on creation of an entry
+class CreateEntryHelper 
 {
 
     public $request,
@@ -285,6 +286,28 @@ class EntryHelper
     //helper function to be called when user want to end a specific task
     public function endTask ()
     {
+        $end_entry = $this->create_end_task();
+        //modify the task status: is_current,is_opened,is_finished and change record status to end
+         $this->change_record_status([
+            'is_current' => false,
+            'is_opened' => false,
+            'is_finished' => true
+        ]);
+
+        return response([
+            'success' => true,
+            'entry' => new EntryResource($end_entry)
+        ]);
+        
+    }
+
+    /*
+      - create an end entry with entry_duration=0 when the previous entry of the task was pause 
+      - other wise calculate the duration then save the end entry with that duration 
+      - then return the created end entry
+    */
+    public function create_end_task()
+    {
         $request = $this->request;
         $last_entry = $this->get_task_last_entry();
         
@@ -311,19 +334,7 @@ class EntryHelper
             $end_entry->save();
         }
 
-
-        //modify the task status: is_current,is_opened,is_finished and change record status to end
-         $this->change_record_status([
-            'is_current' => false,
-            'is_opened' => false,
-            'is_finished' => true
-        ]);
-
-        return response([
-            'success' => true,
-            'entry' => new EntryResource($record->entries()->find($end_entry->id))
-        ]);
-        
+        return $record->entries()->find($end_entry->id);
     }
 
 

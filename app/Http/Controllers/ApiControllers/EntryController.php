@@ -6,7 +6,7 @@ use DateTime;
 use App\Entry;
 use App\Record;
 use Carbon\Carbon;
-use App\Classes\EntryHelper;
+use App\Classes\CreateEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -63,7 +63,7 @@ class EntryController extends Controller
             ]);
         }
         $record = user()->records()->find($request->record_id);
-        $entry_helper = new EntryHelper($record);
+        $entry_helper = new CreateEntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
         $duplication_checker = $entry_helper->avoidEntryDuplication();
