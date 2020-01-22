@@ -274,7 +274,7 @@ class RecordController extends Controller
         return response([
             'status' => true,
             'message' => 'record deleted successfully',
-        ],401);
+        ],200);
     }
 
     //view opened, current and completed records of an authenticated user
