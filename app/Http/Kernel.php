@@ -51,6 +51,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'checkin_app_key' => \App\Http\Middleware\VerifyAppKey::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -60,6 +61,11 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'checkin_validator' => \App\Http\Middleware\CheckinValidator::class,
+        'test-fred' => \App\Http\Middleware\AdMidd::class, 
+        
+        'role' => \Laratrust\Middleware\LaratrustRole::class,
+        'assign-role-checker' => \App\Http\Middleware\UserAndRoleChecker::class
     ];
 
     /**
