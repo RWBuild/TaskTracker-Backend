@@ -111,40 +111,18 @@ class EntryHelper
         
         //check if the last entry type of this record has the same type as the type of the sent entry
         $last_record = $this->get_task_last_entry();
-        if ($last_record) {
+        
+        $prevent_same_entry_type = $this->prevent_same_entry_type($last_record);
 
-            if ($last_record->entry_type == $received_entry_type) {
-
-                return to_object([
-                    'success' => false,
-                    'message' => "You can't ".strtoupper($received_entry_type)." again because the current ". 
-                                 "status of this task is: ".strtoupper($last_record->entry_type),
-                    'status' => 400
-                ]);           
-            }
+        if (! $prevent_same_entry_type->success) {
+            return $prevent_same_entry_type;
         }
 
-
         //check if the record(task)  has entries in case user want to pause,resume or end
-        if (in_array($received_entry_type,['pause','resume','end'])) {
-            if (! $this->task_has_entries()) {
-                return to_object([
-                    'success' => false,
-                    'message' => "Please START this task first before you ".strtoupper($received_entry_type)." it  ",
-                    'status' => 400
-                ]);
-            }
+        $entry_status_time_checker = $this->entry_status_and_time_checker();
 
-            //validating if the time of the current entry is not less than the time of the last entry
-            $time_validation = $this->time_validation();
-                if(!$time_validation->success)
-                {
-                    return to_object([
-                        'success' => false,
-                        'message' => $time_validation->message,
-                        'status' => 400
-                    ]);
-                }
+        if (! $entry_status_time_checker->success) {
+            return $entry_status_time_checker;
         }
 
         //check first if the task has ended in case user want to : pause or resume
@@ -160,6 +138,58 @@ class EntryHelper
 
         
         return to_object(['success' => true ]);
+    }
+
+
+
+    //to prevent simultaneous entries having same type
+    public function prevent_same_entry_type($last_record)
+    {
+        if ($last_record) {
+
+            if ($last_record->entry_type == $this->request->entry_type) {
+
+                return to_object([
+                    'success' => false,
+                    'message' => "You can't ".strtoupper($this->request->entry_type)." again because the current ". 
+                                 "status of this task is: ".strtoupper($last_record->entry_type),
+                    'status' => 400
+                ]);           
+            }
+        }
+
+        return to_object(['success' => true]);
+    }
+
+    /*
+     - to check if the record has been started before to : pause,resume or end it.
+     - entry time checker: to prevent the creation of an entry at a time which is 
+       before the previous entry time
+    */
+    public function entry_status_and_time_checker()
+    {
+        //check if the record(task)  has entries in case user want to pause,resume or end
+        if (in_array($this->request->entry_type,['pause','resume','end'])) {
+            if (! $this->task_has_entries()) {
+                return to_object([
+                    'success' => false,
+                    'message' => "Please START this task first before you ".strtoupper($this->request->entry_type)." it",
+                    'status' => 400
+                ]);
+            }
+
+            //validating if the time of the current entry is not less than the time of the last entry
+            $time_validation = $this->time_validation();
+                if(!$time_validation->success)
+                {
+                    return to_object([
+                        'success' => false,
+                        'message' => $time_validation->message,
+                        'status' => 400
+                    ]);
+                }
+        }
+        return to_object(['success' => true]);
     }
 
     //helper function to be called when user want to start a specific task
