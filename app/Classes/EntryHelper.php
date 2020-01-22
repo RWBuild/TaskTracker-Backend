@@ -288,24 +288,29 @@ class EntryHelper
         $request = $this->request;
         $last_entry = $this->get_task_last_entry();
         
-        //Check first if the last entry type is different to pause
-        if ($last_entry->entry_type == 'pause') {
-            return response([
-                'success' => false,
-                'message' => 'You can not end a task which is paused,please resume it first'
-            ],400);        
-        }
-
         //creation of the end entry
         $record = $this->record;
-        $end_entry = $record->entries()->create([
-            'entry_type' => $request->entry_type,
-            'entry_time' => $request->entry_time,
-        ]);
-        
-        //calculation of interval duration of a task from its previous entry to the paused one
-        $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
-        $end_entry->save();
+        $end_entry;
+        //if the last entry type is  pause, we set the entry duration to 0
+        if ($last_entry->entry_type == 'pause') {
+            $end_entry = $record->entries()->create([
+                'entry_type' => $request->entry_type,
+                'entry_time' => $request->entry_time,
+                'entry_duration' => 0
+            ]);             
+        }
+        else{
+
+            $end_entry = $record->entries()->create([
+                'entry_type' => $request->entry_type,
+                'entry_time' => $request->entry_time
+            ]);
+            
+            //calculation of interval duration of a task from its previous entry to the paused one
+            $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
+            $end_entry->save();
+        }
+
 
         //modify the task status: is_current,is_opened,is_finished and change record status to end
          $this->change_record_status([
