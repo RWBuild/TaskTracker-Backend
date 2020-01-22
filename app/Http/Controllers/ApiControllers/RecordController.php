@@ -112,13 +112,11 @@ class RecordController extends Controller
 
         if($project){// once find project, search where record belongs to the project
             $records = Record::where('name','like','%'.$request->record_value.'%')
-            ->orWhere('start_date',$request->record_value)
             ->orWhere('project_id',$project->id)
             ->get();
         }
         else{ 
             $records = Record::where('name','like','%'.$request->record_value.'%')
-            ->orWhere('start_date',$request->record_value)
             ->get();
         }
 

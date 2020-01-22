@@ -37,8 +37,6 @@ class AdminStaff extends Command
      */
     public function handle()
     {
-        
-
 
         //allowed to create a super admin via console
         list($username,$password) = explode(',',env('ADMIN_CREATOR'));
