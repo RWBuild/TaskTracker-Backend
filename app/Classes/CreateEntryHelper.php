@@ -29,7 +29,7 @@ class CreateEntryHelper
     //to get the last entry of a task
     public function get_task_last_entry ()
     {
-        return $this->record->entries()->orderBy('id','desc')->first();
+        return $this->record->entries->last();
     }
 
     //checking if the current time is not less than the previous time
