@@ -271,6 +271,7 @@ class RecordController extends Controller
             ],403);
         }
         $record->entries()->delete();
+        $record->task_histories()->delete();
         $record->delete();
         return response([
             'status' => true,
