@@ -30,7 +30,7 @@ class CheckinValidator
         }
 
         //verify if the user is not trying to double checkin in the same day
-        if ($last_check=$user->office_times()->orderBy('id','desc')->first()) {
+        if ($last_check = $user->office_times()->orderBy('id','desc')->first()) {
             if (Carbon::parse($last_check->checkin_time)->isToday()) {
                 return response([
                     'success' => false,

@@ -90,7 +90,7 @@ class EntryController extends Controller
         ]);
         
         $entry = update($request->all());
-        $entry = Entry::find($request_>id);
+        $entry = Entry::find($request->id);
         return response([ 
             'status' => true,
             'message' => 'entry updated successfully',
@@ -106,6 +106,7 @@ class EntryController extends Controller
      */
     public function destroy(Entry $entry)
     {
+        $entry = Entry::latest()->first(); // only allow to delete the latest entry
         $entry->delete($entry);
     }
 }

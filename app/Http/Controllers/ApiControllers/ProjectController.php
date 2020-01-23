@@ -102,13 +102,20 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Project $project)
+    public function destroy(Request $request, Project $project)
     {
-        $project->delete($project);
+        if($request->active = true){
+            $project->update(['active' => false]);
+            return response([
+                'status' => true,
+                'message' => 'project disactivated successfully'
+            ]);
+        }
         return response([
-            'status' => true,
-            'message' => 'project deleted successfully'
-
+            'status' => false,
+            'message' => 'project is active you can only disactivate'
         ]);
+
+        
     }
 }

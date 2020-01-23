@@ -41,9 +41,9 @@ class RecordController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-         'project_id', 
-         'user_id', 
-         'name', 
+         'project_id' => 'required', 
+         'user_id' => 'required',
+         'name' => 'string|required',
          'description', 
          'is_curent', 
          'is_paused', 
@@ -51,7 +51,12 @@ class RecordController extends Controller
         ]);
         
         $record = Record::create($request->all());
-        return new RecordResource($record);
+
+        return response([
+            'status' => true,
+            'message' => 'new record created successfully',
+            'record' => new RecordResource($record)
+        ]);
     }
 
     /**
@@ -86,9 +91,9 @@ class RecordController extends Controller
     public function update(Request $request, Record $record)
     {
         $this->validate($request,[
-            'project_id', 
-            'user_id', 
-            'name', 
+            'project_id' => 'required', 
+            'user_id' => 'required',
+            'name' => 'string|required',
             'description', 
             'is_curent', 
             'is_paused', 
@@ -99,7 +104,7 @@ class RecordController extends Controller
         
         return response([
                 'status' => true,
-                'message' => 'record added successfully',
+                'message' => 'record updated successfully',
                 'record' => new RecordResource($record)
             ]);
     }
@@ -112,6 +117,16 @@ class RecordController extends Controller
      */
     public function destroy(Record $record)
     {
-        $record->delete($record);
+        if($record->delete($record)){
+            return response([
+                'status' => true,
+                'message' => 'the record was deleted successfully'
+                ]);
+        }
+
+        return response([
+            'status' => false,
+            'message' => 'the record to delete was not found'
+            ]);    
     }
 }
