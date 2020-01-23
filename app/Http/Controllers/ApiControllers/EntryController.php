@@ -125,12 +125,7 @@ class EntryController extends Controller
             'entry_duration' => 'required',
         ]);
         
-<<<<<<< HEAD
-        $entry = update($request->all());
-        $entry = Entry::find($request->id);
-=======
         $entry->update($request->all());
->>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
         return response([ 
             'status' => true,
             'message' => 'entry updated successfully',
@@ -148,9 +143,6 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
-<<<<<<< HEAD
-        $entry = Entry::latest()->first(); // only allow to delete the latest entry
-=======
         $record = $entry->record;
         
         if(!isOwner($record))
@@ -168,7 +160,6 @@ class EntryController extends Controller
                 'message' => 'the deleted entry must be a last entry'
             ],400);
         }
->>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
         $entry->delete($entry);
         return response( [
             'status' => true,

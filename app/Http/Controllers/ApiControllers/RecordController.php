@@ -148,26 +148,6 @@ class RecordController extends Controller
 
     public function store(Request $request)
     {
-<<<<<<< HEAD
-        $this->validate($request,[
-         'project_id' => 'required', 
-         'user_id' => 'required',
-         'name' => 'string|required',
-         'description', 
-         'is_curent', 
-         'is_paused', 
-         'is_completed'
-        ]);
-        
-        $record = Record::create($request->all());
-
-        return response([
-            'status' => true,
-            'message' => 'new record created successfully',
-            'record' => new RecordResource($record)
-        ]);
-    }
-=======
         $user = user();
         $is_checked = $user->has_checked;
 
@@ -203,7 +183,6 @@ class RecordController extends Controller
             'is_finished' => false,
             'status' => 'pending'
         ]);
->>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
 
         //register the task history
         record($record)->track_action('create_task');
@@ -250,25 +229,6 @@ class RecordController extends Controller
 
     public function update(Request $request, Record $record)
     {
-<<<<<<< HEAD
-        $this->validate($request,[
-            'project_id' => 'required', 
-            'user_id' => 'required',
-            'name' => 'string|required',
-            'description', 
-            'is_curent', 
-            'is_paused', 
-            'is_completed'
-            ]);
-        $record->update($request->all());
-        $record = Record::find($request->id);
-        
-        return response([
-                'status' => true,
-                'message' => 'record updated successfully',
-                'record' => new RecordResource($record)
-            ]);
-=======
         $this->validate($request, array(
             'project_id'=>'required|integer',
             'name'=>'required|string',
@@ -290,7 +250,6 @@ class RecordController extends Controller
             'message' => 'record updated successfully',
             'record' => new RecordResource($record),
         ],200);
->>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
     }
 
     /**
@@ -304,19 +263,6 @@ class RecordController extends Controller
 
     public function destroy(Record $record)
     {
-<<<<<<< HEAD
-        if($record->delete($record)){
-            return response([
-                'status' => true,
-                'message' => 'the record was deleted successfully'
-                ]);
-        }
-
-        return response([
-            'status' => false,
-            'message' => 'the record to delete was not found'
-            ]);    
-=======
         if(!isOwner($record))
         {
             return response([
@@ -372,6 +318,5 @@ class RecordController extends Controller
             'success' => true,
             'data' => new RecordCollection($records)
         ],200);
->>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
     }
 }
