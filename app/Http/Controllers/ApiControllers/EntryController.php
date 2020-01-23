@@ -65,6 +65,7 @@ class EntryController extends Controller
             ]);
         }
         $record = user()->records()->find($request->record_id);
+
         $entry_helper = new CreateEntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
@@ -122,12 +123,25 @@ class EntryController extends Controller
     public function update(Request $request, Entry $entry)
     {
         $this->validate($request,[
-            'record_id'=>'required|integer',
-            'entry_time'=>'required|date',
+            'record_id'=>'integer|required',
+            'entry_type'=>'string|required',
+            'entry_time'=>'required',
+            'entry_duration' => 'required',
         ]);
-        $update_entry_helper = new UpdateEntryHelper($entry);
-        $get_record = $update_entry_helper->check_record_id();
-        return $get_record;
+        
+        $entry->update($request->all());
+
+        //log task history
+        $history_description = "Updated the entry time of the".
+                               entry_index($entry->record->entries,$entry->id)." 
+                               entry task to:".$request->entry_time;
+        record($record)->track_action_with_description('update_entry',$history_description);
+        return response([ 
+            'status' => true,
+            'message' => 'entry updated successfully',
+            'entry' => new EntryResource($entry)
+        ]);
+        
     }
 
     /**

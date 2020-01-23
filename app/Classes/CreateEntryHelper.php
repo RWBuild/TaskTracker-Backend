@@ -29,7 +29,7 @@ class CreateEntryHelper
     //to get the last entry of a task
     public function get_task_last_entry ()
     {
-        return $this->record->entries()->orderBy('id','desc')->first();
+        return $this->record->entries->last();
     }
 
     //checking if the current time is not less than the previous time
@@ -71,6 +71,12 @@ class CreateEntryHelper
         if ($current_record) {
 
             $last_entry = $current_record->entries()->orderBy('id','desc')->first();
+             
+            //change only the record is current to false when its current status is pause
+            if ($last_entry->entry_type == 'pause') {
+                $current_record->is_current = false;
+                return $current_record->save();
+            }
 
             //creation of the paused entry
             $paused_entry = $current_record->entries()->create([
