@@ -122,24 +122,12 @@ class EntryController extends Controller
     public function update(Request $request, Entry $entry)
     {
         $this->validate($request,[
-            'record_id'=>'integer|required',
-            'entry_type'=>'string|required',
-            'entry_time'=>'required',
-            'entry_duration' => 'required',
+            'entry_time'=>'required|date',
         ]);
         
-        $entry->update($request->all());
-
-        //log task history
-        $history_description = "Updated the entry time of the".
-                               entry_index($entry->record->entries,$entry->id)." 
-                               entry task to:".$request->entry_time;
-        record($record)->track_action_with_description('update_entry',$history_description);
-        return response([ 
-            'status' => true,
-            'message' => 'entry updated successfully',
-            'entry' => new EntryResource($entry)
-        ]);
+        $update_entry_helper = new UpdateEntryHelper($entry);
+        
+        return $update_entry_helper->response();
         
     }
 
