@@ -8,6 +8,7 @@ use App\Record;
 use Carbon\Carbon;
 use App\Classes\CreateEntryHelper;
 use App\Classes\UpdateEntryHelper;
+use App\Classes\DeleteEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -148,24 +149,16 @@ class EntryController extends Controller
                 'message' => "you are not the owner of this entry"
             ],403);
         }
-        $last_entry_id = $entry->orderBy('id','desc')->first()->id;
-        if($last_entry_id != $entry->id)
+        $last_entry = $record->entries->last()->id;
+        if($last_entry != $entry->id)
         {
             return response([
                 'success' => false,
                 'message' => 'the deleted entry must be a last entry'
-            ],400);
+            ],400);  
         }
-        $entry->delete($entry);
-        // return response( [
-        //     'status' => true,
-        //     'message' => 'entry deleted successfully',
-        // ],200);
-
-        $create_entry_helper = new CreateEntryHelper($record);
-        $last_entry = $create_entry_helper->get_task_last_entry();
-        $entry_type = $last_entry->entry_type;
-        $record->status = $entry_type;
-        $record->save();
+        $delete_entry_helper = new DeleteEntryHelper($entry);
+        $record_status = $delete_entry_helper->delete_entry();
+        $entry->delete();
     }
 }
