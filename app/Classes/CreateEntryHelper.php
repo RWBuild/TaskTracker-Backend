@@ -217,6 +217,9 @@ class CreateEntryHelper
 
         //change this  record status to start
         $this->change_record_status(['is_current' => true]);
+        
+        //log task history
+        record($this->record)->track_action('start_task');
 
         return response([
             'success' => true,
@@ -244,6 +247,8 @@ class CreateEntryHelper
 
         //change this  record status to pause
         $this->change_record_status(['is_current' => true]);
+        //log task history
+        record($this->record)->track_action('pause_task');
 
         return response([
             'success' => true,
@@ -277,6 +282,9 @@ class CreateEntryHelper
         //change this  record status to resume
         $this->change_record_status(['is_current' => true]);
 
+        //log task history
+        record($this->record)->track_action('resume_task');
+
         return response([
             'success' => true,
             'entry' => new EntryResource($entry)
@@ -293,6 +301,9 @@ class CreateEntryHelper
             'is_opened' => false,
             'is_finished' => true
         ]);
+
+        //log task history
+        record($this->record)->track_action('end_task');
 
         return response([
             'success' => true,

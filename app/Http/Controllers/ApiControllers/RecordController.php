@@ -169,7 +169,7 @@ class RecordController extends Controller
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the project of that record does not exist',
+                'message' => 'the project assigned to this record does not exist',
             ],400);
         }
 
@@ -241,10 +241,26 @@ class RecordController extends Controller
             ],403);
         }
 
+        $project = Project::where('id',$request->project_id)->first();
+        if(!$project)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the project assigned to this record does not exist',
+            ],400);
+        }
+
         $record->update([
             'project_id' => $request->project_id,
             'name' => $request->name,
         ]);
+
+        //register the task history with description
+        $history_description = "The task name is now: {$record->name} and the project is: ".
+                              "{$project->name}";
+
+        record($record)->track_action_with_description('update_task',$history_description);
+
         return response([
             'status' => true,
             'message' => 'record updated successfully',
