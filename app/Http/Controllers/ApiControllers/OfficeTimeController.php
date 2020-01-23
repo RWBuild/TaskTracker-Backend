@@ -29,7 +29,7 @@ class OfficeTimeController extends Controller
     {
         return response([
             'success' => true,
-            'last_check' => new OfficeTimeResource(user()->office_times->last())
+            'office_time' => new OfficeTimeResource(user()->office_times->last())
         ]);
     }
 
