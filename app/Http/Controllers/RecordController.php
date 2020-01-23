@@ -17,7 +17,7 @@ class RecordController extends Controller
      */
     public function index()
     {
-        $records = Record::all();
+        $records = Record::with('user','project')->orderBy('id','DESC')->get();
         return new RecordCollection($records);
     }
 
@@ -100,11 +100,11 @@ class RecordController extends Controller
         $record->update($request->all());
         $record = Record::find($request->id);
         
-        return response([
+        return response()->json([
                 'status' => true,
                 'message' => 'record added successfully',
                 'record' => new RecordResource($record)
-            ]);
+        ],200);
     }
 
     /**
@@ -115,6 +115,15 @@ class RecordController extends Controller
      */
     public function destroy(Record $record)
     {
-        $record->delete($record);
+        if ($record->delete($record))
+            return response()->json([
+                'status' => true,
+                'message' => 'record deleted successfully',
+            ],200);
+        
+        return response()->json([
+            'stauts' => false,
+            'message' => 'failed to delete the record',
+        ],404);
     }
 }
