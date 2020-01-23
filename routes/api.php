@@ -31,6 +31,9 @@ Route::group(['middleware' => 'auth:api'], function()
 
     //user  Checkin and Checkout management
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
+    //The last check of the auth user
+    Route::get('/last-check','ApiControllers\OfficeTimeController@get_last_check');
+
 
     //Records
     Route::resource("records","ApiControllers\RecordController")->except(['show']);

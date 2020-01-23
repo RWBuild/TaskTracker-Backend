@@ -25,6 +25,14 @@ class OfficeTimeController extends Controller
         return new OfficeTimeCollection($office_times);
     }
 
+    public function get_last_check()
+    {
+        return response([
+            'success' => true,
+            'last_check' => new OfficeTimeResource(user()->office_times->last())
+        ]);
+    }
+
 
     public function create()
     {
