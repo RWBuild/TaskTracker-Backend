@@ -2,19 +2,23 @@
 
 namespace App;
 
+use App\TaskHistory;
 use Illuminate\Database\Eloquent\Model;
 
 class Record extends Model
 {
     protected $fillable = [
         'id',
-         'project_id', 
-         'user_id', 
-         'name', 
-         'description', 
-         'is_curent', 
-         'is_paused', 
-         'is_completed'
+        'name',
+        'is_current',    
+        'is_opened',
+        'is_finished',
+        'description',
+        'status',
+        'user_id', 
+        'project_id',
+        'start_date',
+        'start_time',
     ];
 
     public function user()
@@ -30,6 +34,11 @@ class Record extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function task_histories()
+    {
+        return $this->hasMany(TaskHistory::class);
     }
     
 }

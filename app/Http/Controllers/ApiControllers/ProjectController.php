@@ -15,10 +15,12 @@ class ProjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    //displaying projects which are active only
     public function index()
     {
-        $projects = Project::all();
-        return new projectCollection($projects);
+        $projects = Project::where('active',1)->get();
+        return new ProjectCollection($projects);
     }
 
     /**
@@ -37,18 +39,23 @@ class ProjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    //creating a new project
     public function store(Request $request)
     {
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects',
         ]);
 
-        $project = Project::create($request->all());
+        $project = Project::create([
+            'name' => $request->name,
+            'active' => true
+        ]);
         return response ([
-            'status' => true,
+            'success' => true,
             'project' => new ProjectResource($project),
             'message' => 'new project created successfully'
-        ]);
+        ],201);
     }
 
     /**
@@ -57,6 +64,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //displaying a single project
     public function show(Project $project)
     {
         return new ProjectResource($project);
@@ -80,20 +89,22 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //updating a project
     public function update(Request $request, Project $project)
-    {
+    {  
         $this->validate($request,[
-            'name'=>'string|required'
+            'name'=>'string|required|unique:projects,name,'.$project->id
         ]);
 
         $project->update($request->all());
-        $project = Project::find($request->id);
+        $project = Project::find($project->id);
 
         return response ([
-            'status' => true,
+            'success' => true,
             'message' => 'Project Updated Successfully',
             'project' => new ProjectResource($project)
-        ]);
+        ],200);
     }
 
     /**
@@ -102,6 +113,7 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+<<<<<<< HEAD
     public function destroy(Request $request, Project $project)
     {
         if($request->active = true){
@@ -117,5 +129,19 @@ class ProjectController extends Controller
         ]);
 
         
+=======
+
+    //deleting a project
+    public function destroy(Project $project)
+    {
+        $project->active = false;
+        $project->save();
+
+        return response([
+            'success' => true,
+            'message' => 'project deleted successfully'
+
+        ],200);
+>>>>>>> d0c533be5795ea5844d6c7ce269fa3a51750e94b
     }
 }

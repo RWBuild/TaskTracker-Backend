@@ -25,8 +25,8 @@ class LoginController extends Controller
        if (!$murugo_user) {
            return response()->json([
                'success' => false,
-               'message' => 'User not allowed'
-           ]);
+               'message' => 'Murugo user not allowed'
+           ],404);
        }
        
        $user = $murugo_user->user;
@@ -36,14 +36,14 @@ class LoginController extends Controller
            $this->validate($request,[
                'names' => 'required',
                'email' => 'required|email|unique:users',
-               'avatar' => 'required'
+               'avatar'
            ]);
            $user = User::create([
                 'names' => $request->names,
                 'email' => $request->email,
                 'avatar' => $request->avatar
            ]);
-
+           
            $murugo_user->user_id = $user->id;
            $murugo_user->save();
 
@@ -51,25 +51,26 @@ class LoginController extends Controller
 
        $generated_token = $user->createToken('authToken');
 
-       return response()->json([
+       return response([
            'success' => true,
            'message' => 'Successfully identified',
            'user' => new UserResource($user),
-           'access_token' => $generated_token->accessToken,
-           'token_expires_at' => $generated_token->token->expires_at
-       ]);
+           'TT_access_token' => $generated_token->accessToken,
+           'TT_token_expires_at' => $generated_token->token->expires_at,
+           'env' => env('ADMIN_CREATOR')
+       ],201);
        
     }
 
 
     public function logout() 
     {
-        user()->AauthAcessToken()->delete();
+        user()->token()->revoke();
 
         return response()->json([
             'success' => true,
             'message' => 'User successfully loged out'
-        ]);
+        ],200);
     }
 
     public function auth_user() 
