@@ -74,7 +74,7 @@ Route::group(['middleware' => 'auth:api'], function()
         Route::resource("task_histories","ApiControllers\TaskHistoryController")->only(['index','show']);
 
         //To get the list of task histories of a specific task(record)
-        Route::get("/record_histories/{record_id}","ApiControllers\TaskHistoryController@rrecord_histories");
+        Route::get("/record_histories/{record_id}","ApiControllers\TaskHistoryController@record_histories");
         
     });
 

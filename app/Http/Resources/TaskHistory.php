@@ -18,8 +18,9 @@ class TaskHistory extends JsonResource
         return [
             'id' => $this->id,
             'description' => $this->description,
+            'history_type' => $this->history_type,
             'history_time' => $this->history_time,
-            'record' => new RecordResource($this->record),
+            'record' => $this->when(isRouteName('task_histories.show'), new RecordResource($this->record)),
         ];
     }
 }
