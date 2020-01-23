@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Record as RecordResource;
 
-class OfficeTime extends JsonResource
+class TaskHistory extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +17,9 @@ class OfficeTime extends JsonResource
     {
         return [
             'id' => $this->id,
-            'checkin_time' => $this->checkin_time,
-            'checkout_time' => $this->checkout_time,
-            'duration' => $this->duration,
-            'has_checked_in' => (Bool) $this->has_checked_in,
-            'has_checked_out' => (Bool) $this->has_checked_out
+            'description' => $this->description,
+            'history_time' => $this->history_time,
+            'record' => new RecordResource($this->record),
         ];
     }
 }

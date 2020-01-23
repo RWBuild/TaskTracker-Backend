@@ -15,6 +15,8 @@ class ProjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    //displaying projects which are active only
     public function index()
     {
         $projects = Project::where('active',1)->get();
@@ -37,18 +39,23 @@ class ProjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    //creating a new project
     public function store(Request $request)
     {
         $this->validate($request,[
             'name'=>'string|required|unique:projects',
         ]);
 
-        $project = Project::create($request->all());
+        $project = Project::create([
+            'name' => $request->name,
+            'active' => true
+        ]);
         return response ([
-            'status' => true,
+            'success' => true,
             'project' => new ProjectResource($project),
             'message' => 'new project created successfully'
-        ]);
+        ],201);
     }
 
     /**
@@ -57,6 +64,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //displaying a single project
     public function show(Project $project)
     {
         return new ProjectResource($project);
@@ -80,6 +89,8 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //updating a project
     public function update(Request $request, Project $project)
     {  
         $this->validate($request,[
@@ -90,10 +101,10 @@ class ProjectController extends Controller
         $project = Project::find($project->id);
 
         return response ([
-            'status' => true,
+            'success' => true,
             'message' => 'Project Updated Successfully',
             'project' => new ProjectResource($project)
-        ]);
+        ],200);
     }
 
     /**
@@ -102,15 +113,17 @@ class ProjectController extends Controller
      * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
+
+    //deleting a project
     public function destroy(Project $project)
     {
         $project->active = false;
         $project->save();
 
         return response([
-            'status' => true,
-            'message' => 'project successfully deactivated'
+            'success' => true,
+            'message' => 'project deleted successfully'
 
-        ]);
+        ],200);
     }
 }

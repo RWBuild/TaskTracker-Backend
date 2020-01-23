@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+use DateTime;
 use App\Entry;
+use App\Record;
 use Carbon\Carbon;
+use App\Classes\CreateEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -16,6 +19,7 @@ class EntryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
      
      //return the list of all entries
     public function index()
@@ -44,186 +48,39 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
+        $user = user();
+        $is_checked = $user->has_checked;
         $this->validate($request,[
-            'record_id'=>'integer|required',
-            'entry_type'=>'string|required',
-            'entry_time'=>'required',
+            'record_id'=>'required|integer',
+            'entry_type'=>'required|string',
+            'entry_time'=>'required|date',
         ]);
-
-         //checking a type of an entry(start,pause,resume and end)
-        if($request->entry_type == 'start')
+        if($is_checked == 0)
         {
-            $record = user()->records()->find($request->record_id);
-            if(!$record)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'record does not exist',
-                ]);
-            }
-            $entry = $record->entries()->orderBy('id','desc')->first();
-            if(!$entry)
-            {
-                $entry = new Entry([
-                    'record_id' => $request->record_id,
-                    'entry_type' => $request->entry_type,
-                    'entry_time' => $request->entry_time
-                ]);
-                $entry->save();
-
-                return response()->json([
-                    'success' => true,
-                    'entry' => new EntryResource($entry),
-                ]);
-            }
-            $entry->entry_type;
-            if($entry->entry_type == $request->entry_type)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'you have already started',
-                ]);
-            }
-            else
-            {
-                $entry = new Entry([
-                    'record_id' => $request->record_id,
-                    'entry_type' => $request->entry_type,
-                    'entry_time' => $request->entry_time
-                ]);
-            $entry->save();
-
-                return response()->json([
-                    'success' => true,
-                    'entry' => new EntryResource($entry),
-                ]);
-            }
-        }
-
-        else if($request->entry_type == 'pause')
-        {
-            $record = user()->records()->find($request->record_id);
-            if(!$record)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'record does not exist',
-                ]);
-            }
-            $entry = $record->entries()->orderBy('id','desc')->first();
-            $entry->entry_type;
-            if($entry->entry_type == $request->entry_type)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'you have already paused',
-                ]);
-            }
-            else
-            {
-                $new_entry = new Entry([
-                    'record_id' => $request->record_id,
-                    'entry_type' => $request->entry_type,
-                    'entry_time' => $request->entry_time
-                ]);
-                $new_entry->save();
-                $previous_time = ($entry->entry_time);
-                $current_time = ($new_entry->entry_time);
-                $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
-                $parsed = date_parse($duration);
-                $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
-
-                $new_entry->update([
-                'entry_duration' => $seconds,
-                ]);
-                
-                return response()->json([
-                'success' => true,
-                'entry' => new EntryResource($new_entry),
-                ]);
-            }
-        }
-        else if($request->entry_type == 'resume')
-        {
-            $record = user()->records()->find($request->record_id);
-            if(!$record)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'record does not exist',
-                ]);
-            }
-            $entry = $record->entries()->orderBy('id','desc')->first();
-            $entry->entry_type;
-            if($entry->entry_type == $request->entry_type)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'you have already resumed',
-                ]);
-            }
-            else{
-            $entry = new Entry([
-                'record_id' => $request->record_id,
-                'entry_type' => $request->entry_type,
-                'entry_time' => $request->entry_time
-            ]);
-            $entry->save();
-
             return response()->json([
-                'success' => true,
-                'entry' => new EntryResource($entry),
+                'success' => false,
+                'message' => 'the user must checkin first to create an entry',
             ]);
-            }
         }
-        else if($request->entry_type == 'end')
-        {
-            $record = user()->records()->find($request->record_id);
-            if(!$record)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'record does not exist',
-                ]);
-            }
-            $entry = $record->entries()->orderBy('id','desc')->first();
-            $entry->entry_type;
-            if($entry->entry_type == $request->entry_type)
-            {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'you have already ended',
-                ]);
-            }
-            else
-            {
-                $new_entry = new Entry([
-                    'record_id' => $request->record_id,
-                    'entry_type' => $request->entry_type,
-                    'entry_time' => $request->entry_time
-                ]);
-                $new_entry->save();
-                $previous_time = ($entry->entry_time);
-                $current_time = ($new_entry->entry_time);
-                $duration = diffTime($previous_time,$current_time,'%H:%I:%S');
-                $parsed = date_parse($duration);
-                $seconds = $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
+        $record = user()->records()->find($request->record_id);
+        $entry_helper = new CreateEntryHelper($record);
 
-                $new_entry->update([
-                'entry_duration' => $seconds,
-                ]);
-                
-                return response()->json([
-                'success' => true,
-                'entry' => new EntryResource($new_entry),
-                ]);
-            }
+        //we check if record exist and avoid duplication of entry type
+        $duplication_checker = $entry_helper->avoidEntryDuplication();
+        if (!$duplication_checker->success) {
+            return response([
+                'success' => false,
+                'message' => $duplication_checker->message
+            ],$duplication_checker->status);
         }
-        // if a request is not either a pause,start,resume or end
-        else
-        {
-            return 'invalid request';
-        }
+   
+        if ($request->entry_type == 'start') return $entry_helper->startTask();
+
+        if ($request->entry_type == 'pause') return $entry_helper->pauseTask();
+
+        if ($request->entry_type == 'resume') return $entry_helper->resumeTask();
+
+        if ($request->entry_type == 'end') return $entry_helper->endTask();
 
     
 }
@@ -286,14 +143,27 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
+        $record = $entry->record;
+        
+        if(!isOwner($record))
+        {
+            return response([
+                'success' => false,
+                'message' => "you are not the owner of this entry"
+            ],403);
+        }
+        $last_entry_id = $entry->orderBy('id','desc')->first()->id;
+        if($last_entry_id != $entry->id)
+        {
+            return response([
+                'success' => false,
+                'message' => 'the deleted entry must be a last entry'
+            ],400);
+        }
         $entry->delete($entry);
-    }
-
-    public function SumationOfDuration($records)
-    {
-
-        $record = user()->records()->find($records);
-        $entries = $record->entries()->get();
-        return $entries->sum('entry_duration');
+        return response( [
+            'status' => true,
+            'message' => 'entry deleted successfully',
+        ],200);
     }
 }

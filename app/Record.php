@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\TaskHistory;
 use Illuminate\Database\Eloquent\Model;
 
 class Record extends Model
@@ -13,6 +14,7 @@ class Record extends Model
         'is_opened',
         'is_finished',
         'description',
+        'status',
         'user_id', 
         'project_id',
         'start_date',
@@ -32,6 +34,11 @@ class Record extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function task_histories()
+    {
+        return $this->hasMany(TaskHistory::class);
     }
     
 }

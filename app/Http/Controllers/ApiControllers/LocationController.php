@@ -16,6 +16,7 @@ class LocationController extends Controller
         //
     }
 
+    //to see the current location registerer
     public function office_location()
     {
         $location = Location::first();
@@ -24,7 +25,7 @@ class LocationController extends Controller
             return response([
                 'success' => false,
                 'message' => 'No location has been registered'
-            ]);
+            ],404);
         }
 
         return new LocationRessource($location);
@@ -36,7 +37,7 @@ class LocationController extends Controller
         //
     }
 
-    
+    //creating the office location if it does not exists
     public function store(Request $request)
     {
         
@@ -50,7 +51,7 @@ class LocationController extends Controller
             return response([
                 'success' => false,
                 'message' => 'The office must have only one location.delete the current location first'
-            ]);
+            ],409);
         }
 
         $location = Location::create([
@@ -63,7 +64,7 @@ class LocationController extends Controller
             'success' => true,
             'message' => 'Office location well created.',
             'location' => new LocationRessource($location)
-        ]);
+        ],201);
     }
 
     
@@ -78,13 +79,23 @@ class LocationController extends Controller
         //
     }
 
-    public function update(Request $request, Location $location)
+    //updating the office location
+    public function update(Request $request, $id)
     {
         $this->validate($request,[
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
             'radius' => 'required|numeric'
         ]);
+
+        $location = Location::find($id);
+
+        if (!$location) {
+            return response([
+                'success' => false,
+                'message' => 'the office location does not exist'
+            ],404);
+        }
 
         $location->update([
             'longitude' => $request->longitude,
@@ -96,17 +107,26 @@ class LocationController extends Controller
             'success' => true,
             'message' => 'Office location well updated.',
             'location' => new LocationRessource(Location::first())
-        ]);
+        ],200);
     }
 
-  
-    public function destroy(Location $location)
+   //delete the office location
+    public function destroy($id)
     {
+        $location = Location::find($id);
+
+        if (!$location) {
+            return response([
+                'success' => false,
+                'message' => 'the office location does not exist'
+            ],404);
+        }
+
         $location->delete();
         return response([
             'success' => true,
             'message' => 'Office location well deleted.',
-        ]);
+        ],200);
 
     }
 }

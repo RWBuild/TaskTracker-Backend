@@ -28,8 +28,8 @@ class UserAndRoleChecker
         if ($role->name == 'superadministrator') {
             return response([
                 'success' => false,
-                'message' => "You can't assign the {$role->name} to another user."
-            ]);            
+                'message' => "You can't assign or unassign the role {$role->name} to user in this way."
+            ],400);            
         }
 
         if (!$role) {

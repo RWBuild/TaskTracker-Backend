@@ -37,8 +37,6 @@ class AdminStaff extends Command
      */
     public function handle()
     {
-        
-
 
         //allowed to create a super admin via console
         list($username,$password) = explode(',',env('ADMIN_CREATOR'));
@@ -89,7 +87,7 @@ class AdminStaff extends Command
 
             return $this->info("Admin successfully created");
         }
-        //if user admin is already in database but he has not the role of uperadministrator
+        //if user admin is already in database but he has not the role of superadministrator
         else if($user=$superAdmin->user) {
             //return $this->info('good');
             if (!$user->hasRole('superadministrator')) {

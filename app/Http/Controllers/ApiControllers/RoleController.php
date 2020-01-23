@@ -13,8 +13,11 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     //display list of all roles
     public function index()
     {
+        //display all roles
         $roles = Role::all();
         return $roles;
     }
@@ -35,6 +38,8 @@ class RoleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    // creating a new role
     public function store(Request $request)
     {
         $this->validate($request,[
@@ -43,15 +48,16 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'name' => $request->name,
-            'description' => $request->description
+            'name' => str_replace(" ","",$request->name),
+            'description' => $request->description,
+            'display_name' => $request->name
         ]);
 
         return response([
             'success' => true,
             'message' => 'role successfully created',
             'role' => $role
-        ]);
+        ],201);
     }
 
     /**
@@ -83,6 +89,8 @@ class RoleController extends Controller
      * @param  \App\Role  $role
      * @return \Illuminate\Http\Response
      */
+
+    //updating a role
     public function update(Request $request, Role $role)
     {
         $this->validate($request,[
@@ -91,15 +99,16 @@ class RoleController extends Controller
         ]);
 
         $role->update([
-            'name' => $request->name,
-            'description' => $request->description
+            'name' => str_replace(" ","",$request->name),
+            'description' => $request->description,
+            'display_name' => $request->name
         ]);
 
         return response([
             'success' => true,
             'message' => 'role successfully updated',
             'role' => Role::find($role->id)
-        ]);
+        ],200);
     }
 
     /**
@@ -108,13 +117,22 @@ class RoleController extends Controller
      * @param  \App\Role  $role
      * @return \Illuminate\Http\Response
      */
+
+    //deleting a role (but you can't delete a role of a super admin) 
     public function destroy(Role $role)
     {
+        if ($role->name == 'superadministrator') {
+            return response([
+                'success' => true,
+                'message' => 'You can not delete the super administrator'
+            ],400);
+        }
+
         $role->delete();
 
         return response([
             'success' => true,
-            'message' => 'role successfully deleted'
-        ]);
+            'message' => 'Role successfully deleted'
+        ],200);
     }
 }

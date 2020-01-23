@@ -18,7 +18,7 @@ class Project extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'active' => $this->active,
+            'active' => (Bool) $this->active,
             // 'records' => new RecordResource($this->records),
         ];
     }

@@ -1,11 +1,32 @@
 
 <?php
 
+// status codes
+// ==============
+// bad request => 400
+// new created object => 201
+// success => 200
+// forbiden =>403
+// not found =>404
+// delete =>204
+
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Classes\TaskHistoryHelper;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+
+function task_history_helper()
+{
+  return new TaskHistoryHelper();  
+}
+
+function record($record)
+{
+   return task_history_helper()
+          ->get_record($record);
+}
 
 function getRouteName() {
     return Route::currentRouteName();
@@ -21,7 +42,13 @@ function user()
   return Auth::user();
 }
 
-function diffTime($from_time, $to_time,  $format='%YY-MM-dD %H:%I:%S')
+function isOwner($item)
+{
+  $user = user();
+  return $user->id == $item->user_id or $user->hasRole('superadministrator|projectmanager');
+}
+
+function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S')
 {
   $from_time = Carbon::parse($from_time);
   $to_time = Carbon::parse($to_time);
@@ -29,7 +56,36 @@ function diffTime($from_time, $to_time,  $format='%YY-MM-dD %H:%I:%S')
   return $totalDuration ;
 }
 
+function diffSecond($from_time, $to_time)
+{
+  $from_time = Carbon::parse($from_time);
+  $to_time = Carbon::parse($to_time);
+  $totalDuration = $to_time->diffInSeconds($from_time);
+  return $totalDuration ;
+}
+
 function str_toSlug($value)
 {
   return Str::slug($value);
 }
+
+function to_object($value)
+{
+  return ((Object)$value);
+}
+
+function trigger_exception($error)
+{
+  throw new Exception($error);
+}
+
+//get the current time
+function app_now()
+{
+  return Carbon::now()
+                 ->timezone('Africa/Cairo')
+                 ->toDateTimeString();
+}
+
+
+
