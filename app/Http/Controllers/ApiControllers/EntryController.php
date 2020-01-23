@@ -63,6 +63,7 @@ class EntryController extends Controller
             ]);
         }
         $record = user()->records()->find($request->record_id);
+
         $entry_helper = new CreateEntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
@@ -126,6 +127,12 @@ class EntryController extends Controller
         ]);
         
         $entry->update($request->all());
+
+        //log task history
+        $history_description = "Updated the entry time of the".
+                               entry_index($entry->record->entries,$entry->id)." 
+                               entry task to:".$request->entry_time;
+        record($record)->track_action_with_description('update_entry',$history_description);
         return response([ 
             'status' => true,
             'message' => 'entry updated successfully',
@@ -160,7 +167,14 @@ class EntryController extends Controller
                 'message' => 'the deleted entry must be a last entry'
             ],400);
         }
+
+        $entry_type = $entry->entry_type;
         $entry->delete($entry);
+
+        //log task history
+        $history_description = "Deleted a task entry having a {$entry_type} type";
+        record($record)->track_action_with_description('delete_entry',$history_description);
+
         return response( [
             'status' => true,
             'message' => 'entry deleted successfully',
