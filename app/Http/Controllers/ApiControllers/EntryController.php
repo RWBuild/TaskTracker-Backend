@@ -64,6 +64,7 @@ class EntryController extends Controller
             ]);
         }
         $record = user()->records()->find($request->record_id);
+
         $entry_helper = new CreateEntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
@@ -121,12 +122,25 @@ class EntryController extends Controller
     public function update(Request $request, Entry $entry)
     {
         $this->validate($request,[
-            'record_id'=>'required|integer',
-            'entry_time'=>'required|date',
+            'record_id'=>'integer|required',
+            'entry_type'=>'string|required',
+            'entry_time'=>'required',
+            'entry_duration' => 'required',
         ]);
-        $update_entry_helper = new UpdateEntryHelper($entry);
-        $get_record = $update_entry_helper->check_record_id();
-        return $get_record;
+        
+        $entry->update($request->all());
+
+        //log task history
+        $history_description = "Updated the entry time of the".
+                               entry_index($entry->record->entries,$entry->id)." 
+                               entry task to:".$request->entry_time;
+        record($record)->track_action_with_description('update_entry',$history_description);
+        return response([ 
+            'status' => true,
+            'message' => 'entry updated successfully',
+            'entry' => new EntryResource($entry)
+        ]);
+        
     }
 
     /**
@@ -156,16 +170,17 @@ class EntryController extends Controller
                 'message' => 'the deleted entry must be a last entry'
             ],400);
         }
-        $entry->delete($entry);
-        // return response( [
-        //     'status' => true,
-        //     'message' => 'entry deleted successfully',
-        // ],200);
 
-        $create_entry_helper = new CreateEntryHelper($record);
-        $last_entry = $create_entry_helper->get_task_last_entry();
-        $entry_type = $last_entry->entry_type;
-        $record->status = $entry_type;
-        $record->save();
+        $entry_type = $entry->entry_type;
+        $entry->delete($entry);
+
+        //log task history
+        $history_description = "Deleted a task entry having a {$entry_type} type";
+        record($record)->track_action_with_description('delete_entry',$history_description);
+
+        return response( [
+            'status' => true,
+            'message' => 'entry deleted successfully',
+        ],200);
     }
 }
