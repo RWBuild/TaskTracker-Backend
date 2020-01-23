@@ -7,6 +7,7 @@ use App\Entry;
 use App\Record;
 use Carbon\Carbon;
 use App\Classes\CreateEntryHelper;
+use App\Classes\UpdateEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -94,6 +95,7 @@ class EntryController extends Controller
      */
     public function show(Entry $entry)
     {
+        $entry = Entry::find($entry);
         return new EntryResource($entry);
     }
 
@@ -138,6 +140,7 @@ class EntryController extends Controller
             'message' => 'entry updated successfully',
             'entry' => new EntryResource($entry)
         ]);
+        
     }
 
     /**
