@@ -29,12 +29,12 @@ class CheckinValidator
         }
         
         $user = user();
-        // if ($user->has_checked) {
-        //     return response([
-        //         'success' => false,
-        //         'message' => 'You have already checked in'
-        //     ],400);            
-        // }
+        if ($user->has_checked) {
+            return response([
+                'success' => false,
+                'message' => 'You have already checked in'
+            ],400);            
+        }
 
         //verify if the user is not trying to double checkin in the same day
         if ($last_check = $user->office_times()->orderBy('id','desc')->first()) {
