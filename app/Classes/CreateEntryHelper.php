@@ -51,9 +51,13 @@ class CreateEntryHelper
     }
 
     //Will help to update the current record status at each and every record entry 
-    public function change_record_status($data = [])
+    public function change_record_status($data = [],$status = null)
     {
-        $data['status'] = $this->request->entry_type;
+        if($status == null)
+        {
+            $status = $this->request->entry_type;
+        }
+        $data['status'] = $status;
         $this->record->update($data);
     }
 
