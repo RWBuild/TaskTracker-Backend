@@ -245,10 +245,14 @@ class RecordController extends Controller
             'project_id' => $request->project_id,
             'name' => $request->name,
         ]);
+
+        //register the task history
+        record($record)->track_action('update_task');
+
         return response([
             'status' => true,
             'message' => 'record updated successfully',
-            'record' => new RecordResource($record),
+            'record' => new RecordResource(Record::find($record->id)),
         ],200);
     }
 
