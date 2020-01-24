@@ -201,8 +201,17 @@ class RecordController extends Controller
     */
 
     public function show(Record $record)
-    {
-        return new RecordResource($record);
+    {  
+        //allow only the owner or an admin user
+        if(!isOwner($record)) return response([
+            'success' => false,
+            'message' => 'You can not access this record'
+        ],403);
+
+        return response([
+            'success' => true,
+            'record' => new RecordResource($record)
+        ]);
     }
 
     /**

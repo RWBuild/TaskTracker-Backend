@@ -36,7 +36,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
 
     //Records
-    Route::resource("records","ApiControllers\RecordController")->except(['show']);
+    Route::resource("records","ApiControllers\RecordController");
 
     //for authenticated user
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");

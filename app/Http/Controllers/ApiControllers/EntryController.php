@@ -142,24 +142,8 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
-        $record = $entry->record;
-        
-        if(!isOwner($record))
-        {
-            return response([
-                'success' => false,
-                'message' => "you are not the owner of this entry"
-            ],403);
-        }
-        $last_entry = $record->entries->last()->id;
-        if($last_entry != $entry->id)
-        {
-            return response([
-                'success' => false,
-                'message' => 'the deleted entry must be a last entry'
-            ],400);  
-        }
         $delete_entry_helper = new DeleteEntryHelper($entry);
-        $record_status = $delete_entry_helper->delete_entry();
+        
+        return $delete_entry_helper->response();
     }
 }
