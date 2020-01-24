@@ -92,8 +92,6 @@ class CreateEntryHelper
             $current_record->status = 'pause';
             $current_record->is_current = false;
             $current_record->save();
-
-
         }
     }
 
