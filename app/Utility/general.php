@@ -94,12 +94,16 @@ function item_index($data,$id)
     return $item->id == $id;
   });
 
-  return $index == false? 0: $index + 1;
+  return $index === false? 0: $index + 1;
 }
 
 //return 1 to 1st and 5 to 5th
 function number_to_ordinal($number)
 {
+   if ($number == 0) {
+      return '';
+   }
+
    $nb_string = (String) $number;
    $last_number = substr($nb_string, -1);
 
@@ -114,6 +118,7 @@ function number_to_ordinal($number)
    else if($last_number == '3'){
     $sufix = 'rd';
    }
+   
 
    return $nb_string.''.$sufix;
 
@@ -124,6 +129,15 @@ function number_to_ordinal($number)
 function entry_index($data,$id)
 {
     return number_to_ordinal(item_index($data,$id));
+}
+
+//to check if dateA is greater than dateB
+function date_greater_than($dateA, $dateB)
+{
+    $dateA = Carbon::parse($dateA);
+    $dateB = Carbon::parse($dateB);
+    if ($dateA->gt($dateB)) return true;
+    return false;
 }
 
 
