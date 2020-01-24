@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ApiControllers;
 use App\MurugoUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MurugoUser as MurugoUserResource;
 
 class MurugoUserController extends Controller
 {
@@ -17,9 +18,7 @@ class MurugoUserController extends Controller
     {
         $murugo_users = MurugoUser::all();
 
-        return response([
-            'murugo_users' => $murugo_users
-        ]);
+        return MurugoUserResource::collection($murugo_users);
     }
 
     /**
