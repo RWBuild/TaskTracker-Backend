@@ -22,7 +22,7 @@ Route::group(['middleware' => 'auth:api'], function()
 {
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
-    Route::get("/logout","ApiControllers\Auth\LoginController@logout");
+    Route::get("/   ","ApiControllers\Auth\LoginController@logout");
     
 
     //Location
