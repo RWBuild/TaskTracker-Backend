@@ -18,7 +18,8 @@ class Entry extends JsonResource
           'id' => $this->id,
           'entry_type' => $this->entry_type,
           'entry_time' => $this->entry_time,
-          'entry_duration' => $this->entry_duration,  
+          'entry_duration' => $this->entry_duration, 
+          'record_id' => $this->record->id 
         ];
     }
 }
