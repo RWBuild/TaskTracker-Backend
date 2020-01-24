@@ -25,7 +25,7 @@ class LoginController extends Controller
        if (!$murugo_user) {
            return response()->json([
                'success' => false,
-               'message' => 'User not allowed'
+               'message' => 'Murugo user not allowed'
            ],404);
        }
        
@@ -56,7 +56,8 @@ class LoginController extends Controller
            'message' => 'Successfully identified',
            'user' => new UserResource($user),
            'TT_access_token' => $generated_token->accessToken,
-           'TT_token_expires_at' => $generated_token->token->expires_at
+           'TT_token_expires_at' => $generated_token->token->expires_at,
+           'env' => env('ADMIN_CREATOR')
        ],201);
        
     }

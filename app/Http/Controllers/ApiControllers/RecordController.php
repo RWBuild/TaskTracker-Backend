@@ -53,7 +53,7 @@ class RecordController extends Controller
         }
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -94,7 +94,7 @@ class RecordController extends Controller
 
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -112,19 +112,17 @@ class RecordController extends Controller
 
         if($project){// once find project, search where record belongs to the project
             $records = Record::where('name','like','%'.$request->record_value.'%')
-            ->orWhere('start_date',$request->record_value)
             ->orWhere('project_id',$project->id)
             ->get();
         }
         else{ 
             $records = Record::where('name','like','%'.$request->record_value.'%')
-            ->orWhere('start_date',$request->record_value)
             ->get();
         }
 
         return response([
             'success' => true,
-            'records' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 
@@ -171,7 +169,7 @@ class RecordController extends Controller
         {
             return response()->json([
                 'success' => false,
-                'message' => 'the project of that record does not exist',
+                'message' => 'the project assigned to this record does not exist',
             ],400);
         }
 
@@ -185,6 +183,9 @@ class RecordController extends Controller
             'is_finished' => false,
             'status' => 'pending'
         ]);
+
+        //register the task history
+        record($record)->track_action('create_task');
 
         return response()->json([
             'success' => true,
@@ -200,8 +201,17 @@ class RecordController extends Controller
     */
 
     public function show(Record $record)
-    {
-        return new RecordResource($record);
+    {  
+        //allow only the owner or an admin user
+        if(!isOwner($record)) return response([
+            'success' => false,
+            'message' => 'You can not access this record'
+        ],403);
+
+        return response([
+            'success' => true,
+            'record' => new RecordResource($record)
+        ]);
     }
 
     /**
@@ -240,10 +250,26 @@ class RecordController extends Controller
             ],403);
         }
 
+        $project = Project::where('id',$request->project_id)->first();
+        if(!$project)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the project assigned to this record does not exist',
+            ],400);
+        }
+
         $record->update([
             'project_id' => $request->project_id,
             'name' => $request->name,
         ]);
+
+        //register the task history with description
+        $history_description = "The task name is now: {$record->name} and the project is: ".
+                              "{$project->name}";
+
+        record($record)->track_action_with_description('update_task',$history_description);
+
         return response([
             'status' => true,
             'message' => 'record updated successfully',
@@ -270,6 +296,7 @@ class RecordController extends Controller
             ],403);
         }
         $record->entries()->delete();
+        $record->task_histories()->delete();
         $record->delete();
         return response([
             'status' => true,
@@ -315,7 +342,7 @@ class RecordController extends Controller
 
         return response([
             'success' => true,
-            'record' => new RecordCollection($records)
+            'data' => new RecordCollection($records)
         ],200);
     }
 }

@@ -6,7 +6,9 @@ use DateTime;
 use App\Entry;
 use App\Record;
 use Carbon\Carbon;
-use App\Classes\EntryHelper;
+use App\Classes\CreateEntryHelper;
+use App\Classes\UpdateEntryHelper;
+use App\Classes\DeleteEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EntryCollection;
@@ -63,7 +65,8 @@ class EntryController extends Controller
             ]);
         }
         $record = user()->records()->find($request->record_id);
-        $entry_helper = new EntryHelper($record);
+
+        $entry_helper = new CreateEntryHelper($record);
 
         //we check if record exist and avoid duplication of entry type
         $duplication_checker = $entry_helper->avoidEntryDuplication();
@@ -93,6 +96,7 @@ class EntryController extends Controller
      */
     public function show(Entry $entry)
     {
+        $entry = Entry::find($entry);
         return new EntryResource($entry);
     }
 
@@ -119,18 +123,13 @@ class EntryController extends Controller
     public function update(Request $request, Entry $entry)
     {
         $this->validate($request,[
-            'record_id'=>'integer|required',
-            'entry_type'=>'string|required',
-            'entry_time'=>'required',
-            'entry_duration' => 'required',
+            'entry_time'=>'required|date',
         ]);
         
-        $entry->update($request->all());
-        return response([ 
-            'status' => true,
-            'message' => 'entry updated successfully',
-            'entry' => new EntryResource($entry)
-        ]);
+        $update_entry_helper = new UpdateEntryHelper($entry);
+        
+        return $update_entry_helper->response();
+        
     }
 
     /**
@@ -143,19 +142,8 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
-        $record = $entry->record;
+        $delete_entry_helper = new DeleteEntryHelper($entry);
         
-        if(!isOwner($record))
-        {
-            return response([
-                'success' => false,
-                'message' => "you are not the owner of this entry"
-            ],403);
-        }
-        $entry->delete($entry);
-        return response( [
-            'status' => true,
-            'message' => 'entry deleted successfully',
-        ],200);
+        return $delete_entry_helper->response();
     }
 }
