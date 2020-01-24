@@ -23,14 +23,11 @@ class UpdateEntryHelper
     }
 
     //check if the current entry is the last one of this record
-    public function is_last_entry($current_entry = null)
+    public function is_last_entry()
     {
-        if (!$current_entry) {
-            $current_entry = $this->entry;
-        }
         $last_entry = $this->create_entry_helper->get_task_last_entry();
 
-        if ($last_entry->id == $current_entry->id) return true;
+        if ($last_entry->id == $this->entry->id) return true;
         return false;
     }
 

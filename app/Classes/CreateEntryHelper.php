@@ -65,8 +65,9 @@ class CreateEntryHelper
     public function pause_current_user_task()
     {
         $user = user();
-        $current_record = $user->records()->where('is_current',true)->
-        where('id','!=',$this->record->id)->first();
+        $current_record = $user->records()->where('is_current',true)
+                               ->where('id','!=',$this->record->id)
+                               ->first();
 
         if ($current_record) {
 
