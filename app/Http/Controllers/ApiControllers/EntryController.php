@@ -173,6 +173,5 @@ class EntryController extends Controller
         }
         $delete_entry_helper = new DeleteEntryHelper($entry);
         $record_status = $delete_entry_helper->delete_entry();
-        $entry->delete();
     }
 }

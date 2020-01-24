@@ -44,7 +44,8 @@ class DeleteEntryHelper
            $record = $this->current_record_status();
            $record->status = "pending";
            $record->is_current = false;
-           $record->save(); 
+           $record->save();
+           $this->entry->delete(); 
         }
 
         if($entry_type == 'pause')
@@ -52,6 +53,9 @@ class DeleteEntryHelper
             $record = $this->current_record();
             $create_entry_helper = new CreateEntryHelper($record);
             $create_entry_helper->pause_current_user_task();
+            $record->is_current = true;
+            $record->save();
+            $this->entry->delete(); 
         }
 
         if($entry_type == 'resume')
