@@ -110,6 +110,19 @@ class UpdateEntryHelper
         return to_object(['success' => true]);
     }
 
+    public function user_is_allowed()
+    {
+        if(!isOwner($this->record))
+        {
+            return to_object([
+                'success' => false,
+                'message' => "you are not the owner of this entry"
+            ]);
+        }
+
+        return to_object(['success' => true]);
+    }
+
     /*
      - Brain function
      - method to be called for giving the response of entry update
@@ -117,6 +130,15 @@ class UpdateEntryHelper
     */
     public function response()
     {
+        //prevent user to do this operation if he is not the owner
+        $is_owner = $this->user_is_allowed();
+        if (! $is_owner->success) {
+            return response([
+                    'success' => false,
+                    'message' => $is_owner->message
+                ]);
+        }
+
         $current_entry_type = $this->entry->entry_type;
 
         if ($current_entry_type == 'start') return $this->edit_start();
