@@ -67,8 +67,9 @@ class TaskHistoryHelper
     {
          //if action not valid, the sytem throw an exception
         if (! in_array($action, $this->known_actions)) {
-            trigger_exception("Trying to register an unknown action for task history. ". 
-                              "Received action [{$action}] while expect [".implode(',',$this->known_actions)."]");            
+            trigger_exception("Trying to register an unknown action for task". 
+                              " history. Received action [{$action}] while expecting ".
+                              "[".implode(',',$this->known_actions)."]");            
         }
         $this->setType($action);
         
@@ -78,7 +79,8 @@ class TaskHistoryHelper
     public function get_record($record){
         //if record doesn't exist the sytem throw an exception
         if (!$record) {
-            trigger_exception("Trying to register a task history of undefined task,please provide an existing task");                
+            trigger_exception("Trying to register a task history of undefined".
+                              " task,please provide an existing task");                
         }
         $this->setRecord($record);
         return $this;

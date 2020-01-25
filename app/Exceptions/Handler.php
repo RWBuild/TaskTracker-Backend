@@ -26,6 +26,7 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+
     /**
      * Report or log an exception.
      *
@@ -48,4 +49,6 @@ class Handler extends ExceptionHandler
     {
         return parent::render($request, $exception);
     }
+
+
 }

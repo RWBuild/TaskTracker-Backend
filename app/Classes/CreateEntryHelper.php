@@ -19,6 +19,55 @@ class CreateEntryHelper
         $this->record = $record;
     }
 
+    //to check if the current user can perform this operation
+    public function user_is_allowed()
+    {
+        //check if the user has checked
+        $user = user();
+        if(! $user->has_checked)
+        {
+            return to_object([
+                'success' => false,
+                'message' => 'the user must checkin first to create an entry',
+            ]);
+        }
+
+        return to_object(['success' => true]);
+    }
+    
+    //the main brain function to create an entry according to it type
+    public function response()
+    {
+        //check if user is allowed
+        $user_is_allowed = $this->user_is_allowed();
+
+        if (! $user_is_allowed->success) {
+           return response([
+               'success' => false,
+               'message' => $user_is_allowed->message
+           ]);
+        }
+        //we check if record exist and avoid duplication of entry type
+        $duplication_checker = $this->avoidEntryDuplication();
+
+        if (! $duplication_checker->success) {
+            return response([
+                'success' => false,
+                'message' => $duplication_checker->message
+            ],$duplication_checker->status);
+        }
+
+        $request = $this->request;
+
+        if ($request->entry_type == 'start') return $this->startTask();
+
+        if ($request->entry_type == 'pause') return $this->pauseTask();
+
+        if ($request->entry_type == 'resume') return $this->resumeTask();
+
+        if ($request->entry_type == 'end') return $this->endTask();
+    }
+
 
     //to check if a specific task has entries
     public function task_has_entries ()
@@ -37,6 +86,7 @@ class CreateEntryHelper
     {
       $last_entry_time = new DateTime($this->get_task_last_entry()->entry_time);
       $current_entry = new DateTime($this->request->entry_time);
+
       if($current_entry <= $last_entry_time)
       {
         return to_object([
@@ -190,8 +240,7 @@ class CreateEntryHelper
 
             //validating if the time of the current entry is not less than the time of the last entry
             $time_validation = $this->time_validation();
-                if(!$time_validation->success)
-                {
+                if(!$time_validation->success) {
                     return to_object([
                         'success' => false,
                         'message' => $time_validation->message,

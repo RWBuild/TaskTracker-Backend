@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use App\Classes\TaskHistoryHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Exceptions\TaskTrackerException;
 
 
 function task_history_helper()
@@ -74,9 +75,11 @@ function to_object($value)
   return ((Object)$value);
 }
 
-function trigger_exception($error)
+
+function trigger_exception($error_msg,$status = 400)
 {
-  throw new Exception($error);
+  abort($status, $error_msg);
+  
 }
 
 //get the current time
