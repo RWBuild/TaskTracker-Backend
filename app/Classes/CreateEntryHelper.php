@@ -4,19 +4,17 @@ namespace App\Classes;
 use DateTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Classes\Parents\EntryHelper;
 use App\Http\Resources\Entry as EntryResource;
 
 //Helper to call only on creation of an entry
-class CreateEntryHelper 
+class CreateEntryHelper extends EntryHelper
 {
-
-    public $request,
-           $record;
 
     public function __construct($record)
     {
-        $this->request = request();
         $this->record = $record;
+        $this->request = request();
     }
 
     //to check if the current user can perform this operation
@@ -29,6 +27,16 @@ class CreateEntryHelper
             return to_object([
                 'success' => false,
                 'message' => 'the user must checkin first to create an entry',
+            ]);
+        }
+
+        // Check if the record(task) exist in db
+        if (!$this->record) {
+            return to_object([
+                'success' => false,
+                'message' => "Task not found or it may not belong to you. Please ".
+                             "provide an existing task ",
+                'status' => 404
             ]);
         }
 
@@ -45,7 +53,7 @@ class CreateEntryHelper
            return response([
                'success' => false,
                'message' => $user_is_allowed->message
-           ]);
+           ], 400);
         }
         //we check if record exist and avoid duplication of entry type
         $duplication_checker = $this->avoidEntryDuplication();
@@ -68,187 +76,81 @@ class CreateEntryHelper
         if ($request->entry_type == 'end') return $this->endTask();
     }
 
-
-    //to check if a specific task has entries
-    public function task_has_entries ()
-    {
-        return $this->record->entries->count() > 0 ? true : false;
-    }
-
-    //to get the last entry of a task
-    public function get_task_last_entry ()
-    {
-        return $this->record->entries->last();
-    }
-
-    //checking if the current time is not less than the previous time
-    public function time_validation()
-    {
-      $last_entry_time = new DateTime($this->get_task_last_entry()->entry_time);
-      $current_entry = new DateTime($this->request->entry_time);
-
-      if($current_entry <= $last_entry_time)
-      {
-        return to_object([
-            'success' => false,
-            'message' => "you can't create an entry which has less time than the previous entry",
-            'status' => 400
-        ]); 
-      }
-
-      return to_object(['success' => true ]);
-       
-    }
-
-    //Will help to update the current record status at each and every record entry 
-    public function change_record_status($data = [],$status = null)
-    {
-        if($status == null)
-        {
-            $status = $this->request->entry_type;
-        }
-        $data['status'] = $status;
-        $this->record->update($data);
-    }
-
-    //will help to pause the current task(record) before starting or resumming another task
-    public function pause_current_user_task()
-    {
-        $user = user();
-        $current_record = $user->records()->where('is_current',true)
-                               ->where('id','!=',$this->record->id)
-                               ->first();
-
-        if ($current_record) {
-
-            $last_entry = $current_record->entries()->orderBy('id','desc')->first();
-             
-            //change only the record is current to false when its current status is pause
-            if ($last_entry->entry_type == 'pause') {
-                $current_record->is_current = false;
-                return $current_record->save();
-            }
-
-            //creation of the paused entry
-            $paused_entry = $current_record->entries()->create([
-                'entry_type' => 'pause',
-                'entry_time' => Carbon::now()->timezone('Africa/Cairo')->toDateTimeString(),
-            ]);
-        
-            //calculation of interval duration of a task from its previous entry to the paused one
-            
-            $paused_entry->entry_duration = diffSecond($last_entry->entry_time,$paused_entry->entry_time);
-            $paused_entry->save();
-
-            $current_record->status = 'pause';
-            $current_record->is_current = false;
-            $current_record->save();
-        }
-    }
-
     public function avoidEntryDuplication ()
     {
-       $knownEntryType = ['start','pause','resume','end'];
-       $received_entry_type = $this->request->entry_type;
-
-        // Check if the user has sent a valid entry type
-        if (!in_array($received_entry_type, $knownEntryType)) {
+       // Check if the user has sent a valid entry type
+        if (!in_array($this->request->entry_type, $this->knownEntryType)) {
             return to_object([
                 'success' => false,
-                'message' => "Please make sure that you are sending: start,pause,resume or end as an entry type",
+                'message' => "Please make sure that you are sending: ".
+                             "start,pause,resume or end as an entry type",
                 'status' => 400
             ]);                   
         }
         
-        // Check if the record(task) exist in databse
-        if (!$this->record) {
-            return to_object([
-                'success' => false,
-                'message' => 'Task not found or it may not belong to you. Please provide an existing task ',
-                'status' => 404
-            ]);
-        }
+        $start_checker = $this->start_from_start_checker();
+        if (!$start_checker->success) return $start_checker;
         
-        //check if the last entry type of this record has the same type as the type of the sent entry
-        $last_record = $this->get_task_last_entry();
-        
-        $prevent_same_entry_type = $this->prevent_same_entry_type($last_record);
+        //prerequist to check when a task has more than 1 entry
+        if ($this->task_has_entries()) return $this->check_on_entry_exists();
 
-        if (! $prevent_same_entry_type->success) {
-            return $prevent_same_entry_type;
-        }
-
-        //check if the record(task)  has entries in case user want to pause,resume or end
-        $entry_status_time_checker = $this->entry_status_and_time_checker();
-
-        if (! $entry_status_time_checker->success) {
-            return $entry_status_time_checker;
-        }
-
-        //check first if the task has ended in case user want to : pause or resume
-        if (in_array($received_entry_type,['resume','pause'])) {
-            if ($last_record->entry_type == 'end') {
-                return to_object([
-                    'success' => false,
-                    'message' => 'You can no longer '.strtoupper($received_entry_type).'. this task has ended',
-                    'status' => 400
-                ]);
-            }
-        }
-
-        
         return to_object(['success' => true ]);
     }
 
-
-
-    //to prevent simultaneous entries having same type
-    public function prevent_same_entry_type($last_record)
-    {
-        if ($last_record) {
-
-            if ($last_record->entry_type == $this->request->entry_type) {
-
-                return to_object([
-                    'success' => false,
-                    'message' => "You can't ".strtoupper($this->request->entry_type)." again because the current ". 
-                                 "status of this task is: ".strtoupper($last_record->entry_type),
-                    'status' => 400
-                ]);           
-            }
-        }
-
-        return to_object(['success' => true]);
-    }
-
-    /*
-     - to check if the record has been started before to : pause,resume or end it.
-     - entry time checker: to prevent the creation of an entry at a time which is 
-       before the previous entry time
+    /** 
+     * for preventing a user to : pause,resume or end
+     * a task which has been not started 
     */
-    public function entry_status_and_time_checker()
-    {
-        //check if the record(task)  has entries in case user want to pause,resume or end
+    public function start_from_start_checker() {
+
         if (in_array($this->request->entry_type,['pause','resume','end'])) {
             if (! $this->task_has_entries()) {
                 return to_object([
                     'success' => false,
-                    'message' => "Please START this task first before you ".strtoupper($this->request->entry_type)." it",
+                    'message' => "Please START this task first before you ".
+                                 strtoupper($this->request->entry_type)." it",
                     'status' => 400
                 ]);
             }
-
-            //validating if the time of the current entry is not less than the time of the last entry
-            $time_validation = $this->time_validation();
-                if(!$time_validation->success) {
-                    return to_object([
-                        'success' => false,
-                        'message' => $time_validation->message,
-                        'status' => 400
-                    ]);
-                }
         }
-        return to_object(['success' => true]);
+        return to_object(['success' => true ]);
+    }
+
+    /** 
+     * to be called in create entry prerequists only when a task 
+     * has more entries
+    */
+    public function check_on_entry_exists()
+    {
+        //check if the last entry type of this record has the same type as the type of the sent entry
+        $prevent_same_entry_type = $this->prevent_same_entry_type();
+
+        if (! $prevent_same_entry_type->success) return $prevent_same_entry_type;
+
+        //prevent incomming entry time to be equal to the current last entry time of the task
+        $last_entry = $this->lastEntry;
+
+        if(!date_greater_than($this->request->entry_time, $last_entry->entry_time)) {
+            return to_object([
+                'success' => false,
+                'message' => "Please the time of this entry must be greater than the ".
+                            "previous entry time({$last_entry->entry_time})",
+                'status' => 400
+            ]);
+        }
+
+        //check first if the task has ended in case user want to : pause or resume
+        if (in_array($this->request->entry_type,['resume','pause'])) {
+            if ($last_entry->entry_type == 'end') {
+                return to_object([
+                    'success' => false,
+                    'message' => 'You can no longer '.strtoupper($this->request->entry_type).'. '.
+                                'this task has ended',
+                    'status' => 400
+                ]);
+            }
+        }
+        return to_object(['success' => true ]);
     }
 
     //helper function to be called when user want to start a specific task
@@ -266,38 +168,22 @@ class CreateEntryHelper
         $this->pause_current_user_task();
 
         //creation of new entry
-        $request = $this->request;
-
-        $entry = $this->record->entries()->create([
-            'entry_type' => $request->entry_type,
-            'entry_time' => $request->entry_time            
-        ]);
+        $entry = $this->create_entry();
 
         //change this  record status to start
         $this->change_record_status(['is_current' => true]);
         
-        //log task history
-        record($this->record)->track_action('start_task');
-
-        return response([
-            'success' => true,
-            'entry' => new EntryResource($entry)
-        ]);
-
-
+        return $this->build_response($entry);
     }
     
     //helper function to be called when user want to pause a specific task
     public function pauseTask ()
     {
         $request = $this->request;
-        $last_entry = $this->get_task_last_entry();
+        $last_entry = $this->lastEntry;
         
         //creation of the paused entry
-        $paused_entry = $this->record->entries()->create([
-            'entry_type' => $request->entry_type,
-            'entry_time' => $request->entry_time,
-        ]);
+        $paused_entry = $this->create_entry();
         
         //calculation of interval duration of a task from its previous entry to the paused one
         $paused_entry->entry_duration = diffSecond($last_entry->entry_time,$paused_entry->entry_time);
@@ -305,21 +191,15 @@ class CreateEntryHelper
 
         //change this  record status to pause
         $this->change_record_status(['is_current' => true]);
-        //log task history
-        record($this->record)->track_action('pause_task');
-
-        return response([
-            'success' => true,
-            'entry' => new EntryResource($this->record->entries()->find($paused_entry->id)),
-            
-        ]);
+        
+        return $this->build_response($paused_entry);
     }
 
     //helper function to be called when user want to resume a specific task
     public function resumeTask ()
     {
         $request = $this->request;
-        $last_entry = $this->get_task_last_entry();
+        $last_entry = $this->lastEntry;
         
         //Check first if the last entry type is pause
         if ($last_entry->entry_type != 'pause') {
@@ -331,43 +211,29 @@ class CreateEntryHelper
 
         //Pause the current user task if exist before starting another one
         $this->pause_current_user_task();
-
-        $entry = $this->record->entries()->create([
-            'entry_type' => $request->entry_type,
-            'entry_time' => $request->entry_time            
-        ]);
+        
+        //create the entry
+        $entry = $this->create_entry();
 
         //change this  record status to resume
         $this->change_record_status(['is_current' => true]);
 
-        //log task history
-        record($this->record)->track_action('resume_task');
-
-        return response([
-            'success' => true,
-            'entry' => new EntryResource($entry)
-        ]);
+        return $this->build_response($entry);
     }
 
     //helper function to be called when user want to end a specific task
     public function endTask ()
     {
         $end_entry = $this->create_end_task();
+
         //modify the task status: is_current,is_opened,is_finished and change record status to end
-         $this->change_record_status([
+        $this->change_record_status([
             'is_current' => false,
             'is_opened' => false,
             'is_finished' => true
         ]);
 
-        //log task history
-        record($this->record)->track_action('end_task');
-
-        return response([
-            'success' => true,
-            'entry' => new EntryResource($end_entry)
-        ]);
-        
+        return $this->build_response($end_entry);
     }
 
     /*
@@ -377,34 +243,35 @@ class CreateEntryHelper
     */
     public function create_end_task()
     {
-        $request = $this->request;
-        $last_entry = $this->get_task_last_entry();
-        
-        //creation of the end entry
-        $record = $this->record;
+        $last_entry = $this->lastEntry;
         $end_entry;
+
         //if the last entry type is  pause, we set the entry duration to 0
         if ($last_entry->entry_type == 'pause') {
-            $end_entry = $record->entries()->create([
-                'entry_type' => $request->entry_type,
-                'entry_time' => $request->entry_time,
-                'entry_duration' => 0
-            ]);             
+            $end_entry = $this->create_entry();            
         }
         else{
 
-            $end_entry = $record->entries()->create([
-                'entry_type' => $request->entry_type,
-                'entry_time' => $request->entry_time
-            ]);
+            $end_entry = $this->create_entry();
             
             //calculation of interval duration of a task from its previous entry to the paused one
             $end_entry->entry_duration = diffSecond($last_entry->entry_time,$end_entry->entry_time);
             $end_entry->save();
         }
 
-        return $record->entries()->find($end_entry->id);
+        return $end_entry;
     }
 
+    //this will save the task history then return the response
+    public function build_response($entry)
+    {
+        //log task history
+        record($this->record)->track_action("{$this->request->entry_type}_task");
 
+        return response([
+            'success' => true,
+            'message' =>  strtoupper($this->request->entry_type).' entry successfully created',
+            'entry' => new EntryResource($entry)
+        ]);
+    }
 }
