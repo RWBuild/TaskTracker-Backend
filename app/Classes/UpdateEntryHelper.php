@@ -3,56 +3,24 @@ namespace App\Classes;
 
 use Illuminate\Http\Request;
 use App\Classes\CreateEntryHelper;
+use App\Classes\Parents\EntryHelper;
 use App\Http\Resources\Entry as EntryResource;
 
-class UpdateEntryHelper
+class UpdateEntryHelper extends EntryHelper
 {
-    public $request,
-           $record,//contains the record of the target entry
-           $entry,
-           $entry_time_before_save,//heep the entry time before updating the entry
-           $create_entry_helper;// contains the target entry
+    //heep the entry time before updating the entry
+    public $entry_time_before_save;
 
     public function __construct($entry)
     {
         $this->request = request();
         $this->record = $entry->record;
         $this->entry = $entry;
-        $this->create_entry_helper = new CreateEntryHelper($this->record);
         $this->entry_time_before_save = $entry->entry_time;
-    }
 
-    //check if the current entry is the last one of this record
-    public function is_last_entry()
-    {
-        $last_entry = $this->create_entry_helper->get_task_last_entry();
-
-        if ($last_entry->id == $this->entry->id) return true;
-        return false;
-    }
-
-    //get the next entry of a task refering to the current
-    public function get_next_entry()
-    {
-        $current_entry = $this->entry;
-        $next_entry = $this->record->entries
-                           ->first(function($entry) use($current_entry) {
-                                return $current_entry->id < $entry->id;
-                           });
-        
-        return $next_entry;
-    }
-
-    //get the previous entry of a task refering to the current
-    public function get_previous_entry()
-    {
-        $current_entry = $this->entry;
-        $previous_entry = $this->record->entries
-                            ->last(function($entry) use($current_entry) {
-                                return $current_entry->id > $entry->id;
-                            });
-        
-        return $previous_entry;
+        //Find and set the previous and next entry
+        $this->get_next_entry();
+        $this->get_previous_entry();
     }
 
     //to check if the incomming entry time is between the previous entry time and the next one
@@ -110,6 +78,7 @@ class UpdateEntryHelper
         return to_object(['success' => true]);
     }
 
+    //check if user is the owner of this entry
     public function user_is_allowed()
     {
         if(!isOwner($this->record))
@@ -119,6 +88,8 @@ class UpdateEntryHelper
                 'message' => "you are not the owner of this entry"
             ]);
         }
+        //check if the user is not trying to create an entry with a future date(time)
+        if (!$this->time_future_checker()->success) return $this->time_future_checker();
 
         return to_object(['success' => true]);
     }

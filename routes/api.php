@@ -95,8 +95,8 @@ Route::group(['middleware' => 'auth:api'], function()
         Route::post("unassign-role","ApiControllers\AdminController@detachRole")
         ->middleware('assign-role-checker');
 
-        //Roles
-        Route::resource("murugo_users","ApiControllers\MurugoUserController");
+        //Murugo users
+        Route::resource("murugo_users","ApiControllers\MurugoUserController")->only(['store','index']);
     });
 
 });
