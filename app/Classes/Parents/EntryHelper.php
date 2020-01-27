@@ -12,10 +12,17 @@ class EntryHelper
     public $request;
 
     /**
-     * To keep the current entry record
+     * To keep the current record
      * @var Record
      */
     public $record;
+
+    /**
+     * To keep the current entry: 
+     * used for update and delete entry
+     * @var Entry
+     */
+    public $entry;
 
     /**
      * The entry types known by the application
@@ -27,9 +34,23 @@ class EntryHelper
 
     /**
      * will keep the last entry of the current record
-     * @var Record
+     * @var Entry
      */
     public $lastEntry;
+
+    /**
+     * will keep the previous entry based on the 
+     * current one
+     * @var Entry
+     */
+    public $previousEntry;
+
+    /**
+     * will keep the next entry based on the 
+     * current one
+     * @var Entry
+     */
+    public $nextEntry;
 
     /** 
      * to check if a record of the entry in proccess
@@ -147,7 +168,7 @@ class EntryHelper
             //creation of the paused entry
             $paused_entry = $other_record->entries()->create([
                 'entry_type' => 'pause',
-                'entry_time' => Carbon::now()->timezone('Africa/Cairo')->toDateTimeString(),
+                'entry_time' => app_now(),
             ]);
         
             //calculation of interval duration of a task from its previous entry to the paused one
@@ -159,6 +180,72 @@ class EntryHelper
             $other_record->is_current = false;
             $other_record->save();
         }
+    }
+   
+    /** 
+     * To check if the current entry is the last one of the record
+     * @return Bool 
+    */
+    public function is_last_entry()
+    {
+        $last_entry = $this->get_task_last_entry();
+
+        if ($last_entry->id == $this->entry->id) return true;
+
+        return false;
+    }
+
+    /** 
+     * To check if the incomming time is not future time
+     * for preventing user to create or update an entry with 
+     * a future time
+     * @return Object 
+    */
+    public function time_future_checker()
+    {
+        $now = app_now();
+        if (date_greater_than($this->request->entry_time,$now)) {
+            return to_object([
+                'success' => false,
+                'message' => 'Please an entry time can not be a future time',
+                'status' => 400
+            ]);
+        }
+
+        return to_object(['success' => true]);
+    }
+
+    /** 
+     * get the next entry of a task based on the current
+     * @return Entry
+    */
+    public function get_next_entry()
+    {
+        $current_entry = $this->entry;
+
+        $next_entry = $this->record->entries
+                           ->first(function($entry) use($current_entry) {
+                                return $current_entry->id < $entry->id;
+                           });
+        $this->nextEntry = $next_entry;
+
+        return $next_entry;
+    }
+
+    /** 
+     * get the previous entry of a task based on the current
+     * @return Entry
+    */
+    public function get_previous_entry()
+    {
+        $current_entry = $this->entry;
+        $previous_entry = $this->record->entries
+                            ->last(function($entry) use($current_entry) {
+                                return $current_entry->id > $entry->id;
+                            });
+        $this->previousEntry = $previous_entry;
+
+        return $previous_entry;
     }
 
     /** 

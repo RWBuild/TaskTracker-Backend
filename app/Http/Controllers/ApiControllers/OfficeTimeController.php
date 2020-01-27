@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ApiControllers;
 
 
+use App\User;
 use Carbon\Carbon;
 use App\OfficeTime;
 use Illuminate\Http\Request;
@@ -27,9 +28,18 @@ class OfficeTimeController extends Controller
 
     public function get_last_check()
     {
+        $last_check = user()->office_times->last();
+        
+        if (!$last_check) {
+           return response([
+               'success' => true,
+               'office_time' => null
+           ]);
+        }
+        
         return response([
             'success' => true,
-            'office_time' => new OfficeTimeResource(user()->office_times->last())
+            'office_time' => new OfficeTimeResource($last_check)
         ]);
     }
 

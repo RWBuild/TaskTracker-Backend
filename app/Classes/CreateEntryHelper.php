@@ -36,6 +36,8 @@ class CreateEntryHelper extends EntryHelper
                 'status' => 404
             ]);
         }
+        //check if the user is not trying to create an entry with a future date(time)
+        if (!$this->time_future_checker()->success) return $this->time_future_checker();
 
         return to_object(['success' => true]);
     }

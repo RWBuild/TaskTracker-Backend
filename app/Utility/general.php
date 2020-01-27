@@ -122,12 +122,20 @@ function entry_index($data,$id) {
 }
 
 //to check if dateA is greater than dateB
-function date_greater_than($dateA, $dateB) {
+function date_greater_than($dateA, $dateB, $addEqual=false) {
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
-    if ($dateA->gt($dateB)) return true;
+
+    if ($addEqual) {
+      if ($dateA->gte($dateB)) return true;
+    }else {
+      if ($dateA->gt($dateB)) return true;
+    }
+    
     return false;
 }
+
+
 
 
 
