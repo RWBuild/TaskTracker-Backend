@@ -23,90 +23,19 @@ class UpdateEntryHelper extends EntryHelper
         $this->get_previous_entry();
     }
 
-    //to check if the incomming entry time is between the previous entry time and the next one
-    public function entry_time_in_middle()
-    {
-        $time_is_greater_checker = $this->entry_time_greater_prev();
-        $time_is_less_checker = $this->entry_time_less_next();
-
-        //check if incomming entry time is less than next entry time
-        if (!$time_is_greater_checker->success) {
-            
-            return $time_is_greater_checker;
-        }
-        //check if incomming entry time is greater than previous entry time
-        else if (!$time_is_less_checker->success) {
-            return $time_is_less_checker;            
-        }
-        
-        return to_object(['success' => true]);
-    }
-
-    //check if incomming entry time is greater than the previous entry time
-    public function entry_time_greater_prev()
-    {
-        $previous_entry = $this->get_previous_entry();
-
-        if (!date_greater_than($this->request->entry_time, $previous_entry->entry_time)) {
-            return to_object([
-                'success' => false,
-                'message' => "Please the entry time must be greater than the one of the previous entry".
-                            "({$previous_entry->entry_time})"
-              ]);            
-        }
-
-        return to_object(['success' => true]);
-    }
-
-    //check if incomming entry time is less than the next entry time   
-    public function entry_time_less_next()
-    {
-        //if the current entry is the last entry of record then approve
-        if ($this->is_last_entry()) return to_object(['success' => true]);
-
-        $next_entry = $this->get_next_entry();
-
-        if (!date_greater_than($next_entry->entry_time, $this->request->entry_time)) {
-            
-            return to_object([
-                    'success' => false,
-                    'message' => "Please the entry time must be less than the one of the next entry".
-                                "({$next_entry->entry_time})"
-                  ]);
-        }
-        
-        return to_object(['success' => true]);
-    }
-
-    //check if user is the owner of this entry
-    public function user_is_allowed()
-    {
-        if(!isOwner($this->record))
-        {
-            return to_object([
-                'success' => false,
-                'message' => "you are not the owner of this entry"
-            ]);
-        }
-        //check if the user is not trying to create an entry with a future date(time)
-        if (!$this->time_future_checker()->success) return $this->time_future_checker();
-
-        return to_object(['success' => true]);
-    }
-
-    /*
-     - Brain function
-     - method to be called for giving the response of entry update
-     - will call the processor functions according to the entry type
+    /**
+     * Brain function
+     * method to be called for giving the response of entry update,
+     * It will call the processor functions according to the entry type
     */
     public function response()
     {
         //prevent user to do this operation if he is not the owner
-        $is_owner = $this->user_is_allowed();
-        if (! $is_owner->success) {
+        $is_allowed = $this->user_is_allowed();
+        if (! $is_allowed->success) {
             return response([
                     'success' => false,
-                    'message' => $is_owner->message
+                    'message' => $is_allowed->message
                 ]);
         }
 
@@ -119,6 +48,22 @@ class UpdateEntryHelper extends EntryHelper
         if ($current_entry_type == 'resume') return $this->edit_resume();
 
         if ($current_entry_type == 'end') return $this->edit_end();
+    }
+
+    //check if user is the owner of this entry
+    public function user_is_allowed()
+    {
+        if(!isOwner($this->record))
+        {
+            return to_object([
+                'success' => false,
+                'message' => "you are not the owner of this entry"
+            ]);
+        }
+        //check if the user is not trying to update an entry with a future date(time)
+        if (!$this->time_future_checker()->success) return $this->time_future_checker();
+
+        return to_object(['success' => true]);
     }
 
     //when want to update the start entry
@@ -137,7 +82,7 @@ class UpdateEntryHelper extends EntryHelper
         the next entry
         */
         $update = $this->update_on_date_less();
-
+      
         if (! $update->success) {
             return response([
                 'success' => false,
@@ -149,10 +94,11 @@ class UpdateEntryHelper extends EntryHelper
          
     }
 
-    /*
-     - update the current entry only if the incomming entry time is less than the next enty time
-     - Then calculate and update the duration of the next entry refering to the current entry time
-     - applied only on start and resume entry type
+    /** 
+     * applied only for update the start entry
+     * update the current entry only if the incomming entry time is less than the next enty time
+     * Then calculate and update the duration of the next entry refering to the current entry time
+     * applied only on start and resume entry type
     */
     public function update_on_date_less()
     {
@@ -169,7 +115,7 @@ class UpdateEntryHelper extends EntryHelper
         $this->entry->save();
 
         //update the duration of the next entry
-        $next_entry = $this->get_next_entry();
+        $next_entry = $this->nextEntry;
         $next_entry->entry_duration = diffSecond($this->entry->entry_time,$next_entry->entry_time);
         $next_entry->save();
 
@@ -190,12 +136,10 @@ class UpdateEntryHelper extends EntryHelper
                 'message' => $time_is_middle->message
             ],400);
         }
-        
-        $previous_entry = $this->get_previous_entry();
 
         // calculate the duration then save
         $this->entry->entry_time = $this->request->entry_time;
-        $this->entry->entry_duration = diffSecond($previous_entry->entry_time,$this->entry->entry_time);
+        $this->entry->entry_duration = diffSecond($this->previousEntry->entry_time,$this->entry->entry_time);
         $this->entry->save();
 
         return $this->build_response();
@@ -227,9 +171,8 @@ class UpdateEntryHelper extends EntryHelper
         $this->entry->entry_time = $this->request->entry_time;
         $this->entry->save();
         //update the duration of the next entry
-        $next_entry = $this->get_next_entry();
-        $next_entry->entry_duration = diffSecond($this->entry->entry_time,$next_entry->entry_time);
-        $next_entry->save();
+        $this->nextEntry->entry_duration = diffSecond($this->entry->entry_time,$this->nextEntry->entry_time);
+        $this->nextEntry->save();
 
         return $this->build_response();
 
@@ -250,7 +193,7 @@ class UpdateEntryHelper extends EntryHelper
         }
 
         //update entry time only if previous entry is pause
-        $previous_entry = $this->get_previous_entry();
+        $previous_entry = $this->previousEntry;
 
         if ($previous_entry->entry_type  == 'pause') {
             $this->entry->entry_time = $this->request->entry_time;
@@ -264,6 +207,57 @@ class UpdateEntryHelper extends EntryHelper
 
         return $this->build_response();
 
+    }
+
+    //to check if the incomming entry time is between the previous entry time and the next one
+    public function entry_time_in_middle()
+    {
+        $time_is_greater_checker = $this->entry_time_greater_prev();
+        $time_is_less_checker = $this->entry_time_less_next();
+
+        //check if incomming entry time is less than next entry time
+        if (!$time_is_greater_checker->success) return $time_is_greater_checker;
+
+        //check if incomming entry time is greater than previous entry time
+        if (!$time_is_less_checker->success) return $time_is_less_checker;            
+        
+        return to_object(['success' => true]);
+    }
+
+    //check if incomming entry time is greater than the previous entry time
+    public function entry_time_greater_prev()
+    {
+        $previous_entry = $this->previousEntry;
+
+        if (!date_greater_than($this->request->entry_time, $previous_entry->entry_time)) {
+            return to_object([
+                'success' => false,
+                'message' => "Please the entry time must be greater than the one of the".
+                             " previous entry ({$previous_entry->entry_time})"
+              ]);            
+        }
+
+        return to_object(['success' => true]);
+    }
+
+    //check if incomming entry time is less than the next entry time   
+    public function entry_time_less_next()
+    {
+        //if the current entry is the last entry of record then approve
+        if ($this->is_last_entry()) return to_object(['success' => true]);
+
+        $next_entry = $this->nextEntry;
+
+        if (!date_greater_than($next_entry->entry_time, $this->request->entry_time)) {
+            
+            return to_object([
+                    'success' => false,
+                    'message' => "Please the entry time must be less than the one of the next entry".
+                                "({$next_entry->entry_time})"
+                  ]);
+        }
+        
+        return to_object(['success' => true]);
     }
 
     //save the task history
