@@ -63,9 +63,7 @@ class EntryController extends Controller
         $entry_helper = new CreateEntryHelper($record);
 
         return $entry_helper->response();
-
-    
-}
+    }
 
     /**
      * Display the specified resource.

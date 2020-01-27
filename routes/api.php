@@ -37,6 +37,8 @@ Route::group(['middleware' => 'auth:api'], function()
 
     //Records
     Route::resource("records","ApiControllers\RecordController");
+    //search record filter by record name or project name 
+    Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
 
     //for authenticated user
     Route::get("/user-record-by-type/{type}","ApiControllers\RecordController@userRecordByType");
@@ -70,8 +72,6 @@ Route::group(['middleware' => 'auth:api'], function()
         Route::get("/specific-user-record/{user_id}/{type}","ApiControllers\RecordController@specificUserRecord");
         // route to get current,open,complete task of all users
         Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
-        //search record filter by name or date
-        Route::post('/search-records',"ApiControllers\RecordController@searchRecord");
         
         //Only list of all tash histories and a single task
         Route::resource("task_histories","ApiControllers\TaskHistoryController")->only(['index','show']);
@@ -95,8 +95,8 @@ Route::group(['middleware' => 'auth:api'], function()
         Route::post("unassign-role","ApiControllers\AdminController@detachRole")
         ->middleware('assign-role-checker');
 
-        //Roles
-        Route::resource("murugo_users","ApiControllers\MurugoUserController");
+        //Murugo users
+        Route::resource("murugo_users","ApiControllers\MurugoUserController")->only(['store','index']);
     });
 
 });

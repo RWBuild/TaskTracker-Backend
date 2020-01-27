@@ -1,9 +1,6 @@
 <?php
 namespace App\Classes;
 
-use DateTime;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Classes\Parents\EntryHelper;
 use App\Http\Resources\Entry as EntryResource;
 
