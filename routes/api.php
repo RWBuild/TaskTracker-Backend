@@ -101,6 +101,10 @@ Route::group(['middleware' => 'auth:api'], function()
 
 });
 
+Route::group(['middleware' => ['checkin_app_key','superadministrator-limit']], function()
+{
+Route::post("super-admin","ApiControllers\UserController@create_super_admin");
+});
 
 
 
