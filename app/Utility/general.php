@@ -18,13 +18,11 @@ use Illuminate\Support\Facades\Route;
 use App\Exceptions\TaskTrackerException;
 
 
-function task_history_helper()
-{
+function task_history_helper() {
   return new TaskHistoryHelper();  
 }
 
-function record($record)
-{
+function record($record) {
    return task_history_helper()
           ->get_record($record);
 }
@@ -38,61 +36,52 @@ function isRouteName($routeName) {
 }
 
 
-function user() 
-{
+function user() {
   return Auth::user();
 }
 
-function isOwner($item)
-{
+function isOwner($item) {
   $user = user();
   return $user->id == $item->user_id or $user->hasRole('superadministrator|projectmanager');
 }
 
-function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S')
-{
+function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S') {
   $from_time = Carbon::parse($from_time);
   $to_time = Carbon::parse($to_time);
   $totalDuration = $from_time->diff($to_time)->format($format);
   return $totalDuration ;
 }
 
-function diffSecond($from_time, $to_time)
-{
+function diffSecond($from_time, $to_time) {
   $from_time = Carbon::parse($from_time);
   $to_time = Carbon::parse($to_time);
   $totalDuration = $to_time->diffInSeconds($from_time);
   return $totalDuration ;
 }
 
-function str_toSlug($value)
-{
+function str_toSlug($value) {
   return Str::slug($value);
 }
 
-function to_object($value)
-{
+function to_object($value) {
   return ((Object)$value);
 }
 
 
-function trigger_exception($error_msg,$status = 400)
-{
+function trigger_exception($error_msg,$status = 400) {
   abort($status, $error_msg);
   
 }
 
 //get the current time
-function app_now()
-{
+function app_now() {
   return Carbon::now()
                  ->timezone('Africa/Cairo')
                  ->toDateTimeString();
 }
 
 //return the index of an item withing a collection
-function item_index($data,$id)
-{
+function item_index($data,$id) {
   $index =  $data->search(function($item) use($id){
     return $item->id == $id;
   });
@@ -101,8 +90,7 @@ function item_index($data,$id)
 }
 
 //return 1 to 1st and 5 to 5th
-function number_to_ordinal($number)
-{
+function number_to_ordinal($number) {
    if ($number == 0) {
       return '';
    }
@@ -129,14 +117,12 @@ function number_to_ordinal($number)
 }
 
 //will return the index of an entry in ordinal format: eg: 1st,5th
-function entry_index($data,$id)
-{
+function entry_index($data,$id) {
     return number_to_ordinal(item_index($data,$id));
 }
 
 //to check if dateA is greater than dateB
-function date_greater_than($dateA, $dateB)
-{
+function date_greater_than($dateA, $dateB) {
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
     if ($dateA->gt($dateB)) return true;

@@ -121,9 +121,10 @@ class DeleteEntryHelper
     //processor for deleting a pause entry
     public function delete_pause()
     {
-        /*if the record of this entry is not current 
-          turn other user record to is current false */
-          
+        /*
+         if the record of this entry is not 
+         current  pause the current user record 
+         */
         if (! $this->record->is_current) {
             $this->update_entry_helper->create_entry_helper
                                   ->pause_current_user_task();
@@ -165,13 +166,13 @@ class DeleteEntryHelper
     public function delete_end()
     {
         
-        //get last entry after delete
+        //get last entry before delete
         $previous_entry = $this->update_entry_helper
                                ->get_previous_entry();
 
         //turn other record to current false if last entry type is not pause
         if ($previous_entry->entry_type != 'pause') {
-            //no need to turn other records if the record is current
+            //check if the entry record is not the current one
             if (! $this->record->is_current) {
                 $this->update_entry_helper->create_entry_helper
                                   ->pause_current_user_task();
