@@ -50,43 +50,20 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
-        $user = user();
-        $is_checked = $user->has_checked;
+        
         $this->validate($request,[
             'record_id'=>'required|integer',
             'entry_type'=>'required|string',
             'entry_time'=>'required|date',
         ]);
-        if($is_checked == 0)
-        {
-            return response()->json([
-                'success' => false,
-                'message' => 'the user must checkin first to create an entry',
-            ]);
-        }
-        $record = user()->records()->find($request->record_id);
+
+        $record = user()->records()
+                       ->find($request->record_id);
 
         $entry_helper = new CreateEntryHelper($record);
 
-        //we check if record exist and avoid duplication of entry type
-        $duplication_checker = $entry_helper->avoidEntryDuplication();
-        if (!$duplication_checker->success) {
-            return response([
-                'success' => false,
-                'message' => $duplication_checker->message
-            ],$duplication_checker->status);
-        }
-   
-        if ($request->entry_type == 'start') return $entry_helper->startTask();
-
-        if ($request->entry_type == 'pause') return $entry_helper->pauseTask();
-
-        if ($request->entry_type == 'resume') return $entry_helper->resumeTask();
-
-        if ($request->entry_type == 'end') return $entry_helper->endTask();
-
-    
-}
+        return $entry_helper->response();
+    }
 
     /**
      * Display the specified resource.
