@@ -25,7 +25,7 @@ class RecordController extends Controller
 
     public function index()
     {
-        $records = user()->records()->OrderBy('id','desc')->get();
+        $records = user()->records()->orderBy('id','desc')->get();
         return new RecordCollection($records);
     }
 
