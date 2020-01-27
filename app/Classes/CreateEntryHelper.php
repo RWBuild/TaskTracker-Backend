@@ -14,6 +14,39 @@ class CreateEntryHelper extends EntryHelper
         $this->request = request();
     }
 
+    //the main brain function to create an entry according to it type
+    public function response()
+    {
+        //check if user is allowed
+        $user_is_allowed = $this->user_is_allowed();
+
+        if (! $user_is_allowed->success) {
+           return response([
+               'success' => false,
+               'message' => $user_is_allowed->message
+           ], 400);
+        }
+        //we check if record exist and avoid duplication of entry type
+        $prerequisite_checker = $this->prerequisites();
+
+        if (! $prerequisite_checker->success) {
+            return response([
+                'success' => false,
+                'message' => $prerequisite_checker->message
+            ],$prerequisite_checker->status);
+        }
+
+        $request = $this->request;
+
+        if ($request->entry_type == 'start') return $this->startTask();
+
+        if ($request->entry_type == 'pause') return $this->pauseTask();
+
+        if ($request->entry_type == 'resume') return $this->resumeTask();
+
+        if ($request->entry_type == 'end') return $this->endTask();
+    }
+
     //to check if the current user can perform this operation
     public function user_is_allowed()
     {
@@ -36,44 +69,15 @@ class CreateEntryHelper extends EntryHelper
                 'status' => 404
             ]);
         }
+        //check if the user is not trying to create an entry with a future date(time)
+        if (!$this->time_future_checker()->success) return $this->time_future_checker();
 
         return to_object(['success' => true]);
     }
     
-    //the main brain function to create an entry according to it type
-    public function response()
-    {
-        //check if user is allowed
-        $user_is_allowed = $this->user_is_allowed();
-
-        if (! $user_is_allowed->success) {
-           return response([
-               'success' => false,
-               'message' => $user_is_allowed->message
-           ], 400);
-        }
-        //we check if record exist and avoid duplication of entry type
-        $duplication_checker = $this->avoidEntryDuplication();
-
-        if (! $duplication_checker->success) {
-            return response([
-                'success' => false,
-                'message' => $duplication_checker->message
-            ],$duplication_checker->status);
-        }
-
-        $request = $this->request;
-
-        if ($request->entry_type == 'start') return $this->startTask();
-
-        if ($request->entry_type == 'pause') return $this->pauseTask();
-
-        if ($request->entry_type == 'resume') return $this->resumeTask();
-
-        if ($request->entry_type == 'end') return $this->endTask();
-    }
-
-    public function avoidEntryDuplication ()
+    //this will process different preconditions for allowing user
+    //to continue with the operation 
+    public function prerequisites ()
     {
        // Check if the user has sent a valid entry type
         if (!in_array($this->request->entry_type, $this->knownEntryType)) {
@@ -85,6 +89,7 @@ class CreateEntryHelper extends EntryHelper
             ]);                   
         }
         
+        //check if the user has started before he can: pause,resume or end
         $start_checker = $this->start_from_start_checker();
         if (!$start_checker->success) return $start_checker;
         
