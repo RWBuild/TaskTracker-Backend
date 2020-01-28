@@ -64,13 +64,22 @@ class EntryHelper
     
     /** 
      * to check if the curent task(record) has entries
-     * set the last entry of the taskbin $lastEntry
-     * @return bool
+     * return error with provided msg or return bool
+     * @var $msg
+     * @return bool|Response
     */
-    public function task_has_entries ()
+    public function task_has_entries ($msg = null,$when = false)
     {  
         if($this->record->entries->count() > 0) {
+            if ($when) {
+                $this->build_error($msg);
+            }
+            
             return true;
+        }
+
+        if ($msg) {
+            $this->build_error($msg);
         }
 
         return false;
@@ -267,9 +276,13 @@ class EntryHelper
      * @return throw
     */
     public function build_error($data,$status = null)
-    {   
-        $data = to_object($data);
-        $status = !$status ? $status : null;
-        trigger_exception($data->message, $status);
+    { 
+        if(is_string($data)) {
+            trigger_exception($data, $status);
+        } else {
+            $data = to_object($data);
+            trigger_exception($data->message, $status);
+        }
+        
     }
 }

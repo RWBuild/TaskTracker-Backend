@@ -187,7 +187,7 @@ class DeleteEntryHelper extends EntryHelper
     }
 
     //this will build response for error response
-    public function build_error($error)
+    public function build_error($error,$status = null)
     {
         //return error status 400 in case no other status provided
         $error_status =  !isset($error->status) ? 400 : $error->status; 
