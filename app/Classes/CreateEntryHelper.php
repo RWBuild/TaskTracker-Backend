@@ -68,9 +68,6 @@ class CreateEntryHelper extends EntryHelper
         
         //check if the user has started before he can: pause,resume or end
         $this->start_from_start_checker();
-        
-        //prerequisite to be checked when a task has more than 1 entry
-        $this->check_on_entry_exists();
 
     }
 
@@ -82,10 +79,14 @@ class CreateEntryHelper extends EntryHelper
 
         if (in_array($this->request->entry_type,['pause','resume','end'])) {
 
+            //if task has no entry , return error
             $msg = "Please START this task first before you ".
                    strtoupper($this->request->entry_type)." it";
 
-            $this->task_has_entries($msg);
+            $this->task_has_entries($msg,false);
+
+            //prerequisite to be checked when a task has more than 1 entry
+            $this->check_on_entry_exists();
         }
     }
 

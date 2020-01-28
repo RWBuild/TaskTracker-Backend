@@ -78,7 +78,7 @@ class EntryHelper
             return true;
         }
 
-        if ($msg) {
+        if ($msg and $when === false) {
             $this->build_error($msg);
         }
 
