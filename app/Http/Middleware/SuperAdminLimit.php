@@ -20,6 +20,8 @@ class SuperAdminLimit
             'role_id' => 'required'
         ]);
         $role = Role::find($request->role_id);
+        
+        //when role does not found
         if(!$role)
         {
             return response([
@@ -27,6 +29,8 @@ class SuperAdminLimit
                 'message' => 'role does not exist'
             ]);
         }
+
+        //limiting the creation of more than two administrators
         if($role->users->count() >= 2)
         {
             return response([
