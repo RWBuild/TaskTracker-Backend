@@ -74,7 +74,7 @@ class EntryHelper
             if ($when) {
                 $this->build_error($msg);
             }
-            
+
             return true;
         }
 
@@ -197,13 +197,24 @@ class EntryHelper
    
     /** 
      * To check if the current entry is the last one of the record
-     * @return Bool 
+     * @var Sring $msg : message to display 
+     * @var Bool $when : display message if consition test is equal to $when
+     * @return Bool|Response
     */
-    public function is_last_entry()
+    public function is_last_entry($msg = null, $when = false)
     {
         $last_entry = $this->get_task_last_entry();
 
-        if ($last_entry->id == $this->entry->id) return true;
+        if ($last_entry->id == $this->entry->id) {
+            if ($when) {
+               $this->build_error($msg);
+            }
+            return true;
+        }
+
+        if ($when === false) {
+            $this->build_error($msg);
+         }
 
         return false;
     }

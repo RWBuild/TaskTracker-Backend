@@ -61,7 +61,7 @@ class UpdateEntryHelper extends EntryHelper
             ]);
         }
         //check if the user is not trying to update an entry with a future date(time)
-        if (!$this->time_future_checker()->success) return $this->time_future_checker();
+        $this->time_future_checker();
 
         return to_object(['success' => true]);
     }
@@ -70,7 +70,7 @@ class UpdateEntryHelper extends EntryHelper
     public function edit_start()
     {
         //we check if is the last entry to update it directly
-        if ($this->is_last_entry()) {
+        if ($this->is_last_entry(null,null)) {
             
             $this->entry->entry_time = $this->request->entry_time;
             $this->entry->save(); 
@@ -161,7 +161,7 @@ class UpdateEntryHelper extends EntryHelper
         }
 
         //update the current entry time directly if it's a last entry
-        if ($this->is_last_entry()) {
+        if ($this->is_last_entry(null,null)) {
             $this->entry->entry_time = $this->request->entry_time;
             $this->entry->save();
             return $this->build_response();
@@ -244,7 +244,7 @@ class UpdateEntryHelper extends EntryHelper
     public function entry_time_less_next()
     {
         //if the current entry is the last entry of record then approve
-        if ($this->is_last_entry()) return to_object(['success' => true]);
+        if ($this->is_last_entry(null,null)) return to_object(['success' => true]);
 
         $next_entry = $this->nextEntry;
 
