@@ -12,14 +12,16 @@ class CreateEntryHelper extends EntryHelper
     {
         $this->record = $record;
         $this->request = request();
+        //check if user is allowed
+        $this->user_is_allowed();
+
+        //Find snd get the last entry of the recordß
         $this->get_task_last_entry();
     }
 
     //the main brain function to create an entry according to it type
     public function response()
     {
-        //check if user is allowed
-        $this->user_is_allowed();
 
         //we check if record exist and avoid duplication of entry type
         $this->prerequisites();
@@ -40,20 +42,14 @@ class CreateEntryHelper extends EntryHelper
     {
         //check if the user has checked
         $user = user();
-        if(! $user->has_checked)
-        {
-             $this->build_error([
-                'message' => 'the user must checkin first to create an entry',
-            ]);
+        if(! $user->has_checked) {
+             $this->build_error('the user must checkin first to create an entry');
         }
 
         // Check if the record(task) exist in db
         if (!$this->record) {
-            $this->build_error([
-                'message' => "Task not found or it may not belong to you. Please ".
-                             "provide an existing task ",
-                'status' => 404
-            ]);
+            $this->build_error("Task not found or it may not belong to you. Please ".
+                             "provide an existing task ");
         }
         //check if the user is not trying to create an entry with a future date(time)
         $this->time_future_checker();
@@ -66,10 +62,8 @@ class CreateEntryHelper extends EntryHelper
     {
        // Check if the user has sent a valid entry type
         if (!in_array($this->request->entry_type, $this->knownEntryType)) {
-            $this->build_error([
-                'message' => "Please make sure that you are sending: ".
-                             "start,pause,resume or end as an entry type",
-            ]);                   
+            $this->build_error("Please make sure that you are sending: ".
+                             "start,pause,resume or end as an entry type");                   
         }
         
         //check if the user has started before he can: pause,resume or end
@@ -87,14 +81,11 @@ class CreateEntryHelper extends EntryHelper
     public function start_from_start_checker() {
 
         if (in_array($this->request->entry_type,['pause','resume','end'])) {
-            if (! $this->task_has_entries()) {
-                $this->build_error([
-                    'success' => false,
-                    'message' => "Please START this task first before you ".
-                                 strtoupper($this->request->entry_type)." it",
-                    'status' => 400
-                ]);
-            }
+
+            $msg = "Please START this task first before you ".
+                   strtoupper($this->request->entry_type)." it";
+
+            $this->task_has_entries($msg);
         }
     }
 
@@ -131,13 +122,8 @@ class CreateEntryHelper extends EntryHelper
     //helper function to be called when user want to start a specific task
     public function startTask ()
     {
-        //check first if this is not the first entry of this task
-        if ($this->task_has_entries()) {
-            return response([
-                'success' => false,
-                'message' => 'You have already started this task'
-            ],400);
-        }
+        //if task has entries, return the given msg
+        $this->task_has_entries('You have already started this task',true);
 
         //Pause the current user task if exist before starting another one
         $this->pause_current_user_task();
@@ -178,10 +164,7 @@ class CreateEntryHelper extends EntryHelper
         
         //Check first if the last entry type is pause
         if ($last_entry->entry_type != 'pause') {
-            return response([
-                'success' => false,
-                'message' => 'You can not resume a task that has been not paused'
-            ],400);        
+            return $this->build_error('You can not resume a task that has been not paused');       
         }
 
         //Pause the current user task if exist before starting another one
