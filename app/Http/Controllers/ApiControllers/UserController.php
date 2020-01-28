@@ -116,32 +116,20 @@ class UserController extends Controller
             ]);
         }
 
-        else if($murugo_user->user_id != null)
+        $user = User::find($murugo_user->user_id);
+        $role = $user->roles()->where('name','superadministrator')->first();
+        if(!$role)
         {
-            $role = Role::find($request->role_id);
-             if($role->name != 'superadministrator')
-             {
-                $murugo_user = MurugoUser::where('murugo_user_id',$request->murugo_user_id)->first();
-                $user = User::find($murugo_user->user_id);
-                if($user->hasRole('superadministrator'))
-                {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'user is already a super administrator' 
-                    ]); 
-                }
-                $user->attachRole(1);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'role of super administrator assigned to '.$user->names. ' successfully' 
-                ]);
-             }
-             return response()->json([
-                'success' => false,
-                'message' => 'user is already a super administrator' 
+            $murugo_user = MurugoUser::where('murugo_user_id',$request->murugo_user_id)->first();
+            $user->attachRole(1);
+            return response()->json([
+                'success' => true,
+                'message' => 'role of super administrator assigned to '.$user->names. ' successfully' 
             ]);
         }
-        
-        
+            return response()->json([
+            'success' => false,
+            'message' => 'user is already a super administrator' 
+        ]);  
     }
 }

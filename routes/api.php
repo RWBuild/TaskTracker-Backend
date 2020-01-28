@@ -1,5 +1,7 @@
 <?php
 
+use App\Role;
+use App\User;
 use Illuminate\Http\Request;
 
 /*
@@ -104,6 +106,10 @@ Route::group(['middleware' => 'auth:api'], function()
 Route::group(['middleware' => ['checkin_app_key','superadministrator-limit']], function()
 {
 Route::post("super-admin","ApiControllers\UserController@create_super_admin");
+});
+
+Route::get('test',function(){
+    dump(Role::with('users')->get());
 });
 
 
