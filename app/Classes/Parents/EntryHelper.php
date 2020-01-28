@@ -278,7 +278,7 @@ class EntryHelper
         return $this->record->entries()->create([
             'entry_type' => $this->request->entry_type,
             'entry_time' => $this->request->entry_time,
-            'entry_duration' => 0
+            'entry_duration' => null
         ]); 
     }
 
