@@ -50,7 +50,6 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
-        
         $this->validate($request,[
             'record_id'=>'required|integer',
             'entry_type'=>'required|string',
