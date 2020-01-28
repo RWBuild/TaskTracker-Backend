@@ -58,6 +58,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(MurugoUser::class);
     }
-
+      
+    // public function roles()
+    // {
+    //     return $this->belongsToMany(Role::class)->withPivot('role_user');
+    // }
 
 }

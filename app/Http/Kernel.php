@@ -65,7 +65,8 @@ class Kernel extends HttpKernel
         'test-fred' => \App\Http\Middleware\AdMidd::class, 
         
         'role' => \Laratrust\Middleware\LaratrustRole::class,
-        'assign-role-checker' => \App\Http\Middleware\UserAndRoleChecker::class
+        'assign-role-checker' => \App\Http\Middleware\UserAndRoleChecker::class,
+        'superadministrator-limit' => \App\Http\Middleware\SuperAdminLimit::class
     ];
 
     /**
