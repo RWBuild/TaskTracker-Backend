@@ -64,21 +64,30 @@ class EntryHelper
     
     /** 
      * to check if the curent task(record) has entries
-     * set the last entry of the taskbin $lastEntry
-     * @return bool
+     * return error with provided msg or return bool
+     * @var $msg
+     * @return bool|Response
     */
-    public function task_has_entries ()
+    public function task_has_entries ($msg = null,$when = false)
     {  
         if($this->record->entries->count() > 0) {
-            $this->lastEntry = $this->get_task_last_entry();
+            if ($when) {
+                $this->build_error($msg);
+            }
+
             return true;
+        }
+
+        if ($msg and $when === false) {
+            $this->build_error($msg);
         }
 
         return false;
     }
 
     /** 
-     * to get the last entry of a task
+     * to get the last entry of the current task
+     * or of a specific task(record)
      * @param Record $record
      * @return Object
     */
@@ -87,7 +96,15 @@ class EntryHelper
         if (!$record) {
             $record = $this->record;
         }
-        return $record->load('entries')->entries->last();
+
+        $last = $record->load('entries')->entries->last();
+
+        //we set lastEntry only if current entry belongs to record
+        if ($record->id == $this->record->id) {
+            $this->lastEntry = $last;
+        }
+
+        return $last;
     }
   
     /** 
@@ -116,7 +133,6 @@ class EntryHelper
      * entry type and the current entry type of the record
      * @example if the current entry type was: start, comming entry can no longer be start
      * @param Record $record
-     * @return Object
     */
     public function prevent_same_entry_type()
     {
@@ -125,17 +141,14 @@ class EntryHelper
 
             if ($last_entry->entry_type == $this->request->entry_type) {
 
-                return to_object([
-                    'success' => false,
+                $this->build_error([
                     'message' => "You can't ".strtoupper($this->request->entry_type)
                                  ." again because the current status of this task is: ".
                                  strtoupper($last_entry->entry_type),
-                    'status' => 400
                 ]);           
             }
         }
 
-        return to_object(['success' => true]);
     }
  
     /** 
@@ -184,13 +197,24 @@ class EntryHelper
    
     /** 
      * To check if the current entry is the last one of the record
-     * @return Bool 
+     * @var Sring $msg : message to display 
+     * @var Bool $when : display message if consition test is equal to $when
+     * @return Bool|Response
     */
-    public function is_last_entry()
+    public function is_last_entry($msg = null, $when = false)
     {
         $last_entry = $this->get_task_last_entry();
 
-        if ($last_entry->id == $this->entry->id) return true;
+        if ($last_entry->id == $this->entry->id) {
+            if ($when) {
+               $this->build_error($msg);
+            }
+            return true;
+        }
+
+        if ($when === false) {
+            $this->build_error($msg);
+         }
 
         return false;
     }
@@ -205,14 +229,10 @@ class EntryHelper
     {
         $now = app_now();
         if (date_greater_than($this->request->entry_time,$now)) {
-            return to_object([
-                'success' => false,
-                'message' => 'Please an entry time can not be a future time',
-                'status' => 400
+            return $this->build_error([
+                'message' => 'Please an entry time can not be a future time'
             ]);
         }
-
-        return to_object(['success' => true]);
     }
 
     /** 
@@ -258,7 +278,22 @@ class EntryHelper
         return $this->record->entries()->create([
             'entry_type' => $this->request->entry_type,
             'entry_time' => $this->request->entry_time,
-            'entry_duration' => 0
+            'entry_duration' => null
         ]); 
+    }
+
+    /** 
+     * this will throw an exception
+     * @return throw
+    */
+    public function build_error($data,$status = null)
+    { 
+        if(is_string($data)) {
+            trigger_exception($data, $status);
+        } else {
+            $data = to_object($data);
+            trigger_exception($data->message, $status);
+        }
+        
     }
 }

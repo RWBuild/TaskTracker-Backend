@@ -7,8 +7,7 @@ use App\Classes\Parents\EntryHelper;
 
 class DeleteEntryHelper extends EntryHelper
 {
-    public $entry_type,//keep entry type to be used after deleting the entry
-           $update_entry_helper;//helper of the entry
+    public $entry_type;//keep entry type to be used after deleting the entry
 
     public function __construct($entry)
     {
@@ -16,7 +15,9 @@ class DeleteEntryHelper extends EntryHelper
         $this->entry = $entry;
         $this->record = $entry->record;
         $this->entry_type = $entry->entry_type;
-        $this->update_entry_helper = new UpdateEntryHelper($entry);
+
+        //check if the user is allowed to perform this operation
+        $this->user_is_allowed();
     }
 
     /*
@@ -26,12 +27,6 @@ class DeleteEntryHelper extends EntryHelper
     */
     public function response()
     {
-        //check if the user is allowed to perform this operation
-        $is_allowed_checker = $this->user_is_allowed();
-
-        if (! $is_allowed_checker->success) {
-            return $this->build_error($is_allowed_checker);
-        }
         
         $current_entry_type = $this->entry->entry_type;
 
@@ -48,40 +43,14 @@ class DeleteEntryHelper extends EntryHelper
     public function user_is_allowed()
     {
         //check if the user is the owner of the entry
-        if(!isOwner($this->record))
-        {
-            return to_object([
-                'success' => false,
-                'message' => "you are not the owner of this entry"
-            ]);
+        if(!isOwner($this->record)) {
+           $this->build_error('you are not the owner of this entry');
         }
        
         //check if the entry is the last of the record
-        $last_entry_checker = $this->last_entry_checker();
-
-        if (! $last_entry_checker->success) {
-           return $last_entry_checker;
-        }
-
-        return to_object(['success' => true]);
+        $this->is_last_entry('You can delete only the last entry');
     }
 
-    /*
-      - check if the entry is a last of record to delete it
-      - otherwise prevent the operation
-    */
-
-    public function last_entry_checker()
-    {
-        if (! $this->is_last_entry()) {
-           return to_object([
-               'success' => false,
-               'message' => 'You can delete only the last entry'
-           ]); 
-        }
-
-        return to_object(['success' => true]);
-    }
 
     //processor for deleting a start entry
     public function delete_start()
@@ -185,18 +154,5 @@ class DeleteEntryHelper extends EntryHelper
             'message' => "The ".strtoupper($this->entry_type)." entry  is successfully deleted",
         ]);
     }
-
-    //this will build response for error response
-    public function build_error($error)
-    {
-        //return error status 400 in case no other status provided
-        $error_status =  !isset($error->status) ? 400 : $error->status; 
-        return response([
-            'success' => false,
-            'message' => $error->message
-        ], $error_status);
-    }
-    
-
     
 }
