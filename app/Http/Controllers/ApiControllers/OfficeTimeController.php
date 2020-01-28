@@ -128,6 +128,11 @@ class OfficeTimeController extends Controller
 
     public function destroy(OfficeTime $officeTime)
     {
+        $user_last_office = user()->office_times->last();
+        if ($user_last_office->id == $officeTime->id) {
+            user()->update(['has_checked' => false]);
+        }
+
         $officeTime->delete();
 
         return response([

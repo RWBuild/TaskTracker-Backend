@@ -12,29 +12,17 @@ class CreateEntryHelper extends EntryHelper
     {
         $this->record = $record;
         $this->request = request();
+        $this->get_task_last_entry();
     }
 
     //the main brain function to create an entry according to it type
     public function response()
     {
         //check if user is allowed
-        $user_is_allowed = $this->user_is_allowed();
+        $this->user_is_allowed();
 
-        if (! $user_is_allowed->success) {
-           return response([
-               'success' => false,
-               'message' => $user_is_allowed->message
-           ], 400);
-        }
         //we check if record exist and avoid duplication of entry type
-        $prerequisite_checker = $this->prerequisites();
-
-        if (! $prerequisite_checker->success) {
-            return response([
-                'success' => false,
-                'message' => $prerequisite_checker->message
-            ],$prerequisite_checker->status);
-        }
+        $this->prerequisites();
 
         $request = $this->request;
 
@@ -54,25 +42,22 @@ class CreateEntryHelper extends EntryHelper
         $user = user();
         if(! $user->has_checked)
         {
-            return to_object([
-                'success' => false,
+             $this->build_error([
                 'message' => 'the user must checkin first to create an entry',
             ]);
         }
 
         // Check if the record(task) exist in db
         if (!$this->record) {
-            return to_object([
-                'success' => false,
+            $this->build_error([
                 'message' => "Task not found or it may not belong to you. Please ".
                              "provide an existing task ",
                 'status' => 404
             ]);
         }
         //check if the user is not trying to create an entry with a future date(time)
-        if (!$this->time_future_checker()->success) return $this->time_future_checker();
+        $this->time_future_checker();
 
-        return to_object(['success' => true]);
     }
     
     //this will process different preconditions for allowing user
@@ -81,22 +66,18 @@ class CreateEntryHelper extends EntryHelper
     {
        // Check if the user has sent a valid entry type
         if (!in_array($this->request->entry_type, $this->knownEntryType)) {
-            return to_object([
-                'success' => false,
+            $this->build_error([
                 'message' => "Please make sure that you are sending: ".
                              "start,pause,resume or end as an entry type",
-                'status' => 400
             ]);                   
         }
         
         //check if the user has started before he can: pause,resume or end
-        $start_checker = $this->start_from_start_checker();
-        if (!$start_checker->success) return $start_checker;
+        $this->start_from_start_checker();
         
-        //prerequist to check when a task has more than 1 entry
-        if ($this->task_has_entries()) return $this->check_on_entry_exists();
+        //prerequisite to be checked when a task has more than 1 entry
+        $this->check_on_entry_exists();
 
-        return to_object(['success' => true ]);
     }
 
     /** 
@@ -107,7 +88,7 @@ class CreateEntryHelper extends EntryHelper
 
         if (in_array($this->request->entry_type,['pause','resume','end'])) {
             if (! $this->task_has_entries()) {
-                return to_object([
+                $this->build_error([
                     'success' => false,
                     'message' => "Please START this task first before you ".
                                  strtoupper($this->request->entry_type)." it",
@@ -115,7 +96,6 @@ class CreateEntryHelper extends EntryHelper
                 ]);
             }
         }
-        return to_object(['success' => true ]);
     }
 
     /** 
@@ -125,34 +105,27 @@ class CreateEntryHelper extends EntryHelper
     public function check_on_entry_exists()
     {
         //check if the last entry type of this record has the same type as the type of the sent entry
-        $prevent_same_entry_type = $this->prevent_same_entry_type();
-
-        if (! $prevent_same_entry_type->success) return $prevent_same_entry_type;
+        $this->prevent_same_entry_type();
 
         //prevent incomming entry time to be equal to the current last entry time of the task
         $last_entry = $this->lastEntry;
-
         if(!date_greater_than($this->request->entry_time, $last_entry->entry_time)) {
-            return to_object([
-                'success' => false,
+            $this->build_error([
                 'message' => "Please the time of this entry must be greater than the ".
-                            "previous entry time({$last_entry->entry_time})",
-                'status' => 400
+                            "previous entry time({$last_entry->entry_time})"
             ]);
         }
 
         //check first if the task has ended in case user want to : pause or resume
         if (in_array($this->request->entry_type,['resume','pause'])) {
             if ($last_entry->entry_type == 'end') {
-                return to_object([
-                    'success' => false,
+                $this->build_error([
                     'message' => 'You can no longer '.strtoupper($this->request->entry_type).'. '.
-                                'this task has ended',
-                    'status' => 400
+                                'this task has ended'
                 ]);
             }
         }
-        return to_object(['success' => true ]);
+        
     }
 
     //helper function to be called when user want to start a specific task
