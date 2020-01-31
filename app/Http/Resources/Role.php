@@ -14,6 +14,8 @@ class Role extends JsonResource
      */
     public function toArray($request)
     {
+        //if (!isset($this->id)) return null;
+
         return [
             'id' => $this->id,
             'name' => $this->name

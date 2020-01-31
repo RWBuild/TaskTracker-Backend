@@ -24,7 +24,7 @@ class User extends JsonResource
             'has_checked' => (Bool) $this->has_checked,
             //'records' => RecordResource::collection($this->records),
             //'office_times' => OfficeTimeResource::collection($this->office_times),
-            'roles' => $this->when($this->roles->count() > 0, RoleResource::collection($this->roles))
+            'roles' => RoleResource::collection($this->roles)
     
         ];
     }
