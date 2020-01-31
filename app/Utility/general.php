@@ -23,16 +23,16 @@ function task_history_helper() {
 }
 
 function record($record) {
-   return task_history_helper()
+  return task_history_helper()
           ->get_record($record);
 }
 
 function getRouteName() {
-    return Route::currentRouteName();
+  return Route::currentRouteName();
 }
 
 function isRouteName($routeName) {
-    return getRouteName() == $routeName;
+  return getRouteName() == $routeName;
 }
 
 
@@ -67,11 +67,18 @@ function to_object($value) {
   return ((Object)$value);
 }
 
+function buildException($error_msg, $status = 400) {
+  return new TaskTrackerException($error_msg, $status);
+}
 
 function trigger_exception($error_msg,$status = 400) {
-  abort($status, $error_msg);
-  
+  throw buildException($error_msg, $status);
 }
+
+function triggerExceptionWith($error_msg) {
+  return $exception = buildException($error_msg);
+}
+
 
 //get the current time
 function app_now() {
@@ -122,12 +129,20 @@ function entry_index($data,$id) {
 }
 
 //to check if dateA is greater than dateB
-function date_greater_than($dateA, $dateB) {
+function date_greater_than($dateA, $dateB, $addEqual=false) {
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
-    if ($dateA->gt($dateB)) return true;
+
+    if ($addEqual) {
+      if ($dateA->gte($dateB)) return true;
+    }else {
+      if ($dateA->gt($dateB)) return true;
+    }
+    
     return false;
 }
+
+
 
 
 

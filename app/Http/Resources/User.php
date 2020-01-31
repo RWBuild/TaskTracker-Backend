@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Record as RecordResource;
 use App\Http\Resources\OfficeTime as OfficeTimeResource;
+use App\Http\Resources\Role as RoleResource;
 class User extends JsonResource
 {
     /**
@@ -23,7 +24,8 @@ class User extends JsonResource
             'has_checked' => (Bool) $this->has_checked,
             //'records' => RecordResource::collection($this->records),
             //'office_times' => OfficeTimeResource::collection($this->office_times),
-            'roles' => $this->getRoles()
+            'roles' => RoleResource::collection($this->roles)
+    
         ];
     }
 }

@@ -3,14 +3,11 @@ namespace App\Classes;
 
 use Illuminate\Http\Request;
 use App\Classes\UpdateEntryHelper;
+use App\Classes\Parents\EntryHelper;
 
-class DeleteEntryHelper
+class DeleteEntryHelper extends EntryHelper
 {
-    public $request,
-           $entry,//incoming entry
-           $record,//record of incoming entry
-           $entry_type,//keep entry type to be used after deleting the entry
-           $update_entry_helper;//helper of the entry
+    public $entry_type;//keep entry type to be used after deleting the entry
 
     public function __construct($entry)
     {
@@ -18,63 +15,9 @@ class DeleteEntryHelper
         $this->entry = $entry;
         $this->record = $entry->record;
         $this->entry_type = $entry->entry_type;
-        $this->update_entry_helper = new UpdateEntryHelper($entry);
-    }
-    
-    //reload record entries 
-    public function load_record()
-    {
-        return $this->record->load('entries');
-    }
 
-    public function get_last_entry()
-    {
-        return $this->load_record()->entries->last();
-    }
-
-    //check if the user is allowed to delete this entry
-    public function user_is_allowed()
-    {
-        //check if the user is the owner of the entry
-        if(!isOwner($this->record))
-        {
-            return to_object([
-                'success' => false,
-                'message' => "you are not the owner of this entry"
-            ]);
-        }
-       
-        //check if the entry is the last of the record
-        $last_entry_checker = $this->last_entry_checker();
-
-        if (! $last_entry_checker->success) {
-           return $last_entry_checker;
-        }
-
-
-        return to_object(['success' => true]);
-    }
-
-    public function record_is_current()
-    {
-        return (Bool) $this->record->is_current;
-    }
-
-    /*
-      - check if the entry is a last of record to delete it
-      - otherwise prevent the operation
-    */
-
-    public function last_entry_checker()
-    {
-        if (! $this->update_entry_helper->is_last_entry()) {
-           return to_object([
-               'success' => false,
-               'message' => 'You can delete only the last entry'
-           ]); 
-        }
-
-        return to_object(['success' => true]);
+        //check if the user is allowed to perform this operation
+        $this->user_is_allowed();
     }
 
     /*
@@ -84,12 +27,6 @@ class DeleteEntryHelper
     */
     public function response()
     {
-        //check if the user is allowed to perform this operation
-        $is_allowed_checker = $this->user_is_allowed();
-
-        if (! $is_allowed_checker->success) {
-            return $this->build_error($is_allowed_checker);
-        }
         
         $current_entry_type = $this->entry->entry_type;
 
@@ -102,7 +39,20 @@ class DeleteEntryHelper
         if ($current_entry_type == 'end') return $this->delete_end();        
     }
 
-   //processor for deleting a start entry
+    //check if the user is allowed to delete this entry
+    public function user_is_allowed()
+    {
+        //check if the user is the owner of the entry
+        if(!isOwner($this->record)) {
+           $this->build_error('you are not the owner of this entry');
+        }
+       
+        //check if the entry is the last of the record
+        $this->is_last_entry('You can delete only the last entry');
+    }
+
+
+    //processor for deleting a start entry
     public function delete_start()
     {
         //delete the entry
@@ -123,19 +73,15 @@ class DeleteEntryHelper
     {
         /*
          if the record of this entry is not 
-         current  pause the current user record 
+         current, it will  pause the current user record 
          */
-        if (! $this->record->is_current) {
-            $this->update_entry_helper->create_entry_helper
-                                  ->pause_current_user_task();
-        }
+        $this->pause_current_user_task();
 
         //delete the current pause entry
         $this->entry->delete();
 
-        
         //get last entry after delete
-        $last_entry = $this->get_last_entry();
+        $last_entry = $this->get_task_last_entry();
 
         //change the status of the entry record depending on its last entry
         $this->record->is_current = true;
@@ -153,7 +99,7 @@ class DeleteEntryHelper
         $this->entry->delete();
 
         //get last entry after delete
-        $last_entry = $this->get_last_entry();
+        $last_entry = $this->get_task_last_entry();
 
         //change the status of the entry record depending on its last entry
         $this->record->status = $last_entry->entry_type;
@@ -167,16 +113,12 @@ class DeleteEntryHelper
     {
         
         //get last entry before delete
-        $previous_entry = $this->update_entry_helper
-                               ->get_previous_entry();
+        $previous_entry = $this->get_previous_entry();
 
-        //turn other record to current false if last entry type is not pause
+        //turn other record to current false if last entry type is start or resume
         if ($previous_entry->entry_type != 'pause') {
-            //check if the entry record is not the current one
-            if (! $this->record->is_current) {
-                $this->update_entry_helper->create_entry_helper
-                                  ->pause_current_user_task();
-            }
+            //if the record of this entry is not current, it will  pause the current user record 
+            $this->pause_current_user_task();
         }
 
         //delete entry
@@ -209,21 +151,8 @@ class DeleteEntryHelper
 
         return response([
             'success' => true,
-            'message' => 'The entry is successfully deleted',
+            'message' => "The ".strtoupper($this->entry_type)." entry  is successfully deleted",
         ]);
     }
-
-    //this will build response for error response
-    public function build_error($error)
-    {
-        //return error status 400 in case no other status provided
-        $error_status =  !isset($error->status) ? 400 : $error->status; 
-        return response([
-            'success' => false,
-            'message' => $error->message
-        ], $error_status);
-    }
-    
-
     
 }

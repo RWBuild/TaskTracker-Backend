@@ -50,7 +50,6 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
-        
         $this->validate($request,[
             'record_id'=>'required|integer',
             'entry_type'=>'required|string',
@@ -61,7 +60,7 @@ class EntryController extends Controller
                        ->find($request->record_id);
 
         $entry_helper = new CreateEntryHelper($record);
-
+        
         return $entry_helper->response();
     }
 
@@ -104,7 +103,7 @@ class EntryController extends Controller
         ]);
         
         $update_entry_helper = new UpdateEntryHelper($entry);
-        
+
         return $update_entry_helper->response();
         
     }

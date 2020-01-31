@@ -1,5 +1,7 @@
 <?php
 
+use App\Role;
+use App\User;
 use Illuminate\Http\Request;
 
 /*
@@ -33,6 +35,9 @@ Route::group(['middleware' => 'auth:api'], function()
     Route::resource('office-times',"ApiControllers\OfficeTimeController");
     //The last check of the auth user
     Route::get('/last-check','ApiControllers\OfficeTimeController@get_last_check');
+
+    //saving the auto break time
+    Route::post('break-time','ApiControllers\OfficeTimeController@break_time');
 
 
     //Records
@@ -95,12 +100,20 @@ Route::group(['middleware' => 'auth:api'], function()
         Route::post("unassign-role","ApiControllers\AdminController@detachRole")
         ->middleware('assign-role-checker');
 
-        //Roles
-        Route::resource("murugo_users","ApiControllers\MurugoUserController");
+        //Murugo users
+        Route::resource("murugo_users","ApiControllers\MurugoUserController")->only(['store','index']);
     });
 
 });
 
+Route::group(['middleware' => ['checkin_app_key','superadministrator-limit']], function()
+{
+Route::post("super-admin","ApiControllers\UserController@create_super_admin");
+});
+
+Route::get('test',function(){
+    dump(Role::with('users')->get());
+});
 
 
 

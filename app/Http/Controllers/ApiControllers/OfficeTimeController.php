@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ApiControllers;
 
 
+use App\User;
 use Carbon\Carbon;
 use App\OfficeTime;
 use Illuminate\Http\Request;
@@ -27,9 +28,18 @@ class OfficeTimeController extends Controller
 
     public function get_last_check()
     {
+        $last_check = user()->office_times->last();
+        
+        if (!$last_check) {
+           return response([
+               'success' => true,
+               'office_time' => null
+           ]);
+        }
+        
         return response([
             'success' => true,
-            'office_time' => new OfficeTimeResource(user()->office_times->last())
+            'office_time' => new OfficeTimeResource($last_check)
         ]);
     }
 
@@ -118,11 +128,37 @@ class OfficeTimeController extends Controller
 
     public function destroy(OfficeTime $officeTime)
     {
+        $user_last_office = user()->office_times->last();
+        if ($user_last_office->id == $officeTime->id) {
+            user()->update(['has_checked' => false]);
+        }
+
         $officeTime->delete();
 
         return response([
             'success' => true,
             'message' => 'office successfully deleted'
         ],200);
+    }
+
+    public function break_time(Request $request){
+
+        $user = user();
+        $oficeTime = $user->office_times()->get()->last();
+        $office_time_id = $oficeTime->id;
+
+        $this->validate($request,[
+            $break_time = $request->break_time
+        ]);
+
+        if(!$office_time_id )
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the office time is invalid'
+            ]);
+        }
+        return $oficeTime;
+
     }
 }

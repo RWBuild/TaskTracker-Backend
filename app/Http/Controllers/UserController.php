@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use App\MurugoUser;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
