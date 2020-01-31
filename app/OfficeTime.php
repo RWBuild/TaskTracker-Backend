@@ -12,7 +12,8 @@ class OfficeTime extends Model
         'duration',
         'user_id',
         'has_checked_in',
-        'has_checked_out'
+        'has_checked_out',
+        'break_time'
 
     ];
     public function user()

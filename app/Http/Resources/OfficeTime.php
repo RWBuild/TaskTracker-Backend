@@ -19,6 +19,7 @@ class OfficeTime extends JsonResource
             'checkin_time' => $this->checkin_time,
             'checkout_time' => $this->checkout_time,
             'duration' => $this->duration,
+            'break_time' => $this->break_time,
             'has_checked_in' => (Bool) $this->has_checked_in,
             'has_checked_out' => (Bool) $this->has_checked_out
         ];

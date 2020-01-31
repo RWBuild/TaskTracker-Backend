@@ -140,4 +140,25 @@ class OfficeTimeController extends Controller
             'message' => 'office successfully deleted'
         ],200);
     }
+
+    public function break_time(Request $request, $id){
+
+        $user = user();
+        $oficeTime = user()->office_times()->find($id);
+
+        $this->validate($request,[
+            $break_time = $request->break_time
+        ]);
+
+        if(!$oficeTime )
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the office time is invalid'
+            ]);
+        }
+        $officeTime->break_time = $request->break_time;
+        $officeTime->save();
+
+    }
 }
