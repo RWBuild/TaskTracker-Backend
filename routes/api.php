@@ -36,6 +36,9 @@ Route::group(['middleware' => 'auth:api'], function()
     //The last check of the auth user
     Route::get('/last-check','ApiControllers\OfficeTimeController@get_last_check');
 
+    //saving the auto break time
+    Route::post('break-time','ApiControllers\OfficeTimeController@break_time');
+
 
     //Records
     Route::resource("records","ApiControllers\RecordController");
