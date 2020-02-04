@@ -42,6 +42,7 @@ class AutoCheckout extends Command
         Log::info("Cron is working fine!");
         
         //get all authenticated users checked in
+        
         $users = User::where('has_checked', true)->get();
 
         foreach($users as $user) 
