@@ -164,7 +164,7 @@ class OfficeTimeController extends Controller
         return response ([
             'success' => true,
             'message' => 'it is break time',
-            'break_time' => $oficeTime
+            'break_time' => $break_time
         ]);
 
     }
