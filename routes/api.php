@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:api'], function()
 {
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
-    Route::get("/logout","ApiControllers\Auth\LoginController@logout");
+    Route::get("/   ","ApiControllers\Auth\LoginController@logout");
     
 
     //Location
@@ -78,7 +78,7 @@ Route::group(['middleware' => 'auth:api'], function()
         // route to get current,open,complete task of all users
         Route::get("/record-by-type/{type}","ApiControllers\RecordController@recordByType");
         
-        //Only list of all tash histories and a single task
+        //Only list of all task histories and a single task
         Route::resource("task_histories","ApiControllers\TaskHistoryController")->only(['index','show']);
 
         //To get the list of task histories of a specific task(record)
