@@ -42,14 +42,17 @@ class AutoCheckout extends Command
         Log::info("Cron is working fine!");
         
         //get all authenticated users checked in
+
         $users = User::where('has_checked', true)->get();
 
         foreach($users as $user) 
         {
             // get one user's last office times
+
             $last_office_time = $user->office_times->last();
 
             // assign the last office time to break time
+            
             $last_office_time->checkout_time = $last_office_time->break_time;
             $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
             $last_office_time->has_checked_out = true;
