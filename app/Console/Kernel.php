@@ -25,7 +25,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('checkout:users')
-                 ->daily()->timezone('Africa/Cairo'); // set the schedule to run on our local time
+                ->everyMinute();
+                //  ->daily()->timezone('Africa/Cairo'); // set the schedule to run on our local time
     }
 
     /**

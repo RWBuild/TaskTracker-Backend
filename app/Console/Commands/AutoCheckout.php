@@ -39,6 +39,8 @@ class AutoCheckout extends Command
      */
     public function handle()
     {
+        Log::info("Cron is working fine!");
+        
         //get all authenticated users checked in
         $users = User::where('has_checked', true)->get();
 
@@ -56,6 +58,8 @@ class AutoCheckout extends Command
             //then update user's has checked to false
             $user->has_checked = false;
             $user->save();
-        }  
+        }
+        
+        return $this->info("checkout updated successfully for all users who did not checkout");
     }
 }
