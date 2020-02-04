@@ -158,7 +158,14 @@ class OfficeTimeController extends Controller
                 'message' => 'the office time is invalid'
             ]);
         }
-        return $oficeTime;
+        $oficeTime->break_time = $break_time;
+
+        $oficeTime->save();
+        return response ([
+            'success' => true,
+            'message' => 'it is break time',
+            'break_time' => $oficeTime
+        ]);
 
     }
 }
