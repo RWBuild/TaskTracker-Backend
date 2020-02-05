@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use App\User;
 use DateTime;
+use DateTimezone;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-
 class AutoCheckout extends Command
 {
     /**
@@ -53,9 +53,8 @@ class AutoCheckout extends Command
             $last_office_time = $user->office_times->last();
 
             // assign the last office time to break time
-            if($last_office_time->break_time == null)
+            if(!$last_office_time->break_time)
             {
-               
                 $today = new DateTime();
                 $today = $today->format('Y-m-d');
                 $time = new DateTime('17:00:00');
