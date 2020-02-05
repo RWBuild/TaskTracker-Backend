@@ -67,8 +67,9 @@ class AutoCheckout extends Command
             //then update user's has checked to false
             $user->has_checked = false;
             $user->save();
-            return $this->info("checked out all the users at 17:00:00");
             }
+            else 
+            {
             $last_office_time->checkout_time = $last_office_time->break_time;
             $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
             $last_office_time->has_checked_out = true;
@@ -77,6 +78,7 @@ class AutoCheckout extends Command
             //then update user's has checked to false
             $user->has_checked = false;
             $user->save();
+            }
         }
         
         return $this->info("checkout updated successfully for all users who did not checkout");
