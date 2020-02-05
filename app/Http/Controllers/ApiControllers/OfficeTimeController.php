@@ -161,7 +161,7 @@ class OfficeTimeController extends Controller
         $officeTime->break_time = $break_time;
 
         $officeTime->save();
-        return response-json([
+        return response([
             'success' => true,
             'message' => 'it is break time',
             'break_time' => $officeTime->break_time
