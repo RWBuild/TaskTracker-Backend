@@ -2,6 +2,8 @@
 namespace App\Classes\Parents;
 
 use Carbon\Carbon;
+use App\Http\Resources\Entry as EntryResource;
+use App\Http\Resources\Record as RecordResource;
 
 class EntryHelper 
 {
@@ -107,93 +109,6 @@ class EntryHelper
         return $last;
     }
   
-    /** 
-     * Will help to update the current record status depending on
-     * incomming record entry ,In case status is not provided in 
-     * $data, it  will take the request entry_type as record status
-     * @param Array $data
-     * @param int $status
-     * @return void
-    */
-    public function change_record_status($data = [])
-    {
-        $status = "";
-
-        if(!isset($data['status'])) {
-            $status = $this->request->entry_type;
-        }
-
-        $data['status'] = $status;
-        $this->record->update($data);
-    }
- 
-    /** 
-     * to prevent simultaneous entries having same type
-     * the condition will be based on the comming request
-     * entry type and the current entry type of the record
-     * @example if the current entry type was: start, comming entry can no longer be start
-     * @param Record $record
-    */
-    public function prevent_same_entry_type()
-    {
-        $last_entry = $this->lastEntry;
-        if ($last_entry) {
-
-            if ($last_entry->entry_type == $this->request->entry_type) {
-
-                $this->build_error([
-                    'message' => "You can't ".strtoupper($this->request->entry_type)
-                                 ." again because the current status of this task is: ".
-                                 strtoupper($last_entry->entry_type),
-                ]);           
-            }
-        }
-
-    }
- 
-    /** 
-     * will help to pause another current task(record) of the auth
-     * user before  he can start, resume a new one
-     * This will be used again when user want to delete a paused entry
-     * or an ended entry of task
-     * @return void
-    */
-    public function pause_current_user_task()
-    {
-        //stop the process if this record is the current one
-        if ($this->is_current()) return;
-
-        $user = user();
-        $other_record = $user->records()->where('is_current',true)
-                               ->where('id','!=',$this->record->id)
-                               ->first();
-
-        if ($other_record) {
-            //get last entry of this record
-            $last_entry = $this->get_task_last_entry($other_record);
-             
-            //change only the record is current to false when its current status is pause
-            if ($last_entry->entry_type == 'pause') {
-                $other_record->is_current = false;
-                return $other_record->save();
-            }
-
-            //creation of the paused entry
-            $paused_entry = $other_record->entries()->create([
-                'entry_type' => 'pause',
-                'entry_time' => app_now(),
-            ]);
-        
-            //calculation of interval duration of a task from its previous entry to the paused one
-            
-            $paused_entry->entry_duration = diffSecond($last_entry->entry_time,$paused_entry->entry_time);
-            $paused_entry->save();
-
-            $other_record->status = 'pause';
-            $other_record->is_current = false;
-            $other_record->save();
-        }
-    }
    
     /** 
      * To check if the current entry is the last one of the record
@@ -225,12 +140,12 @@ class EntryHelper
      * a future time
      * @return Object 
     */
-    public function time_future_checker()
+    public function timeFutureChecker()
     {
         $now = app_now();
-        if (date_greater_than($this->request->entry_time,$now)) {
-            return $this->build_error([
-                'message' => 'Please an entry time can not be a future time'
+        if (date_greater_than($this->entry->entry_time,$now)) {
+            $this->build_error([
+                'message' => 'Please the last entry time can not be a future time'
             ]);
         }
     }
@@ -239,12 +154,12 @@ class EntryHelper
      * get the next entry of a task based on the current entry
      * @return Entry
     */
-    public function get_next_entry($entries = null)
+    public function getNextEntry($entries = null)
     {
         $current_entry = $this->entry;
 
         if (!$entries) {
-            $entries = $this->record->entries;
+            $entries = $this->entries;
         }
 
         $next_entry = $entries->first(function($entry) use($current_entry) {
@@ -259,12 +174,12 @@ class EntryHelper
      * get the previous entry based on the current entry
      * @return Entry
     */
-    public function get_previous_entry($entries = null)
+    public function getPreviousEntry($entries = null)
     {
         $current_entry = $this->entry;
 
         if (!$entries) {
-            $entries = $this->record->entries;
+            $entries = $this->entries;
         } 
 
         $previous_entry = $entries->last(function($entry) use($current_entry) {
@@ -275,18 +190,56 @@ class EntryHelper
         return $previous_entry;
     }
 
-    /** 
-     * To create a new entry with [entry_type,entry_time]
-     * comming from client(api consumer)
-     * @return Object  Entry
-    */
-    public function create_entry()
+    /**
+     * Get the first entry of the given entries
+     * @param Collection list $entries
+     * @return Object 
+     */
+    public function getFirstEntry($entries = null)
     {
-        return $this->record->entries()->create([
-            'entry_type' => $this->request->entry_type,
-            'entry_time' => $this->request->entry_time,
-            'entry_duration' => null
-        ]); 
+        if (!$entries) {
+            $entries = $this->entries;
+        }
+
+        return $entries->first();
+    }
+
+    /**
+     * Get the last entry of the given entries
+     * @param Collection list $entries
+     * @return Object 
+     */
+    public function getLastEntry($entries = null)
+    {
+        if (!$entries) {
+            $entries = $this->entries;
+        }
+        
+        return $entries->last();
+    }
+
+    /**
+     * Check if entry is a first entry of the task
+     */
+    public function isFirstEntry()
+    {
+        return $this->getFirstEntry()->id == $this->entry->id;
+    }
+
+    /**
+     * Check if entry is a last entry of the task
+     */
+    public function isLastEntry()
+    {
+        return $this->getLastEntry()->id == $this->entry->id;
+    }
+
+    /**
+     * Check if entry is in middle of entries of the task
+     */
+    public function isMiddleEntry()
+    {
+        return !$this->isFirstEntry() and !$this->isLastEntry();
     }
 
     /**
@@ -300,17 +253,164 @@ class EntryHelper
                 //set the current entry(in loop) globaly into this class
                 $this->entry = $entry;
 
+                //validate the entries time
+                $this->entryTimeChecker();
+
                 //detect next entry type if current entry(in loop) is not a last entry
-                if ($this->getLastEntry()->id != $entry->id) {
-                    $this->nextEntrytypeChecker();
+                if (!$this->isLastEntry()) {
+                    $this->nextEntryTypeChecker();
                 }
 
-                //recalculate the entry duration when type is pause and end only
-                if (in_array($entry->entry_type,['pause','end'])) {
-                   return $this->calculateEntryDuration();
-                }
-                return $entry;
+                //recalculate the entry duration when type is pause and end only otherwise set to null
+                return $this->calculateEntryDuration();
             });
+    }
+
+    /**
+     * This will check if entries time are following the 
+     * expected rules
+     * *****************************************************
+     * 1. check if first entry time is not less than 
+     * the creation time of the task and check if the first 
+     * time has less time than the next entry time
+     * *****************************************************
+     * 2. check if the entry in middle has time between 
+     * the previous and next entry
+     * * *****************************************************
+     * 3. check if the last entry time is not a future
+     * time and greater than the previous entry time
+     */
+    public function entryTimeChecker()
+    {
+        $current_entry = $this->entry;
+        $entry_type = $current_entry->entry_type;
+        
+        //check if entry time is a valid date time
+        $this->isValidDateTime($current_entry);
+
+        //check time when entry is a first entry
+        $this->checkTimeWhenFirst($current_entry);
+
+        //check time when entry is in middle
+        $this->checkTimeWhenInMiddle($current_entry);
+
+        //check time when entry is the last one
+        $this->checkTimeWhenLast($current_entry);
+        
+    }
+
+    /**
+     * check if the the given entry time is valid
+     */
+    public function isValidDateTime($current_entry)
+    {
+        //check if is a datetime
+        if (!isDateTime($current_entry->entry_time)) {
+            $this->build_error("The time of the ". entry_index($this->entries, $current_entry->id)
+                               ." entry of this task is invalid ({$current_entry->entry_time})");
+        }
+    }
+
+    /**
+     * This will validate only the first entry
+     * * *****************************************************
+     * 1. validate if the first entry time is greater than
+     * the creation time of task
+     * * *****************************************************
+     * 2. check if the first entry time is less than the time
+     * of the next entry time
+     */
+    public function checkTimeWhenFirst($current_entry)
+    {
+        //if not first return void
+        if (!$this->isFirstEntry()) return ;
+
+        //When current entry time is less than the creation time of the task 
+        if (!date_greater_than($current_entry->entry_time, $this->record->created_at)) {
+            $this->build_error("The START entry time should be greater than ".
+                               " the creation time of the task({$this->record->created_at})");
+        }
+
+        //check the current time based on the next entry time
+
+        //if is last entry return void
+        if ($this->isLastEntry()) return ;
+
+        //when current entry time is greater than the next entry time
+        $next_entry = $this->getNextEntry();
+
+        if (date_greater_than($current_entry->entry_time, $next_entry->entry_time)) {
+            $this->build_error("The START entry time should be less than ".
+                               ": {$next_entry->entry_time}(see next entry)");
+        }
+    }
+
+    /**
+     * This will validate only the entries in middle
+     * All PAUSES and RESUMES
+     * * *****************************************************
+     * check if the last entry time is not a future
+     * time and not eqaul to the previous time
+     */
+    public function checkTimeWhenInMiddle($current_entry)
+    {
+        //if not in middle return void
+        if (!$this->isMiddleEntry()) return ;
+
+        //when previous entry time is greater that current entry time
+        $previous_entry = $this->getPreviousEntry();
+
+        if (!date_greater_than($current_entry->entry_time,$previous_entry->entry_time)) {
+            $this->build_error("The time of the ".entry_index($this->entries, $current_entry->id).
+                " entry  should be greater than :{$previous_entry->entry_time}(see previous entry)");
+        }
+
+        //when current entry time is greater than the next entry time
+        $next_entry = $this->getNextEntry();
+
+        if (date_greater_than($current_entry->entry_time, $next_entry->entry_time)) {
+            $this->build_error("The time of the ".entry_index($this->entries, $current_entry->id).
+                                " entry  should be less than :{$next_entry->entry_time}(see next entry)");
+        }
+
+    }
+
+    /**
+     * This will validate only the Last entry
+     * * *****************************************************
+     * check if the last entry time is greater than the previous
+     * or not a future time and not greater than the entry checkout time
+     */
+    public function checkTimeWhenLast($current_entry)
+    {
+        //if not last entry return void
+        if (!$this->isLastEntry()) return ;
+
+        //check only when entry type is not START
+        if ($current_entry->entry_type != 'start') {
+            //check if the last entry time is greater than the previous
+            $previous_entry = $this->getPreviousEntry();
+        
+            if (!date_greater_than($current_entry->entry_time,$previous_entry->entry_time)) {
+                $this->build_error("The time of the last entry should be greater than ".
+                                 ":{$previous_entry->entry_time}(see previous entry)");
+            } 
+        }
+        
+        //if current entry time is a future time return error
+        $this->timeFutureChecker();
+
+        //check time less than checkout time
+        $this->checkoutTimeChecker();
+    }
+
+    /**
+     * This will check if the current entry time is less than 
+     * its checkout time
+     */
+    public function checkoutTimeChecker()
+    {
+
     }
 
     /**
@@ -318,21 +418,42 @@ class EntryHelper
      * @param Entry $current_entry
      * if next entry type is not right then throw an error
      */
-    public function nextEntrytypeChecker($current_entry = null)
+    public function nextEntryTypeChecker($current_entry = null)
     {
         if (!$current_entry) {
             $current_entry = $this->entry;
         }
+        
+        //get next entry based on the current
+        $next_entry = $this->getNextEntry();
 
-        $next_entry = $this->get_next_entry($this->entries);
+        //check the type of the next entry
+        $this->validateEntryType($next_entry); 
+        
+        //get list of types that may come after the current entry type 
         $get_right_next_types = $this->predictedNextEntry();
 
+        //check if the current entry entry type is among the predicted ones
         if (!in_array($next_entry->entry_type ,$get_right_next_types )) {
            
            //a clear message of an error by providing where the order is bad
            //Eg: The next entry type after the 1st entry should be (PAUSE or END)
            $this->build_error("The next entry type after the ".entry_index($this->entries, $current_entry->id)
                               ." entry should be ". arrayToString($get_right_next_types, ' or '));
+        }
+    }
+
+    /**
+     * This will check if a given entry has
+     * the expected entry type : start,pause,resume
+     * or end
+     * otherwise throw an error
+     */
+    public function validateEntryType($entry)
+    {
+        if (!in_array($entry->entry_type, $this->knownEntryType)) {
+            $this->build_error("The ". entry_index($this->entries, $entry->id)
+                            ." entry of this task has an unexpected type({$entry->entry_type})");                   
         }
     }
 
@@ -374,7 +495,7 @@ class EntryHelper
      * of pause and end entries of new task entries
      * that are comming from user 
      * this method will be called when user want to save
-     * task entries afer deleting orupdating some entries
+     * task entries after deleting or updating some entries
      * @return Object $entry
      */
     public function calculateEntryDuration($current_entry = null)
@@ -383,8 +504,14 @@ class EntryHelper
             $current_entry = $this->entry;
         }
 
+        //for start and resume duration is null
+        if (in_array($current_entry->entry_type,['start','resume'])) {
+            $current_entry->entry_duration = null;
+            return $current_entry;
+        }
+
         //get previous entry based on the current entry 
-        $previous_entry = $this->get_previous_entry($this->entries);
+        $previous_entry = $this->getPreviousEntry();
 
         
         //set entry duration to null if the previous one is pause otherwise calculate
@@ -430,5 +557,22 @@ class EntryHelper
             trigger_exception($data->message, $status);
         }
         
+    }
+
+    /**
+     * Log the task history then 
+     * then return reponse
+     * @return Response
+     */
+    public function buildResponse($data)
+    {
+        //log task history
+        record($this->record)->track_action("update_entries");
+
+        return response()->json([
+            'success' => true,
+            'message' => "The last version of the task entries is well saved",
+            'record' => new RecordResource($this->record)
+        ]);
     }
 }

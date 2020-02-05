@@ -6,11 +6,9 @@ use DateTime;
 use App\Entry;
 use App\Record;
 use Carbon\Carbon;
-use App\Classes\CreateEntryHelper;
-use App\Classes\UpdateEntryHelper;
-use App\Classes\DeleteEntryHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Classes\SaveBundleEntryHelper;
 use App\Http\Resources\EntryCollection;
 use App\Http\Resources\Entry as EntryResource;
 
@@ -50,18 +48,18 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
-        $this->validate($request,[
-            'record_id'=>'required|integer',
-            'entry_type'=>'required|string',
-            'entry_time'=>'required|date',
-        ]);
+        // $this->validate($request,[
+        //     'record_id'=>'required|integer',
+        //     'entry_type'=>'required|string',
+        //     'entry_time'=>'required|date',
+        // ]);
 
-        $record = user()->records()
-                       ->find($request->record_id);
+        // $record = user()->records()
+        //                ->find($request->record_id);
 
-        $entry_helper = new CreateEntryHelper($record);
+        // $entry_helper = new CreateEntryHelper($record);
         
-        return $entry_helper->response();
+        // return $entry_helper->response();
     }
 
     /**
@@ -98,13 +96,7 @@ class EntryController extends Controller
      //updating an entry
     public function update(Request $request, Entry $entry)
     {
-        $this->validate($request,[
-            'entry_time'=>'required|date',
-        ]);
-        
-        $update_entry_helper = new UpdateEntryHelper($entry);
 
-        return $update_entry_helper->response();
         
     }
 
@@ -120,23 +112,14 @@ class EntryController extends Controller
         $this->validate($request,[
             'entries' => 'required|array',
             'record_id' => 'required|numeric',
-            'action' => 'required|string'
         ]);
         
         //Find record or throw an error if doesn't exist
         $record = user()->records()
                        ->findOrfail($request->record_id);
         
-        if ($request->action == 'delete') {
-            $delete_entry_helper = new DeleteEntryHelper($record);
-        
-            return $delete_entry_helper->response();          
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Please the action must be : delete or update'
-        ]);
+        $delete_entry_helper = new SaveBundleEntryHelper($record);
+        return $delete_entry_helper->response();
 
     }
 

@@ -181,7 +181,13 @@ function collectionToArray($data) {
   return $casted_array;
 }
 
-//to check if dateA is greater than dateB
+/**
+ * to check if first date is greater than second date
+ * @param String $dateA
+ * @param String $dateB
+ * @param Bool $addEqual 
+ * when $addEqual=true is to check if dateA >= dateB
+ */
 function date_greater_than($dateA, $dateB, $addEqual=false) {
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
@@ -193,6 +199,16 @@ function date_greater_than($dateA, $dateB, $addEqual=false) {
     }
     
     return false;
+}
+
+/**
+ * Check if a given string is a valid date time
+ * with the format : Y-m-d H:i:s
+ */
+function isDateTime($myString)
+{
+  $date_time = DateTime::createFromFormat('Y-m-d H:i:s', $myString);
+  return $date_time === false ? false : true;
 }
 
 
