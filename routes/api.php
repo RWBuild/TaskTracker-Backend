@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:api'], function()
 {
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
-    Route::get("/   ","ApiControllers\Auth\LoginController@logout");
+    Route::get("/logout","ApiControllers\Auth\LoginController@logout");
     
 
     //Location
@@ -54,10 +54,10 @@ Route::group(['middleware' => 'auth:api'], function()
 
 
     //Entries
-    Route::resource("entries","ApiControllers\EntryController");
+    Route::resource("entries","ApiControllers\EntryController")->except('destroy');
+    //delete bundle  ofentries
+    Route::post('save-bundle-entries','ApiControllers\EntryController@saveBundleEntries');
     
-
-
    //Routes for administrators on;y
     Route::group(['prefix'=>'admin','middleware' => ['role:projectmanager|superadministrator']], function()
     {
@@ -111,9 +111,6 @@ Route::group(['middleware' => ['checkin_app_key','superadministrator-limit']], f
 Route::post("super-admin","ApiControllers\UserController@create_super_admin");
 });
 
-Route::get('test',function(){
-    dump(Role::with('users')->get());
-});
 
 
 

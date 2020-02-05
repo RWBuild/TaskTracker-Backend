@@ -5,154 +5,145 @@ use Illuminate\Http\Request;
 use App\Classes\UpdateEntryHelper;
 use App\Classes\Parents\EntryHelper;
 
+/**
+ * This helper class will delete the current entries of
+ * given Task(record) if these entries are well ordered
+ * depending on the system expectation
+ * eg: START,PAUSE,RESUME,END
+ * otherwhise it will throw an error
+ */
 class DeleteEntryHelper extends EntryHelper
 {
-    public $entry_type;//keep entry type to be used after deleting the entry
+    /** 
+     * will keep the incomming entries
+     */
+    public $entries = [];
 
-    public function __construct($entry)
+    public function __construct($record)
     {
         $this->request = request();
-        $this->entry = $entry;
-        $this->record = $entry->record;
-        $this->entry_type = $entry->entry_type;
+        $this->record = $record;
 
         //check if the user is allowed to perform this operation
         $this->user_is_allowed();
-    }
 
-    /*
-     - Brain of delete entry helper
-     - method to be called for giving the response of entry delete
-     - will call the processor functions according to the entry type
-    */
-    public function response()
-    {
-        
-        $current_entry_type = $this->entry->entry_type;
-
-        if ($current_entry_type == 'start') return $this->delete_start();
-
-        if ($current_entry_type == 'pause') return $this->delete_pause();
-
-        if ($current_entry_type == 'resume') return $this->delete_resume();
-
-        if ($current_entry_type == 'end') return $this->delete_end();        
+        // cast array to laravel collection
+        $this->entries = toCollection($this->request->entries);
     }
 
     //check if the user is allowed to delete this entry
     public function user_is_allowed()
     {
+        //check if the record exist
+        if (! $this->record) {
+            $this->build_error('These record does not exist or it may not belong to you',404);
+        }
+
         //check if the user is the owner of the entry
         if(!isOwner($this->record)) {
-           $this->build_error('you are not the owner of this entry');
+           $this->build_error('you are not the owner of this task');
         }
-       
-        //check if the entry is the last of the record
-        $this->is_last_entry('You can delete only the last entry');
+
+        //check if the incomming entries type is Array
+        if (!is_array($this->request->entries)) {
+            $this->build_error('Please the entries must be an Array');
+        }
     }
 
-
-    //processor for deleting a start entry
-    public function delete_start()
+    /**
+     * This will validate first all entries
+     * then call the function to delete the task entries
+     * and after call the function to recreate the new task entries
+     */
+    public function response () 
     {
-        //delete the entry
-        $this->entry->delete();
+        //if entries is empty,it means user want to delete all task entries
+        if ($this->entries->isEmpty()) return $this->deleteAll();
 
-        //update the entry record status
-        $this->record->is_current = false;
+        //General validation of incomming entries
+        $this->validateEntries();
+    }
+
+    /**
+     * In case the array of entrues isempty then
+     * Delete all task entries
+     */
+    public function deleteAll()
+    {
+        $this->record->entries()->delete();
         $this->record->status = 'pending';
-        $this->record->save();
+        $this->record->is_opened = 'false';
+        $this->is_finished = false;
+        $this->is_current = false;
 
-        //call the response
-        return $this->build_response();
-
+        return $this->buildResponse();
     }
 
-    //processor for deleting a pause entry
-    public function delete_pause()
+    /**
+     * This will validate the incomming array of objects of entries 
+     * By checking if they respect the order of the entry types
+     * @example : check if they respect: START,PAUSE,RESUME and END
+     */
+    public function validateEntries() 
     {
-        /*
-         if the record of this entry is not 
-         current, it will  pause the current user record 
-         */
-        $this->pause_current_user_task();
+        //verify if first entry is a START entry
+        $this->firstItemIsStartEntry();
 
-        //delete the current pause entry
-        $this->entry->delete();
-
-        //get last entry after delete
-        $last_entry = $this->get_task_last_entry();
-
-        //change the status of the entry record depending on its last entry
-        $this->record->is_current = true;
-        $this->record->status = $last_entry->entry_type;
-        $this->record->save();
-        
-        //call the response
-        return $this->build_response();
-
+        //Detect the right order of entries
+        $this->detectRightEntryOrder();
     }
 
-    public function delete_resume()
+    /**
+     * check if the first object of the incomming entries is 
+     * A start entry other wise throw an error
+     */
+    public function firstItemIsStartEntry()
     {
-        //delete the resume entry
-        $this->entry->delete();
-
-        //get last entry after delete
-        $last_entry = $this->get_task_last_entry();
-
-        //change the status of the entry record depending on its last entry
-        $this->record->status = $last_entry->entry_type;
-        $this->record->save();
-
-        //call the response
-        return $this->build_response();
+        $first_entry = $this->getFirstEntry();
+        if ($first_entry->entry_type != 'start') {
+            $this->build_error("The first entry should be a start entry Buts not $first_entry->entry_type");
+        }
     }
 
-    public function delete_end()
+    /**
+     * Get the first entry of the given entries
+     * @param Collection list $entries
+     * @return Object 
+     */
+    public function getFirstEntry($entries = null)
     {
-        
-        //get last entry before delete
-        $previous_entry = $this->get_previous_entry();
-
-        //turn other record to current false if last entry type is start or resume
-        if ($previous_entry->entry_type != 'pause') {
-            //if the record of this entry is not current, it will  pause the current user record 
-            $this->pause_current_user_task();
+        if (!$entries) {
+            $entries = $this->entries;
         }
 
-        //delete entry
-        $this->entry->delete();
-        
-        //change the status of the entry record depending on its last entry
-        $this->record->status = $previous_entry->entry_type;
-        $this->record->is_current = $previous_entry->entry_type == 'pause'? false : true;
-        $this->record->is_opened = true;
-        $this->record->is_finished = false;
-        $this->record->save();
-        
-        //call the response
-        return $this->build_response();
+        return $entries->first();
     }
 
-    //save the task history
-    public function save_history()
+    /**
+     * Get the last entry of the given entries
+     * @param Collection list $entries
+     * @return Object 
+     */
+    public function getLastEntry($entries = null)
     {
-        $history_description = "Deleted a {$this->entry_type} entry";
-
-        record($this->record)->track_action_with_description('delete_entry', $history_description);
+        if (!$entries) {
+            $entries = $this->entries;
+        }
+        
+        return $entries->last();
     }
 
-    //this will save the task history then build the delete response when success
-    public function build_response()
+    public function buildResponse()
     {
-        //log the task hisstory
-        $this->save_history();
+        //log task history
+        record($this->record)->track_action("delete_entries");
 
-        return response([
+        return response()->json([
             'success' => true,
-            'message' => "The ".strtoupper($this->entry_type)." entry  is successfully deleted",
+            'message' => "The new updates of the task are well saved"
         ]);
     }
+
+
     
 }
