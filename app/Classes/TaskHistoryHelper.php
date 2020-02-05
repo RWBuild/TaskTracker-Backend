@@ -16,7 +16,7 @@ class TaskHistoryHelper
             'resume_task',
             'end_task',
             'update_entry',
-            'delete_entry',
+            'delete_entries',
             'delete_task',
             'update_task', 
         ];

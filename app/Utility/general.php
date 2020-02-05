@@ -87,7 +87,13 @@ function app_now() {
                  ->toDateTimeString();
 }
 
-//return the index of an item withing a collection
+/**
+ * return the place that an item occupies in a given collection
+ * based on a given id of that item
+ * Eg: $data = collect([{id:12,name:'A'}, {id:13,name:'B'} ]), 
+ * Eg: $id = 13
+ * In the above case the item_index($data, $id) = 2
+ */
 function item_index($data,$id) {
   $index =  $data->search(function($item) use($id){
     return $item->id == $id;
@@ -96,7 +102,10 @@ function item_index($data,$id) {
   return $index === false? 0: $index + 1;
 }
 
-//return 1 to 1st and 5 to 5th
+/**
+ * return a given number to its ordinal
+ * Eg: return 1 to 1st and 5 to 5th
+ */
 function number_to_ordinal($number) {
    if ($number == 0) {
       return '';
@@ -123,9 +132,31 @@ function number_to_ordinal($number) {
 
 }
 
-//will return the index of an entry in ordinal format: eg: 1st,5th
+/**
+ * will return the place in ordinal format that a given entry occupies 
+ * in a collection list of entries of a specific task
+ * Eg: if the entry is the second of a given task
+ * This will return : 2nd
+ */
 function entry_index($data,$id) {
     return number_to_ordinal(item_index($data,$id));
+}
+
+/**
+ * This will convert a given array to string then 
+ * join the item with a specific caracter
+ */
+function arrayToString($data = [],$joinWith = ',') {
+  return implode($joinWith, $data);
+}
+
+/**
+ * This will turn a normal array to collection
+ */
+function toCollection($data = []) {
+  return collect($data)->map(function($item){
+    return (Object) $item;
+  });
 }
 
 //to check if dateA is greater than dateB

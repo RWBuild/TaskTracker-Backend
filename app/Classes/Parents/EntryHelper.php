@@ -236,15 +236,18 @@ class EntryHelper
     }
 
     /** 
-     * get the next entry of a task based on the current
+     * get the next entry of a task based on the current entry
      * @return Entry
     */
-    public function get_next_entry()
+    public function get_next_entry($entries = null)
     {
         $current_entry = $this->entry;
 
-        $next_entry = $this->record->entries
-                           ->first(function($entry) use($current_entry) {
+        if (!$entries) {
+            $entries = $this->record->entries;
+        }
+
+        $next_entry = $entries->first(function($entry) use($current_entry) {
                                 return $current_entry->id < $entry->id;
                            });
         $this->nextEntry = $next_entry;
@@ -253,14 +256,18 @@ class EntryHelper
     }
 
     /** 
-     * get the previous entry of a task based on the current
+     * get the previous entry of a task based on the current entry
      * @return Entry
     */
-    public function get_previous_entry()
+    public function get_previous_entry($entries = null)
     {
         $current_entry = $this->entry;
-        $previous_entry = $this->record->entries
-                            ->last(function($entry) use($current_entry) {
+
+        if (!$entries) {
+            $entries = $this->record->entries;
+        } 
+
+        $previous_entry = $entries->last(function($entry) use($current_entry) {
                                 return $current_entry->id > $entry->id;
                             });
         $this->previousEntry = $previous_entry;
@@ -282,6 +289,79 @@ class EntryHelper
         ]); 
     }
 
+    /**
+     * This will check if entries are ordered in the right
+     * way that the system expect them to be
+     */
+    public function detectRightEntryOrder()
+    {
+        //looping through all inbcomming entries
+        foreach($this->entries as $entry) {
+            //set the current entry(in loop) globaly into this class
+            $this->entry = $entry;
+
+            //detect next entry type if current entry(in loop) is not a last entry
+            if ($this->getLastEntry()->id != $entry->id) {
+                $this->nextEntrytypeChecker();
+            }
+        }
+    }
+
+    /**
+     * This will detect the next entry type based on the current entry
+     * @param Entry $current_entry
+     * if next entry type is not right then throw an error
+     */
+    public function nextEntrytypeChecker($current_entry = null)
+    {
+        if (!$current_entry) {
+            $current_entry = $this->entry;
+        }
+
+        $next_entry = $this->get_next_entry($this->entries);
+        $get_right_next_types = $this->predictedNextEntry();
+
+        if (!in_array($next_entry->entry_type ,$get_right_next_types )) {
+           
+           //a clear message of an error by providing where the order is bad
+           //Eg: The next entry type after the 1st entry should be (PAUSE or END)
+           $this->build_error("The next entry type after the ".entry_index($this->entries, $current_entry->id)
+                              ." entry should be ". arrayToString($get_right_next_types, ' or '));
+        }
+    }
+
+    /**
+     * This will predict the next entry type based on the current entry type
+     * if the current entry is not the END
+     */
+    public function predictedNextEntry($entry = null)
+    {
+        if (!$entry) {
+            $entry = $this->entry;
+        }
+
+        switch ($entry->entry_type) {
+            case 'start':
+                return ['pause','end'];
+                break;
+
+            case 'pause':
+                return ['resume','end'];
+                break;
+
+            case 'resume':
+                return ['pause','end'];
+                break;
+
+            case 'end': //throw an error in this case
+                abort(500, 'Trying to predict the next entry type based on an END entry');
+                break;
+            default:
+                abort(500, "Trying to predict the next entry type of unknown ".
+                           "current entry type({$this->entry->entry_type})");
+                break;
+        }
+    }
     /** 
      * this will throw an exception
      * @return throw

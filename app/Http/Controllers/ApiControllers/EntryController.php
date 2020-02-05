@@ -109,6 +109,38 @@ class EntryController extends Controller
     }
 
     /**
+     * This method will perform two actions
+     * save new entries of a task after deleting 
+     * And save new entries after updating
+     * @Note : the action attribute in the request
+     * Should be : delete or update
+     */
+    public function saveBundleEntries(Request $request)
+    {
+        $this->validate($request,[
+            'entries' => 'required|array',
+            'record_id' => 'required|numeric',
+            'action' => 'required|string'
+        ]);
+        
+        //Find record or throw an error if doesn't exist
+        $record = user()->records()
+                       ->findOrfail($request->record_id);
+        
+        if ($request->action == 'delete') {
+            $delete_entry_helper = new DeleteEntryHelper($record);
+        
+            return $delete_entry_helper->response();          
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Please the action must be : delete or update'
+        ]);
+
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Entry  $entry
@@ -118,8 +150,8 @@ class EntryController extends Controller
      //deleting an entry
     public function destroy(Entry $entry)
     {
-        $delete_entry_helper = new DeleteEntryHelper($entry);
+        // $delete_entry_helper = new DeleteEntryHelper($entry);
         
-        return $delete_entry_helper->response();
+        // return $delete_entry_helper->response();
     }
 }
