@@ -256,7 +256,7 @@ class EntryHelper
     }
 
     /** 
-     * get the previous entry of a task based on the current entry
+     * get the previous entry based on the current entry
      * @return Entry
     */
     public function get_previous_entry($entries = null)
@@ -295,16 +295,22 @@ class EntryHelper
      */
     public function detectRightEntryOrder()
     {
-        //looping through all inbcomming entries
-        foreach($this->entries as $entry) {
-            //set the current entry(in loop) globaly into this class
-            $this->entry = $entry;
+        //looping through all incomming entries
+        $this->entries = $this->entries->map(function($entry, $index) {
+                //set the current entry(in loop) globaly into this class
+                $this->entry = $entry;
 
-            //detect next entry type if current entry(in loop) is not a last entry
-            if ($this->getLastEntry()->id != $entry->id) {
-                $this->nextEntrytypeChecker();
-            }
-        }
+                //detect next entry type if current entry(in loop) is not a last entry
+                if ($this->getLastEntry()->id != $entry->id) {
+                    $this->nextEntrytypeChecker();
+                }
+
+                //recalculate the entry duration when type is pause and end only
+                if (in_array($entry->entry_type,['pause','end'])) {
+                   return $this->calculateEntryDuration();
+                }
+                return $entry;
+            });
     }
 
     /**
@@ -362,6 +368,55 @@ class EntryHelper
                 break;
         }
     }
+
+    /**
+     * This will recalculate the entry duration
+     * of pause and end entries of new task entries
+     * that are comming from user 
+     * this method will be called when user want to save
+     * task entries afer deleting orupdating some entries
+     * @return Object $entry
+     */
+    public function calculateEntryDuration($current_entry = null)
+    {
+        if (!$current_entry) {
+            $current_entry = $this->entry;
+        }
+
+        //get previous entry based on the current entry 
+        $previous_entry = $this->get_previous_entry($this->entries);
+
+        
+        //set entry duration to null if the previous one is pause otherwise calculate
+        //entry duration
+        $current_entry->entry_duration = $previous_entry->entry_type != 'pause' ? 
+                            diffSecond($previous_entry->entry_time,$current_entry->entry_time) : null;
+        
+        
+        
+        return $current_entry;
+    }
+
+    /**
+     * this will delete the current task entries
+     * then recreate task entries based on the new
+     * ones 
+     * @return Entry collection
+     */
+    public function saveBundleEntries()
+    {
+        
+        //delete entries
+        $this->record->entries()->delete();
+
+        //cast the entries collection to array
+        $entriesArray = collectionToArray($this->entries);
+       
+        //recreate task entries based on the new ones
+        return $this->record->entries()->createMany($entriesArray);
+
+    }
+    
     /** 
      * this will throw an exception
      * @return throw

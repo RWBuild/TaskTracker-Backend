@@ -152,11 +152,33 @@ function arrayToString($data = [],$joinWith = ',') {
 
 /**
  * This will turn a normal array to collection
+ * and all child arrays of this array will be casted 
+ * to object
  */
 function toCollection($data = []) {
   return collect($data)->map(function($item){
     return (Object) $item;
   });
+}
+
+/**
+ * This will turn a collection to array
+ * Then turn all the inner object to array
+ * @param Collection $data
+ * @return Array
+ */
+function collectionToArray($data) {
+
+  //collection to array
+  $data = $data->toArray();
+  $casted_array = [];
+
+  //turn all child object to array
+  foreach ($data as $key => $value) {
+    $casted_array[] = (Array) $data[$key];
+  }
+  
+  return $casted_array;
 }
 
 //to check if dateA is greater than dateB

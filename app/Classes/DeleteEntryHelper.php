@@ -2,8 +2,9 @@
 namespace App\Classes;
 
 use Illuminate\Http\Request;
-use App\Classes\UpdateEntryHelper;
+use App\Http\Resources\Record as RecordResource;
 use App\Classes\Parents\EntryHelper;
+use App\Http\Resources\Entry as EntryResource;
 
 /**
  * This helper class will delete the current entries of
@@ -62,6 +63,14 @@ class DeleteEntryHelper extends EntryHelper
 
         //General validation of incomming entries
         $this->validateEntries();
+
+        //update the entries of the task
+        $new_entries = $this->saveBundleEntries();
+
+        //change task status depending on the last entry
+        $this->changeRecordStatus($new_entries);
+
+        return $this->buildResponse($new_entries);
     }
 
     /**
@@ -91,6 +100,9 @@ class DeleteEntryHelper extends EntryHelper
 
         //Detect the right order of entries
         $this->detectRightEntryOrder();
+
+        //check if last entry is pause or end when the record is not current
+        $this->obligePauseWhenNotCurrent();
     }
 
     /**
@@ -102,6 +114,25 @@ class DeleteEntryHelper extends EntryHelper
         $first_entry = $this->getFirstEntry();
         if ($first_entry->entry_type != 'start') {
             $this->build_error("The first entry should be a start entry Buts not $first_entry->entry_type");
+        }
+    }
+    /**
+     * this will oblige a user to pause  or to end a task
+     * when the task is not current
+     * the method will be called only when user is trying to save 
+     * entries without pause or end as last entry type
+     * This will be used only when the task is not current
+     */
+    public function obligePauseWhenNotCurrent()
+    {
+        $last_entry = $this->getLastEntry();
+
+        //process only when the task is not current
+        if (!$this->is_current()) {
+        
+            if (!in_array($last_entry->entry_type,['pause','end'])) {
+                $this->build_error('Please the last entry type of this task must be: pause or end');
+            }
         }
     }
 
@@ -133,14 +164,37 @@ class DeleteEntryHelper extends EntryHelper
         return $entries->last();
     }
 
-    public function buildResponse()
+    public function changeRecordStatus($new_entries)
+    {
+        $last_entry = $this->getLastEntry($new_entries);
+        
+        //set record as finished when last entry is end
+        if ($last_entry->entry_type == 'end') {
+            $this->record->status = 'end';
+            $this->record->is_current = false;
+            $this->record->is_opened = false;
+            $this->record->is_finished = true;
+
+        } else { // don't touch on is_current
+            $this->record->status = $last_entry->entry_type;
+            $this->record->is_finished = false;
+            $this->record->is_opened = true;
+        }
+
+
+
+        $this->record->save();
+    }
+
+    public function buildResponse($data)
     {
         //log task history
         record($this->record)->track_action("delete_entries");
 
         return response()->json([
             'success' => true,
-            'message' => "The new updates of the task are well saved"
+            'message' => "The last version of the task entries is well saved",
+            'record' => new RecordResource($this->record)
         ]);
     }
 
