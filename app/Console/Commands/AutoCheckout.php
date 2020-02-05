@@ -53,23 +53,23 @@ class AutoCheckout extends Command
             $last_office_time = $user->office_times->last();
 
             // assign the last office time to break time
-            // if(!$last_office_time->break_time)
-            // {
-            //     $today = new DateTime();
-            //     $today = $today->format('Y-m-d');
-            //     $time = new DateTime('17:00:00');
-            //     $merge = new DateTime($today .' ' .$time->format('H:i:s'));
-            //     $last_office_time->checkout_time = $merge->format('Y-m-d H:i:s');
-            //     $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
-            //     $last_office_time->has_checked_out = true;
-            //     $last_office_time->save();
+            if(!$last_office_time->break_time)
+            {
+                $today = new DateTime();
+                $today = $today->format('Y-m-d');
+                $time = new DateTime('17:00:00');
+                $merge = new DateTime($today .' ' .$time->format('H:i:s'));
+                $last_office_time->checkout_time = $merge->format('Y-m-d H:i:s');
+                $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
+                $last_office_time->has_checked_out = true;
+                $last_office_time->save();
             
-            // //then update user's has checked to false
-            // $user->has_checked = false;
-            // $user->save();
-            // return $this->info("checked out all the users at 17:00:00");
-            // }
-            // $last_office_time->checkout_time = $last_office_time->break_time;
+            //then update user's has checked to false
+            $user->has_checked = false;
+            $user->save();
+            return $this->info("checked out all the users at 17:00:00");
+            }
+            $last_office_time->checkout_time = $last_office_time->break_time;
             $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
             $last_office_time->has_checked_out = true;
             $last_office_time->save();
