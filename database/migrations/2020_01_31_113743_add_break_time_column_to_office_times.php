@@ -14,7 +14,7 @@ class AddBreakTimeColumnToOfficeTimes extends Migration
     public function up()
     {
         Schema::table('office_times', function (Blueprint $table) {
-            $table->datetime('break_time')->after('checkout_time');
+            $table->datetime('break_time')->nullable()->after('checkout_time');
         });
     }
 
