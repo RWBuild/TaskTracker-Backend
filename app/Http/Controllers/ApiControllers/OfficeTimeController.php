@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ApiControllers;
 
 
 use App\User;
+use DateTime;
 use Carbon\Carbon;
 use App\OfficeTime;
 use Illuminate\Http\Request;
@@ -150,20 +151,26 @@ class OfficeTimeController extends Controller
         $this->validate($request,[
             $break_time = $request->break_time
         ]);
-
+        if(!Carbon::parse($request->break_time)->isToday())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the break time should be of today'
+            ],400); 
+        }
         if(!$office_time_id )
         {
             return response()->json([
                 'success' => false,
                 'message' => 'the office time is invalid'
-            ]);
+            ],404);
         }
         if($break_time <= $officeTime->checkin_time)
         {
             return response()->json([
                 'success' => false,
                 'message' => 'the break time should not be less than the checkin time'
-            ]); 
+            ],400); 
         }
         $officeTime->break_time = $break_time;
 
