@@ -158,6 +158,13 @@ class OfficeTimeController extends Controller
                 'message' => 'the office time is invalid'
             ]);
         }
+        if($break_time <= $officeTime->checkin_time)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'the break time should not be less than the checkin time'
+            ]); 
+        }
         $officeTime->break_time = $break_time;
 
         $officeTime->save();
