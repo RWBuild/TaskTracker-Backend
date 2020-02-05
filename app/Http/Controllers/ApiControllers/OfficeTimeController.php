@@ -144,8 +144,8 @@ class OfficeTimeController extends Controller
     public function break_time(Request $request){
 
         $user = user();
-        $oficeTime = $user->office_times()->get()->last();
-        $office_time_id = $oficeTime->id;
+        $officeTime = $user->office_times()->get()->last();
+        $office_time_id = $officeTime->id;
 
         $this->validate($request,[
             $break_time = $request->break_time
@@ -158,7 +158,14 @@ class OfficeTimeController extends Controller
                 'message' => 'the office time is invalid'
             ]);
         }
-        return $oficeTime;
+        $officeTime->break_time = $break_time;
+
+        $officeTime->save();
+        return response ([
+            'success' => true,
+            'message' => 'it is break time',
+            // 'break_time' => $officeTime->break_time
+        ]);
 
     }
 }

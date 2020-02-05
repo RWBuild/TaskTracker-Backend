@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        commands\AutoCheckout::class,
     ];
 
     /**
@@ -24,8 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('checkout:users')
+                ->everyMinute();
+                //  ->daily()->timezone('Africa/Cairo'); // set the schedule to run on our local time
     }
 
     /**
