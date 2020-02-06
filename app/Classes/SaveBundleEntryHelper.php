@@ -117,7 +117,8 @@ class SaveBundleEntryHelper extends BundleEntryHelper
     }
     /**
      * this will oblige a user to pause  or to end a task
-     * when the task is not current
+     * when the task is not current and when the user has another
+     * current task
      * the method will be called only when user is trying to save 
      * entries without pause or end as last entry type
      * This will be used only when the task is not current
@@ -126,7 +127,7 @@ class SaveBundleEntryHelper extends BundleEntryHelper
     {
         $last_entry = $this->getLastEntry();
 
-        //process only when the task is not current
+        //process only when the task is not current and user has another current task
         if (!$this->is_current()) {
         
             if (!in_array($last_entry->entry_type,['pause','end'])) {

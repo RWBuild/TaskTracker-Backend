@@ -198,6 +198,16 @@ function collectionToArray($data) {
  * when $addEqual=true is to check if dateA >= dateB
  */
 function date_greater_than($dateA, $dateB, $addEqual=false) {
+    //when date are not valid ones
+    if (!isDateTime($dateA) and !isDate($dateA)) {
+      trigger_exception("The date ({$dateA}) is not valid ");
+    }
+
+    if (!isDateTime($dateB) and !isDate($dateB)) {
+      trigger_exception("The date ({$dateB}) is not valid ");
+    }
+
+    //parse to carbon
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
 
@@ -216,8 +226,18 @@ function date_greater_than($dateA, $dateB, $addEqual=false) {
  */
 function isDateTime($myString)
 {
-  $date_time = DateTime::createFromFormat('Y-m-d H:i:s', $myString);
-  return $date_time === false ? false : true;
+    $date_time = DateTime::createFromFormat('Y-m-d H:i:s', $myString);
+    return $date_time === false ? false : true;
+}
+
+/**
+ * Check if a given string is a valid date
+ * with the format : Y-m-d H:i:s
+ */
+function isDate($myString)
+{
+    $date_time = DateTime::createFromFormat('Y-m-d', $myString);
+    return $date_time === false ? false : true;
 }
 
 //returning the checkout time of an entry
