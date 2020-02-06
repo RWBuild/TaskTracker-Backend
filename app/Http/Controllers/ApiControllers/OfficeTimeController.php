@@ -187,7 +187,6 @@ class OfficeTimeController extends Controller
     public function checkouTime($date)
     {
         $entry_checkout_time = entry_checkout_time($date);
-        return $entry_checkout_time ; 
         if($entry_checkout_time)
         {
             return response([
