@@ -341,6 +341,18 @@ class BundleEntryHelper
      */
     public function checkoutTimeChecker()
     {
+        $entry_date = (explode(' ', $this->entry->entry_time))[0];
+        //get the checkout time of that entry
+        $checkout_time = entry_checkout_time($entry_date);
+
+        //when checkout time is null: don't process
+        if (!$checkout_time) return;
+
+        //when entry time is greater than checkout time
+        if (date_greater_than($this->entry->entry_time,$checkout_time)) {
+            $this->build_error("The last entry time must be less than checkout time".
+                             "({$checkout_time})");
+        } 
 
     }
 
