@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
-use DateTime;
 use App\Entry;
 use App\Record;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Classes\CreateEntryHelper;
 use App\Http\Controllers\Controller;
 use App\Classes\SaveBundleEntryHelper;
 use App\Http\Resources\EntryCollection;
@@ -48,18 +48,18 @@ class EntryController extends Controller
      //storing an entry
     public function store(Request $request)
     {
-        // $this->validate($request,[
-        //     'record_id'=>'required|integer',
-        //     'entry_type'=>'required|string',
-        //     'entry_time'=>'required|date',
-        // ]);
+        $this->validate($request,[
+            'record_id'=>'required|integer',
+            'entry_type'=>'required|string',
+            'entry_time'=>'required|date',
+        ]);
 
-        // $record = user()->records()
-        //                ->find($request->record_id);
+        $record = user()->records()
+                       ->find($request->record_id);
 
-        // $entry_helper = new CreateEntryHelper($record);
+        $entry_helper = new CreateEntryHelper($record);
         
-        // return $entry_helper->response();
+        return $entry_helper->response();
     }
 
     /**
@@ -70,7 +70,6 @@ class EntryController extends Controller
      */
     public function show(Entry $entry)
     {
-        $entry = Entry::find($entry);
         return new EntryResource($entry);
     }
 
@@ -104,8 +103,6 @@ class EntryController extends Controller
      * This method will perform two actions
      * save new entries of a task after deleting 
      * And save new entries after updating
-     * @Note : the action attribute in the request
-     * Should be : delete or update
      */
     public function saveBundleEntries(Request $request)
     {

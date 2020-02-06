@@ -2,8 +2,8 @@
 namespace App\Classes;
 
 use Illuminate\Http\Request;
+use App\Classes\Parents\BundleEntryHelper;
 use App\Http\Resources\Record as RecordResource;
-use App\Classes\Parents\EntryHelper;
 
 /**
  * This helper class will delete the current entries of
@@ -12,7 +12,7 @@ use App\Classes\Parents\EntryHelper;
  * eg: START,PAUSE,RESUME,END
  * otherwhise it will throw an error
  */
-class SaveBundleEntryHelper extends EntryHelper
+class SaveBundleEntryHelper extends BundleEntryHelper
 {
     /** 
      * will keep the incomming entries
@@ -25,14 +25,14 @@ class SaveBundleEntryHelper extends EntryHelper
         $this->record = $record;
 
         //check if the user is allowed to perform this operation
-        $this->user_is_allowed();
+        $this->userIsAllowed();
 
         // cast array to laravel collection
         $this->entries = toCollection($this->request->entries);
     }
 
     //check if the user is allowed to delete this entry
-    public function user_is_allowed()
+    public function userIsAllowed()
     {
         //check if the record exist
         if (! $this->record) {
@@ -135,6 +135,9 @@ class SaveBundleEntryHelper extends EntryHelper
         }
     }
 
+    /**
+     * 
+     */
     public function changeRecordStatus($new_entries)
     {
         $last_entry = $this->getLastEntry($new_entries);

@@ -137,8 +137,17 @@ function number_to_ordinal($number) {
  * in a collection list of entries of a specific task
  * Eg: if the entry is the second of a given task
  * This will return : 2nd
+ * Note: the first param can receive an integer or an array
+ * when first param is integer,no need to look for the index
+ * of the given Id(second param)
  */
-function entry_index($data,$id) {
+function entry_index($data,$id = null) {
+    
+    //when data is integer
+    if (is_int($data)) {
+      $index = $data + 1;
+      return number_to_ordinal($index);
+    }
     return number_to_ordinal(item_index($data,$id));
 }
 
