@@ -186,6 +186,19 @@ class OfficeTimeController extends Controller
     //returning entry checkout time
     public function checkouTime($date)
     {
-        return entry_checkout_time($date);
+        $entry_checkout_time = entry_checkout_time($date);
+        return $entry_checkout_time ; 
+        if($entry_checkout_time)
+        {
+            return response([
+                'checkout_time' => $entry_checkout_time
+            ],200);
+        }
+        else
+        {
+            return response([
+                'checkout_time' => null
+            ],404);
+        }
     }
 }

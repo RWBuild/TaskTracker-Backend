@@ -251,21 +251,10 @@ function entry_checkout_time($date)
       $checkout_date = Carbon::parse($checkout_time)->format('Y-m-d');
       if($checkout_date == $date)
       {
-          $entry_checkout_time = $checkout_time;
+          return $entry_checkout_time = $checkout_time;
       }
   }
-  if($entry_checkout_time)
-  {
-      return response([
-          'checkout_time' => $entry_checkout_time
-      ],200);
-  }
-  else
-  {
-      return response([
-          'checkout_time' => null
-      ],404);
-  }
+  
 }
 
 
