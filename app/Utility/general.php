@@ -240,6 +240,23 @@ function isDate($myString)
     return $date_time === false ? false : true;
 }
 
+//returning the checkout time of an entry
+function entry_checkout_time($date)
+{
+  $office_times = user()->office_times;
+  $entry_checkout_time  = '';
+  foreach($office_times as $office_time)
+  {
+      $checkout_time = $office_time->checkout_time;
+      $checkout_date = Carbon::parse($checkout_time)->format('Y-m-d');
+      if($checkout_date == $date)
+      {
+          return $entry_checkout_time = $checkout_time;
+      }
+  }
+  
+}
+
 
 
 

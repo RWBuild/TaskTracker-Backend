@@ -39,6 +39,9 @@ Route::group(['middleware' => 'auth:api'], function()
     //saving the auto break time
     Route::post('break-time','ApiControllers\OfficeTimeController@break_time');
 
+    //getting checkout time of an entry
+    Route::get('get-entry-checkout-time/{date}','ApiControllers\OfficeTimeController@checkouTime');
+
 
     //Records
     Route::resource("records","ApiControllers\RecordController");
@@ -57,6 +60,8 @@ Route::group(['middleware' => 'auth:api'], function()
     Route::resource("entries","ApiControllers\EntryController")->except(['destroy','update']);
     //delete bundle  ofentries
     Route::post('save-bundle-entries','ApiControllers\EntryController@saveBundleEntries');
+
+    
     
    //Routes for administrators on;y
     Route::group(['prefix'=>'admin','middleware' => ['role:projectmanager|superadministrator']], function()
