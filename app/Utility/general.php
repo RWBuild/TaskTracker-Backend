@@ -220,6 +220,34 @@ function isDateTime($myString)
   return $date_time === false ? false : true;
 }
 
+//returning the checkout time of an entry
+function entry_checkout_time($date)
+{
+  $office_times = user()->office_times;
+  $entry_checkout_time  = '';
+  foreach($office_times as $office_time)
+  {
+      $checkout_time = $office_time->checkout_time;
+      $checkout_date = Carbon::parse($checkout_time)->format('Y-m-d');
+      if($checkout_date == $date)
+      {
+          $entry_checkout_time = $checkout_time;
+      }
+  }
+  if($entry_checkout_time)
+  {
+      return response([
+          'checkout_time' => $entry_checkout_time
+      ],200);
+  }
+  else
+  {
+      return response([
+          'checkout_time' => null
+      ],404);
+  }
+}
+
 
 
 

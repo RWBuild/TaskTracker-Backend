@@ -182,4 +182,10 @@ class OfficeTimeController extends Controller
         ]);
 
     }
+   
+    //returning entry checkout time
+    public function checkouTime($date)
+    {
+        return entry_checkout_time($date);
+    }
 }
