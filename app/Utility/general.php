@@ -137,8 +137,17 @@ function number_to_ordinal($number) {
  * in a collection list of entries of a specific task
  * Eg: if the entry is the second of a given task
  * This will return : 2nd
+ * Note: the first param can receive an integer or an array
+ * when first param is integer,no need to look for the index
+ * of the given Id(second param)
  */
-function entry_index($data,$id) {
+function entry_index($data,$id = null) {
+    
+    //when data is integer
+    if (is_int($data)) {
+      $index = $data + 1;
+      return number_to_ordinal($index);
+    }
     return number_to_ordinal(item_index($data,$id));
 }
 
@@ -189,6 +198,16 @@ function collectionToArray($data) {
  * when $addEqual=true is to check if dateA >= dateB
  */
 function date_greater_than($dateA, $dateB, $addEqual=false) {
+    //when date are not valid ones
+    if (!isDateTime($dateA) and !isDate($dateA)) {
+      trigger_exception("The date ({$dateA}) is not valid ");
+    }
+
+    if (!isDateTime($dateB) and !isDate($dateB)) {
+      trigger_exception("The date ({$dateB}) is not valid ");
+    }
+
+    //parse to carbon
     $dateA = Carbon::parse($dateA);
     $dateB = Carbon::parse($dateB);
 
@@ -207,8 +226,18 @@ function date_greater_than($dateA, $dateB, $addEqual=false) {
  */
 function isDateTime($myString)
 {
-  $date_time = DateTime::createFromFormat('Y-m-d H:i:s', $myString);
-  return $date_time === false ? false : true;
+    $date_time = DateTime::createFromFormat('Y-m-d H:i:s', $myString);
+    return $date_time === false ? false : true;
+}
+
+/**
+ * Check if a given string is a valid date
+ * with the format : Y-m-d H:i:s
+ */
+function isDate($myString)
+{
+    $date_time = DateTime::createFromFormat('Y-m-d', $myString);
+    return $date_time === false ? false : true;
 }
 
 

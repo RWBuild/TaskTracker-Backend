@@ -10,9 +10,16 @@ class TaskHistoryHelper
         $history_type,//this will contain the action like: create_task
         $record, // the record to which the history belongs
         $known_actions = [ // predefined actions(description)
-            'update_entries',
+            'create_task',
+            'start_task',
+            'pause_task',
+            'resume_task',
+            'end_task',
+            'update_entry',
+            'save_entries',
+            'delete_entry',
             'delete_task',
-            'update_task', 
+            'update_task',
         ];
 
     public function __construct()

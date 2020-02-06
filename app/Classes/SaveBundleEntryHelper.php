@@ -2,8 +2,8 @@
 namespace App\Classes;
 
 use Illuminate\Http\Request;
+use App\Classes\Parents\BundleEntryHelper;
 use App\Http\Resources\Record as RecordResource;
-use App\Classes\Parents\EntryHelper;
 
 /**
  * This helper class will delete the current entries of
@@ -12,7 +12,7 @@ use App\Classes\Parents\EntryHelper;
  * eg: START,PAUSE,RESUME,END
  * otherwhise it will throw an error
  */
-class SaveBundleEntryHelper extends EntryHelper
+class SaveBundleEntryHelper extends BundleEntryHelper
 {
     /** 
      * will keep the incomming entries
@@ -25,14 +25,14 @@ class SaveBundleEntryHelper extends EntryHelper
         $this->record = $record;
 
         //check if the user is allowed to perform this operation
-        $this->user_is_allowed();
+        $this->userIsAllowed();
 
         // cast array to laravel collection
         $this->entries = toCollection($this->request->entries);
     }
 
     //check if the user is allowed to delete this entry
-    public function user_is_allowed()
+    public function userIsAllowed()
     {
         //check if the record exist
         if (! $this->record) {
@@ -117,7 +117,8 @@ class SaveBundleEntryHelper extends EntryHelper
     }
     /**
      * this will oblige a user to pause  or to end a task
-     * when the task is not current
+     * when the task is not current and when the user has another
+     * current task
      * the method will be called only when user is trying to save 
      * entries without pause or end as last entry type
      * This will be used only when the task is not current
@@ -126,7 +127,7 @@ class SaveBundleEntryHelper extends EntryHelper
     {
         $last_entry = $this->getLastEntry();
 
-        //process only when the task is not current
+        //process only when the task is not current and user has another current task
         if (!$this->is_current()) {
         
             if (!in_array($last_entry->entry_type,['pause','end'])) {
@@ -135,6 +136,9 @@ class SaveBundleEntryHelper extends EntryHelper
         }
     }
 
+    /**
+     * 
+     */
     public function changeRecordStatus($new_entries)
     {
         $last_entry = $this->getLastEntry($new_entries);

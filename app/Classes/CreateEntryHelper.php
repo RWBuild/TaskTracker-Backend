@@ -5,11 +5,9 @@ use App\Classes\Parents\EntryHelper;
 use App\Http\Resources\Entry as EntryResource;
 
 /**
- * Helper to call only on creation of an entry
- * This will validate the order of entries depending
- * On the expected order: START,PAUSE,RESUME and END
- * Then create the entry depending on the entry type
- * After it will save the taskHistory
+ * This will create an entry depending on
+ * the entry type sent by the user after doing some 
+ * some validations
  */
 class CreateEntryHelper extends EntryHelper
 {
@@ -26,8 +24,7 @@ class CreateEntryHelper extends EntryHelper
     }
 
     /**
-     * the brain function to create an entry according to the entry type
-     * and return reponse if all validations succeded
+     * the brain function to create an entry according to its type
      */
     public function response()
     {
@@ -122,7 +119,7 @@ class CreateEntryHelper extends EntryHelper
             if ($last_entry->entry_type == 'end') {
                 $this->build_error([
                     'message' => 'You can no longer '.strtoupper($this->request->entry_type).'. '.
-                                'this task has ended'
+                                'this task has been ended'
                 ]);
             }
         }
@@ -132,9 +129,6 @@ class CreateEntryHelper extends EntryHelper
     //helper function to be called when user want to start a specific task
     public function startTask ()
     {
-        //compare the incomming entry time to the one of task creation
-        $this->check_task_time();
-
         //if task has entries, return the given msg
         $this->task_has_entries('You have already started this task',true);
 
@@ -148,20 +142,6 @@ class CreateEntryHelper extends EntryHelper
         $this->change_record_status(['is_current' => true]);
         
         return $this->build_response($entry);
-    }
-    
-    /** 
-     * check if the incomming entry time is not 
-     * less than the time at which the task has been created
-     * otherwise return the error message
-     * applied only when the stry type is START
-    */
-    public function check_task_time ()
-    {  
-        //compare the entry creation time and the incomming entry time
-        if (date_greater_than($this->record->created_at, $this->request->entry_time)) {
-            $this->build_error('The entry time must be greater than the creation time of the task');
-        }
     }
     
     //helper function to be called when user want to pause a specific task

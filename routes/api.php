@@ -54,7 +54,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
 
     //Entries
-    Route::resource("entries","ApiControllers\EntryController")->except('destroy');
+    Route::resource("entries","ApiControllers\EntryController")->except(['destroy','update']);
     //delete bundle  ofentries
     Route::post('save-bundle-entries','ApiControllers\EntryController@saveBundleEntries');
     
