@@ -34,6 +34,10 @@ class SaveBundleEntryHelper extends BundleEntryHelper
     //check if the user is allowed to delete this entry
     public function userIsAllowed()
     {
+        //when user didn't check in
+        if (!user()->has_checked) {
+            $this->build_error('Please check in first');
+        }
         //check if the record exist
         if (! $this->record) {
             $this->build_error('These record does not exist or it may not belong to you',404);
@@ -112,7 +116,7 @@ class SaveBundleEntryHelper extends BundleEntryHelper
     {
         $first_entry = $this->getFirstEntry();
         if ($first_entry->entry_type != 'start') {
-            $this->build_error("The first entry should be a start entry Buts not $first_entry->entry_type");
+            $this->build_error("The first entry should be a start entry But not $first_entry->entry_type");
         }
     }
     /**

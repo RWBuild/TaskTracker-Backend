@@ -254,6 +254,8 @@ function entry_checkout_time($date)
           return $entry_checkout_time = $checkout_time;
       }
   }
+
+  return false;
   
 }
 
