@@ -113,7 +113,7 @@ class EntryController extends Controller
         
         //Find record or throw an error if doesn't exist
         $record = user()->records()
-                       ->findOrfail($request->record_id);
+                       ->find($request->record_id);
         
         $delete_entry_helper = new SaveBundleEntryHelper($record);
         return $delete_entry_helper->response();
