@@ -45,7 +45,7 @@ class CreateEntryHelper extends EntryHelper
 
     //to check if the current user can perform this operation
     public function user_is_allowed()
-    {
+    { 
         //check if the user has checked
         $user = user();
         if(! $user->has_checked) {

@@ -200,11 +200,11 @@ function collectionToArray($data) {
 function date_greater_than($dateA, $dateB, $addEqual=false) {
     //when date are not valid ones
     if (!isDateTime($dateA) and !isDate($dateA)) {
-      trigger_exception("The date ({$dateA}) is not valid ");
+      trigger_exception("The date ({$dateA}) is not valid.Please provide the format: Y-m-d H:i:s or Y-m-d");
     }
 
     if (!isDateTime($dateB) and !isDate($dateB)) {
-      trigger_exception("The date ({$dateB}) is not valid ");
+      trigger_exception("The date ({$dateB}) is not valid.Please provide the format: Y-m-d H:i:s or Y-m-d");
     }
 
     //parse to carbon
