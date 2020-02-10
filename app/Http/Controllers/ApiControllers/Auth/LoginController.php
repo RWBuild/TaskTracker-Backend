@@ -38,12 +38,15 @@ class LoginController extends Controller
                'email' => 'required|email|unique:users',
                'avatar'
            ]);
+
+           //create the user
            $user = User::create([
                 'names' => $request->names,
                 'email' => $request->email,
                 'avatar' => $request->avatar
            ]);
            
+           //connect the user his murugo id
            $murugo_user->user_id = $user->id;
            $murugo_user->save();
 
