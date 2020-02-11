@@ -57,7 +57,6 @@ class AutoCheckout extends Command
             {
                 $last_office_time->checkout_time = app_now();
                 $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%dday %H:%I');
-                $last_office_time->has_checked_out = true;
                 $last_office_time->save();
             
                 //then update user's has checked to false
