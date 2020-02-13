@@ -57,6 +57,12 @@ class CreateEntryHelper extends EntryHelper
             $this->build_error("Task not found or it may not belong to you. Please ".
                              "provide an existing task ");
         }
+
+        //check if the time is not less than the creation time of the task
+        if (!date_greater_than($this->request->entry_time, $this->record->created_at)) {
+            $this->build_error("The START entry time should be greater than ".
+                               "the creation time of the task({$this->record->created_at})");
+        }
         //check if the user is not trying to create an entry with a future date(time)
         $this->time_future_checker();
 
