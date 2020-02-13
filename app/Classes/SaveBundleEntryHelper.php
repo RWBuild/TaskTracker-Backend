@@ -40,7 +40,7 @@ class SaveBundleEntryHelper extends BundleEntryHelper
         }
         //check if the record exist
         if (! $this->record) {
-            $this->build_error('These record does not exist or it may not belong to you',404);
+            $this->build_error('This record does not exist',404);
         }
 
         //check if the user is the owner of the entry

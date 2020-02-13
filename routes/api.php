@@ -58,7 +58,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController")->except(['destroy','update']);
-    //delete bundle  ofentries
+    //save new version of task entries 
     Route::post('save-bundle-entries','ApiControllers\EntryController@saveBundleEntries');
 
     

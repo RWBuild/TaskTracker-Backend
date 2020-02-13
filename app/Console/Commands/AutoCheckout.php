@@ -55,29 +55,24 @@ class AutoCheckout extends Command
             // assign the last office time to break time
             if(!$last_office_time->break_time)
             {
-                $today = new DateTime();
-                $today = $today->format('Y-m-d');
-                $time = new DateTime('17:00:00');
-                $merge = new DateTime($today .' ' .$time->format('H:i:s'));
-                $last_office_time->checkout_time = $merge->format('Y-m-d H:i:s');
-                $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
-                $last_office_time->has_checked_out = true;
+                $last_office_time->checkout_time = app_now();
+                $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%dday %H:%I');
                 $last_office_time->save();
             
-            //then update user's has checked to false
-            $user->has_checked = false;
-            $user->save();
+                //then update user's has checked to false
+                $user->has_checked = false;
+                $user->save();
             }
             else 
             {
-            $last_office_time->checkout_time = $last_office_time->break_time;
-            $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
-            $last_office_time->has_checked_out = true;
-            $last_office_time->save();
-            
-            //then update user's has checked to false
-            $user->has_checked = false;
-            $user->save();
+                $last_office_time->checkout_time = $last_office_time->break_time;
+                $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
+                $last_office_time->has_checked_out = true;
+                $last_office_time->save();
+                
+                //then update user's has checked to false
+                $user->has_checked = false;
+                $user->save();
             }
         }
         

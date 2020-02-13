@@ -233,6 +233,7 @@ class EntryHelper
                 'message' => 'Please an entry time can not be a future time'
             ]);
         }
+        
     }
 
     /** 
