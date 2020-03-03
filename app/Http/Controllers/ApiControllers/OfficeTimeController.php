@@ -107,6 +107,10 @@ class OfficeTimeController extends Controller
                 'message' => 'You have already checked out for today'
             ],409);
         }
+
+        //If this request was prevented by the internet connection
+        updateAutoPausedEntry($request);
+
         
         //calculation of the duration between checkout time and checkin time
         $officeTime->duration = diffTime($officeTime->checkin_time,$request->checkout_time,'%H:%I');
