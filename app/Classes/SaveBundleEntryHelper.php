@@ -68,7 +68,7 @@ class SaveBundleEntryHelper extends BundleEntryHelper
         $this->validateEntries();
 
         //update the entries of the task
-        $new_entries = $this->saveBundleEntries();
+        $new_entries = $this->saveBundl;eEntries();
 
         //change task status depending on the last entry
         $this->changeRecordStatus($new_entries);

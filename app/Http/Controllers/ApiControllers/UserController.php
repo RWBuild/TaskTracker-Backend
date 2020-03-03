@@ -140,8 +140,8 @@ class UserController extends Controller
 
         if($has_checked->has_checked == true)
         {
-            return response([true]);
+            return response()->json(true);
         }
-            return response([false]);
+            return response()->json(false);
     }   
 }
