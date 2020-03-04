@@ -55,32 +55,62 @@ class AutoCheckout extends Command
             // assign the last office time to break time
             if(!$last_office_time->break_time)
             {
-                $today = new DateTime();
-                $today = $today->format('Y-m-d');
-                $time = new DateTime('17:00:00');
-                $merge = new DateTime($today .' ' .$time->format('H:i:s'));
-                $last_office_time->checkout_time = $merge->format('Y-m-d H:i:s');
+                $last_office_time->checkout_time = app_now();
                 $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
-                $last_office_time->has_checked_out = true;
                 $last_office_time->save();
+
+                //check if current user task is not paused
+                $user_current_task = $user->records()
+                                        ->where('is_current',true)
+                                        ->first();
+                //pause the current task if it has been not paused
+                $this->pauseUserCurrentTask($user_current_task);
             
-            //then update user's has checked to false
-            $user->has_checked = false;
-            $user->save();
+                //then update user's has checked to false
+                $user->has_checked = false;
+                $user->save();
             }
             else 
             {
-            $last_office_time->checkout_time = $last_office_time->break_time;
-            $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
-            $last_office_time->has_checked_out = true;
-            $last_office_time->save();
-            
-            //then update user's has checked to false
-            $user->has_checked = false;
-            $user->save();
+                $last_office_time->checkout_time = $last_office_time->break_time;
+                $last_office_time->duration = diffTime($last_office_time->checkin_time,$last_office_time->checkout_time,'%H:%I');
+                $last_office_time->has_checked_out = true;
+                $last_office_time->save();
+                
+                //then update user's has checked to false
+                $user->has_checked = false;
+                $user->save();
             }
         }
         
         return $this->info("checkout updated successfully for all users who did not checkout");
+    }
+
+    public function pauseUserCurrentTask($task)
+    {
+        
+        //when task exists
+        if ($task) {
+            //get the last entry of the task
+            $last_entry = $task->entries->last();
+
+            //pause if task is start or resume
+            $this->info($last_entry->type);
+            if (in_array($last_entry->entry_type,['start','resume'])) {
+                $now = app_now();
+                $task->entries()->create([
+                    'entry_type' => 'pause',
+                    'entry_time' => $now,
+                    'entry_duration' => diffSecond($last_entry->entry_time,$now),
+                    'auto_paused' => true
+                ]);
+
+                //change the status of the current task
+                $task->status = 'pause';
+                $task->save();
+            }
+
+            
+        }
     }
 }

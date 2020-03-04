@@ -107,10 +107,10 @@ class EntryController extends Controller
     public function saveBundleEntries(Request $request)
     {
         $this->validate($request,[
-            'entries' => 'required|array',
+            'entries' => 'array',
             'record_id' => 'required|numeric',
         ]);
-        
+
         //Find record or throw an error if doesn't exist
         $record = user()->records()
                        ->find($request->record_id);

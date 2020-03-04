@@ -25,7 +25,7 @@ Route::group(['middleware' => 'auth:api'], function()
     //Users
     Route::get("/user", "ApiControllers\Auth\LoginController@auth_user");
     Route::get("/logout","ApiControllers\Auth\LoginController@logout");
-    
+    Route::get("/has-checked","ApiControllers\UserController@has_checked");
 
     //Location
     Route::get("/get-office-location","ApiControllers\LocationController@office_location");
@@ -58,7 +58,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
     //Entries
     Route::resource("entries","ApiControllers\EntryController")->except(['destroy','update']);
-    //delete bundle  ofentries
+    //save new version of task entries 
     Route::post('save-bundle-entries','ApiControllers\EntryController@saveBundleEntries');
 
     

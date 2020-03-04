@@ -132,4 +132,16 @@ class UserController extends Controller
             'message' => 'user is already a super administrator' 
         ]);  
     }
+
+    public function has_checked()
+    {
+        $user = user();
+        $has_checked = User::where('id',$user->id)->first();
+
+        if($has_checked->has_checked == true)
+        {
+            return response()->json(true);
+        }
+            return response()->json(false);
+    }   
 }

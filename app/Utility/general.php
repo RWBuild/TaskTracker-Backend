@@ -45,7 +45,7 @@ function isOwner($item) {
   return $user->id == $item->user_id or $user->hasRole('superadministrator|projectmanager');
 }
 
-function diffTime($from_time, $to_time,  $format='YY-MM-dD %H:%I:%S') {
+function diffTime($from_time, $to_time,  $format='%y-%m-%d %H:%I:%S') {
   $from_time = Carbon::parse($from_time);
   $to_time = Carbon::parse($to_time);
   $totalDuration = $from_time->diff($to_time)->format($format);
@@ -200,11 +200,11 @@ function collectionToArray($data) {
 function date_greater_than($dateA, $dateB, $addEqual=false) {
     //when date are not valid ones
     if (!isDateTime($dateA) and !isDate($dateA)) {
-      trigger_exception("The date ({$dateA}) is not valid ");
+      trigger_exception("The date ({$dateA}) is not valid.Please provide the format: Y-m-d H:i:s or Y-m-d");
     }
 
     if (!isDateTime($dateB) and !isDate($dateB)) {
-      trigger_exception("The date ({$dateB}) is not valid ");
+      trigger_exception("The date ({$dateB}) is not valid.Please provide the format: Y-m-d H:i:s or Y-m-d");
     }
 
     //parse to carbon
@@ -257,6 +257,37 @@ function entry_checkout_time($date)
 
   return false;
   
+}
+
+/**
+ * this will be used to update the paused entry time of
+ * the task that has been auto paused at midi night
+ * This is to help the login of Sync break time
+ */
+function updateAutoPausedEntry($request)
+{
+    if ($request->is_sync == true) {
+      //update the entry time of the auto paused entry at midi night
+      $current_task = user()->records()->where('is_current',true)->first();
+      $last_entry = $current_task->entries->last();
+    
+      //when the last entry was paused
+      if ($last_entry->auto_paused  == true) {
+
+          $last_entry_but_one = $current_task->entries->first(function ($entry) use ($last_entry) {
+                                      return $entry->id < $last_entry->id;
+                                });
+          //when receive checkout time is greater than the time of the last entry but one
+          if (date_greater_than($request->checkout_time, $last_entry_but_one->entry_time)) {
+              //update the entry time of the paused time with the one of checkout time
+              $last_entry->entry_time = $request->checkout_time;
+              $last_entry->entry_duration = diffSecond($last_entry_but_one->entry_time,$request->checkout_time);
+              $last_entry->auto_paused = false;
+              $last_entry->save();
+          }
+          
+      }
+   }
 }
 
 

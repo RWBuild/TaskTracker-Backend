@@ -511,7 +511,7 @@ class BundleEntryHelper
      * then return reponse
      * @return Response
      */
-    public function buildResponse($data)
+    public function buildResponse($data = null)
     {
         //log task history
         record($this->record)->track_action("save_entries");

@@ -92,7 +92,7 @@ class OfficeTimeController extends Controller
         if (!$officeTime) {
             return response([
                 'success' => false,
-                'message' => 'Checkout identifier not valid'
+                'message' => 'The office time time identifier was not found'
             ],404);
         }
 
@@ -101,12 +101,16 @@ class OfficeTimeController extends Controller
         ]);
        
         //when the user try to check out twice in a day
-        if (!$user->has_checked and $officeTime->has_checked_out) {
+        if ($officeTime->has_checked_out) {
             return response([
                 'success' => false,
                 'message' => 'You have already checked out for today'
             ],409);
         }
+
+        //If this request was prevented by the internet connection
+        updateAutoPausedEntry($request);
+
         
         //calculation of the duration between checkout time and checkin time
         $officeTime->duration = diffTime($officeTime->checkin_time,$request->checkout_time,'%H:%I');
