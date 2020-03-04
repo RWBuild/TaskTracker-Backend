@@ -63,7 +63,7 @@ Route::group(['middleware' => 'auth:api'], function()
 
     
     
-   //Routes for administrators on;y
+   //Routes for administrators only
     Route::group(['prefix'=>'admin','middleware' => ['role:projectmanager|superadministrator']], function()
     {
         //Projects
